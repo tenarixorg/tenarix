@@ -3,8 +3,5 @@
   "version": "1.0.0",
   "main": "index.ts",
   "types": "index.ts",
-  "private": true,
-  "dependencies": {
-    "electron": "^15.3.0"
-  }
+  "private": true
 }

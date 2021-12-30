@@ -5,11 +5,11 @@ import { content } from "./util";
 export const details = async (url: string): Promise<Details> => {
   const txt = await content(url);
   const $ = cheerio.load(txt);
-  let chapters: Chapter[] = [];
-  let genders: string[] = [];
+  const chapters: Chapter[] = [];
+  const genders: string[] = [];
   $("main ul.list-group li.list-group-item.upload-link").each((_, e) => {
     const title = $(e).find(".btn-collapse").text().trim();
-    let links: ChapterInfo[] = [];
+    const links: ChapterInfo[] = [];
     $(e)
       .find("li.list-group-item")
       .each((_i, el) => {

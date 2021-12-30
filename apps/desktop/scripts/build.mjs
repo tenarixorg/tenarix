@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 process.env.NODE_ENV = "production";
 
 import { build as viteBuild } from "vite";

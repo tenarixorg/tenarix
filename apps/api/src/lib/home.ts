@@ -5,10 +5,10 @@ import { encodeRoute, content } from "./util";
 export const home = async (): Promise<Home> => {
   const txt = await content("https://lectortmo.com");
   const $ = cheerio.load(txt);
-  let popular: HomeBase[] = [];
-  let trending: HomeBase[] = [];
-  let latest: HomeBase[] = [];
-  let updates: HomeBase2[] = [];
+  const popular: HomeBase[] = [];
+  const trending: HomeBase[] = [];
+  const latest: HomeBase[] = [];
+  const updates: HomeBase2[] = [];
   $("main #pills-populars .element a").each((_, e) => {
     const route = $(e).attr("href")?.trim().split("/library/")[1] || "";
     const title = $(e).find(".thumbnail-title h4").text().trim();

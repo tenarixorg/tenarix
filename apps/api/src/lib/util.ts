@@ -3,7 +3,7 @@ import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
 puppeteer.use(StealthPlugin());
 
-export const content = async (url: string, headers?: any) => {
+export const content = async (url: string) => {
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
   await page.setRequestInterception(true);
@@ -14,7 +14,6 @@ export const content = async (url: string, headers?: any) => {
       req.continue();
     }
   });
-  await page.setExtraHTTPHeaders(headers || {});
   await page.goto(url);
   const innerHTML = await page.evaluate(() => {
     const main = document.body;

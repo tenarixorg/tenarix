@@ -22,7 +22,7 @@ export const read = async (url: string): Promise<Read> => {
     const o = $("option").length;
     const s = $("select").length;
     pages = o / s;
-    if (pages === NaN || pages === null) {
+    if (isNaN(pages) || pages === null) {
       pages = 1;
     }
   }

@@ -26,13 +26,12 @@ export const encrypt = (
 };
 
 export const decrypt = (password: string, inputP: string) => {
-  return new Promise<Buffer>(async (resolve, reject) => {
+  return new Promise<Buffer>((resolve, reject) => {
     const key = scryptSync(password, "salt", 24);
     const decipher = createDecipheriv(algorithm, key, iv);
     const input = createReadStream(inputP);
     try {
-      const res = await stream2buffer(input.pipe(decipher));
-      resolve(res);
+      stream2buffer(input.pipe(decipher)).then(resolve);
     } catch (error) {
       reject(error);
     }
