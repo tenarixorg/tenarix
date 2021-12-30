@@ -1,8 +1,10 @@
 import cheerio from "cheerio";
 import { Chapter, ChapterInfo, Details } from "types";
+import { decodeRoute } from ".";
 import { content } from "./util";
 
-export const details = async (url: string): Promise<Details> => {
+export const details = async (route: string): Promise<Details> => {
+  const url = "https://lectortmo.com/library/" + decodeRoute(route);
   const txt = await content(url);
   const $ = cheerio.load(txt);
   const chapters: Chapter[] = [];

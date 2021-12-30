@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Library as LibraryT } from "types";
 import { SpinnerDotted } from "spinners-react";
 import { Card } from "components";
-import { Post } from "services";
+const { api } = window.bridge;
 
 export const Container = styled.div`
   position: relative;
@@ -103,9 +103,7 @@ const Pagination = styled.div`
   height: fit-content;
 `;
 
-interface Props {}
-
-export const Library: React.FC<Props> = (props) => {
+export const Library: React.FC = () => {
   const params = useParams();
 
   const navigation = useNavigate();
@@ -117,46 +115,35 @@ export const Library: React.FC<Props> = (props) => {
   const [page, setPage] = useState(1);
 
   useEffect(() => {
-    (async () => {
-      try {
-        setLoading(true);
-        const res = await Post<{ result: LibraryT["items"] }>(
-          "http://localhost:4000/api/v1/library/1",
-          {
-            filters: {
-              title: params.query,
-              filterBy: "title",
-            },
-          }
-        );
-        setData(res.data.result);
-        setLoading(false);
-      } catch (error: any) {
-        console.error(error.message);
-      }
-    })();
+    api.on("res:library", (_e, res) => {
+      setData(res);
+      setLoading(false);
+    });
+    setLoading(true);
+    api.send("get:library", {
+      page,
+      filters: {
+        title: params.query,
+        filterBy: "title",
+      },
+    });
+    return () => {
+      api.removeAllListeners("res:library");
+    };
   }, [params.query]);
 
   useEffect(() => {
     if (page < 1) setPage(1);
-    (async () => {
-      try {
-        setLoading(true);
-        const res = await Post<{ result: LibraryT["items"] }>(
-          `http://localhost:4000/api/v1/library/${page}`,
-          {
-            filters: {
-              title: params.query,
-              filterBy: "title",
-            },
-          }
-        );
-        setData(res.data.result);
-        setLoading(false);
-      } catch (error: any) {
-        console.error(error.message);
-      }
-    })();
+    if (page > 1) {
+      setLoading(true);
+      api.send("get:library", {
+        page,
+        filters: {
+          title: params.query,
+          filterBy: "title",
+        },
+      });
+    }
   }, [page]);
 
   return (

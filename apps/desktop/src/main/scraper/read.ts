@@ -2,10 +2,11 @@ import cheerio from "cheerio";
 import { Read } from "types";
 import { content } from "./util";
 
-export const read = async (url: string): Promise<Read> => {
+export const read = async (id: string): Promise<Read> => {
+  const url = `https://lectortmo.com/view_uploads/${id}`;
   const txt = await content(url);
   const $ = cheerio.load(txt);
-  const id =
+  const id_ =
     $(".pbl.pbl_top .OUTBRAIN")
       .attr("data-src")
       ?.trim()
@@ -28,7 +29,7 @@ export const read = async (url: string): Promise<Read> => {
   }
 
   return {
-    id,
+    id: id_,
     title,
     info,
     pages,

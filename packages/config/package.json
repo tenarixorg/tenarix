@@ -2,15 +2,6 @@
   "name": "config",
   "version": "0.0.0",
   "files": [
-    "base.config.json",
-    "eslint-preset.js",
-    "eslint-react.js",
-    "prettier-preset.js"
-  ],
-  "dependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.8.1",
-    "@typescript-eslint/parser": "^5.8.1",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-react": "^7.28.0"
-  }
+    "base.config.json"
+  ]
 }

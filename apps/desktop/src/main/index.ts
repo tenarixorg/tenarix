@@ -1,9 +1,10 @@
 import os from "os";
-import { app, BrowserWindow, ipcMain } from "electron";
-import { join, resolve } from "path";
-import { decrypt, encrypt, getHash } from "./crypto";
-import { download } from "./download";
 import fs from "fs";
+import { details, getImg, home, library, read } from "./scraper";
+import { app, BrowserWindow, ipcMain } from "electron";
+import { decrypt, encrypt, getHash } from "./crypto";
+import { join, resolve } from "path";
+import { Readable } from "stream";
 
 const isWin7 = os.release().startsWith("6.1");
 if (isWin7) app.disableHardwareAcceleration();
@@ -18,7 +19,7 @@ let win: BrowserWindow | null = null;
 async function mainWin() {
   win = new BrowserWindow({
     titleBarStyle: "hidden",
-    title: "TMO Reader",
+    title: "X Reader",
     minWidth: 850,
     minHeight: 500,
     width: 850,
@@ -79,7 +80,8 @@ app.on("second-instance", () => {
   }
 });
 
-ipcMain.on("download", async (e, { rid, id, total, root }) => {
+ipcMain.on("download", async (e, { rid, root }) => {
+  const { id, pages } = await read(rid);
   const main =
     resolve(app.getPath("desktop")) + "/.dreader" + `/${getHash(root)}`;
   const base = main + `/${rid}`;
@@ -87,40 +89,71 @@ ipcMain.on("download", async (e, { rid, id, total, root }) => {
   if (!fs.existsSync(main)) fs.mkdirSync(main, { recursive: true });
   if (!fs.existsSync(base)) fs.mkdirSync(base, { recursive: true });
 
-  for (let i = 0; i < total; i++) {
-    const stream = await download(
-      `http://localhost:4000/api/v1/page/${id}/${i + 1}`
-    );
-    await encrypt(
-      "some random password",
-      resolve(base, `./${id}_${i + 1}`),
-      stream
-    );
+  for (let i = 0; i < pages; i++) {
+    const url = `https://lectortmo.com/viewer/${id}/paginated/${i + 1}`;
+    try {
+      const img = await getImg(url);
+      const stream = Readable.from(img);
+      await encrypt(
+        "some random password",
+        resolve(base, `./${id}_${i + 1}`),
+        stream
+      );
+    } catch (error: any) {
+      console.log(error.message);
+    }
   }
   e.reply("download:done", rid);
 });
 
-ipcMain.on("read:page", async (e, a) => {
+ipcMain.on("get:home", async (e) => {
+  const res = await home();
+  e.reply("res:home", res);
+});
+
+ipcMain.on("get:details", async (e, { route }) => {
+  const res = await details(route);
+  e.reply("res:details", res);
+});
+
+ipcMain.on("get:library", async (e, { page, filters }) => {
+  const res = await library(page, filters);
+  e.reply("res:library", res.items);
+});
+
+ipcMain.on("get:read:init", async (e, { id }) => {
+  const res = await read(id);
+  e.reply("res:read:init", res);
+});
+
+ipcMain.on("get:read:page", async (e, { page, id }) => {
+  const url = `https://lectortmo.com/viewer/${id}/paginated/${page}`;
+  const res = (await getImg(url)) as Buffer;
+  e.reply("res:read:page", res);
+});
+
+ipcMain.on("get:read:local", async (e, a) => {
   const main =
     resolve(app.getPath("desktop")) + "/.dreader" + `/${getHash(a.root)}`;
   if (!fs.existsSync(main)) {
-    e.reply("read:done", false);
+    e.reply("res:read:local", false);
     return;
   }
   const base = main + `/${a.rid}`;
+
   if (!fs.existsSync(base)) {
-    e.reply("read:done", false);
+    e.reply("res:read:local", false);
     return;
   }
   if (a.page > a.total) {
-    e.reply("read:done", false);
+    e.reply("res:read:local", false);
     return;
   }
   const file = base + `/${a.id}_${a.page}`;
   try {
     const res = await decrypt("some random password", file);
-    e.reply("read:done", res);
+    e.reply("res:read:local", res);
   } catch (error: any) {
-    e.reply("read:done", false);
+    e.reply("res:read:local", false);
   }
 });

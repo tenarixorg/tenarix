@@ -4,7 +4,8 @@ import { Home as HomeT } from "types";
 import { SpinnerDotted } from "spinners-react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "components";
-import { Get } from "services";
+
+const { api } = window.bridge;
 
 export const Container = styled.div`
   display: flex;
@@ -85,19 +86,14 @@ export const Home: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    (async () => {
-      try {
-        setLoading(true);
-        const res = await Get<{ result: HomeT }>(
-          "http://localhost:4000/api/v1/home"
-        );
-        setData(res.data.result);
-        setLoading(false);
-        // removeLoading();
-      } catch (error: any) {
-        console.error(error.message);
-      }
-    })();
+    api.on("res:home", (_e, res) => {
+      setLoading(false);
+      setData(res);
+    });
+    api.send("get:home");
+    return () => {
+      api.removeAllListeners("res:home");
+    };
   }, []);
 
   return (

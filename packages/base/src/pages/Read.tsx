@@ -4,7 +4,6 @@ import { RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
 import { SpinnerDotted, SpinnerInfinity } from "spinners-react";
 import { Read as ReadT } from "types";
 import { useParams } from "react-router-dom";
-import { Get } from "services";
 
 const { api } = window.bridge;
 
@@ -101,7 +100,7 @@ export const Read: React.FC = () => {
   const mounted = useRef(false);
 
   useEffect(() => {
-    api.on("read:done", (_e, buff) => {
+    api.on("res:read:local", (_e, buff) => {
       if (typeof buff === "boolean" && !buff) {
         setRemote(true);
       } else {
@@ -113,47 +112,58 @@ export const Read: React.FC = () => {
         }
       }
     });
-    (async () => {
-      mounted.current && setLoading2(true);
-      const res = await Get<{ result: ReadT }>(`/read/${params.id}`);
+    // (async () => {
+    //   mounted.current && setLoading2(true);
+    //   const res = await Get<{ result: ReadT }>(`/read/${params.id}`);
+    //   if (mounted.current) {
+    //     setData(res.data.result);
+    //     setLoading2(false);
+    //   }
+    // })();
+
+    api.on("res:read:init", (_e, res) => {
       if (mounted.current) {
-        setData(res.data.result);
+        setData(res);
         setLoading2(false);
       }
-    })();
+    });
+
+    api.on("res:read:page", async (_e, buff) => {
+      const blob = new Blob([buff as Buffer]);
+      const im = URL.createObjectURL(blob);
+      if (mounted.current) {
+        setImg(im);
+        setLoading(false);
+      }
+    });
+
+    api.send("get:read:init", { id: params.id });
+
     mounted.current = true;
     return () => {
       mounted.current = false;
-      api.removeAllListeners("read_done");
+      api.removeAllListeners("res:read:init");
+      api.removeAllListeners("res:read:page");
+      api.removeAllListeners("res:read:local");
     };
   }, []);
   useEffect(() => {
     if (current <= 1) setCurrent(1);
     if (current >= (data?.pages || 1)) setCurrent(data?.pages || 1);
-    (async () => {
-      if (remote && data?.id) {
-        mounted.current && setLoading(true);
-        const res_ = await fetch(
-          `http://localhost:4000/api/v1/page/${data.id}/${current}`
-        );
-        const blob = await res_.blob();
-        if (mounted.current) {
-          setImg(URL.createObjectURL(blob));
-          setLoading(false);
-        }
+    if (data?.id)
+      if (remote) {
+        setLoading(true);
+        api.send("get:read:page", { page: current, id: data.id });
       } else {
-        if (data?.id) {
-          setLoading(true);
-          api.send("read:page", {
-            rid: params.id,
-            root: data.title,
-            id: data.id,
-            page: current,
-            total: data.pages,
-          });
-        }
+        setLoading(true);
+        api.send("get:read:local", {
+          rid: params.id,
+          root: data.title,
+          id: data.id,
+          page: current,
+          total: data.pages,
+        });
       }
-    })();
   }, [current, data?.id, remote]);
 
   return (

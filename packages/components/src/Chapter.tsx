@@ -85,9 +85,7 @@ const Btn = styled.button`
 interface Props {
   chapter: ChapterProps;
   handler: (id: string) => void;
-  dowload: (
-    rid: string
-  ) => Promise<{ id: string; root: string; total: number }>;
+  root: string;
 }
 
 const { api } = window.bridge;
@@ -118,11 +116,12 @@ export const Chapter: React.FC<Props> = (props) => {
         </Txt>
         <Main width="110px">
           <Btn
-            onClick={async () => {
+            onClick={() => {
               setLoading(true);
-              const rid = props.chapter.links[0].id;
-              const data = await props.dowload(rid);
-              api.send("download", { rid, ...data });
+              api.send("download", {
+                rid: props.chapter.links[0].id,
+                root: props.root,
+              });
             }}
             disabled={loading}
           >

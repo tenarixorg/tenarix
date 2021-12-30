@@ -4,9 +4,10 @@ import { BsSortNumericDown, BsSortNumericUpAlt } from "react-icons/bs";
 import { Chapter, Status, GenderBadge, Card } from "components";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 import { useNavigate, useParams } from "react-router-dom";
-import { Details as DetailsT, Read } from "types";
+import { Details as DetailsT } from "types";
 import { SpinnerDotted } from "spinners-react";
-import { Get } from "services";
+
+const { api } = window.bridge;
 
 const Container = styled.div`
   display: block;
@@ -128,22 +129,20 @@ const Loading = styled.div`
 export const Details: React.FC = () => {
   const navigation = useNavigate();
   const params = useParams();
-
   const [data, setData] = useState<DetailsT>();
-  const [chapters, setChapters] = useState<DetailsT["chapters"]>();
   const [order, setOrder] = useState(true);
-
   const [show, setShow] = useState(true);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    (async () => {
-      setLoading(true);
-      const res = await Get<{ result: DetailsT }>(`/details/${params.route}`);
-      setData(res.data.result);
-      setChapters([...res.data.result.chapters].reverse());
+    api.on("res:details", (_e, res) => {
+      setData(res);
       setLoading(false);
-    })();
+    });
+    api.send("get:details", { route: params.route });
+    return () => {
+      api.removeAllListeners("res:details");
+    };
   }, []);
 
   return (
@@ -225,7 +224,14 @@ export const Details: React.FC = () => {
               Capítulos
             </Txt>
             <Main width="70px">
-              <Btn onClick={() => setOrder((c) => !c)}>
+              <Btn
+                onClick={() => {
+                  setOrder((c) => !c);
+                  setData((c) => {
+                    if (c) return { ...c, chapters: [...c.chapters].reverse() };
+                  });
+                }}
+              >
                 {!order ? (
                   <BsSortNumericDown color="#e83588" size={25} />
                 ) : (
@@ -241,45 +247,21 @@ export const Details: React.FC = () => {
               </Btn>
             </Main>
           </ChaptersHeader>
-          {show &&
-            (order ? (
-              <ChaptersContainer>
-                {data?.chapters.map((e, i) => (
-                  <div key={i}>
-                    <Chapter
-                      dowload={async (rid) => {
-                        const res = await Get<{ result: Read }>(`/read/${rid}`);
-                        return {
-                          total: res.data.result.pages,
-                          root: data.subtitle,
-                          id: res.data.result.id,
-                        };
-                      }}
-                      chapter={e}
-                      handler={(id) => {
-                        navigation(`/read/${id}`);
-                      }}
-                    />
-                  </div>
-                ))}
-              </ChaptersContainer>
-            ) : (
-              <ChaptersContainer>
-                {chapters?.map((e, i) => (
-                  <div key={i}>
-                    <Chapter
-                      dowload={async () => {
-                        return { root: "", total: 0, id: "" };
-                      }}
-                      chapter={e}
-                      handler={(id) => {
-                        navigation(`/read/${id}`);
-                      }}
-                    />
-                  </div>
-                ))}
-              </ChaptersContainer>
-            ))}
+          {show && (
+            <ChaptersContainer>
+              {data?.chapters.map((e, i) => (
+                <div key={i}>
+                  <Chapter
+                    root={data.subtitle}
+                    chapter={e}
+                    handler={(id) => {
+                      navigation(`/read/${id}`);
+                    }}
+                  />
+                </div>
+              ))}
+            </ChaptersContainer>
+          )}
         </Container>
       )}
     </>
