@@ -1,0 +1,16 @@
+{
+  "name": "services",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "types": "index.ts",
+  "private": true,
+  "workspaces": {
+    "nohoist": [
+      "axios",
+      "axios/**"
+    ]
+  },
+  "dependencies": {
+    "axios": "^0.24.0"
+  }
+}

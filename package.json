@@ -1,6 +1,6 @@
 {
-  "name": "turborepo-basic-shared",
-  "version": "0.0.0",
+  "name": "tmo-reader",
+  "version": "1.0.0",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -24,7 +24,7 @@
         ],
         "outputs": [
           "dist/**",
-          ".next/**"
+          "release/**"
         ]
       },
       "lint": {

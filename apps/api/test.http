@@ -1,0 +1,24 @@
+GET http://localhost:4000/api/v1/home HTTP/1.1
+
+###
+
+POST http://localhost:4000/api/v1/library/1 HTTP/1.1
+Content-Type: application/json
+
+{
+    "filters":{
+        "title":"jojo"
+    }
+}
+
+###
+
+GET http://localhost:4000/api/v1/details/manhwa=61036=reincarnation-of-the-battle-god HTTP/1.1
+
+###
+
+GET http://localhost:4000/api/v1/read/898604 HTTP/1.1
+
+###
+
+GET http://localhost:4000/api/v1/page/5af44eafb8b33/1 HTTP/1.1
