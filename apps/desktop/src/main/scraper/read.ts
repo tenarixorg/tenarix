@@ -4,8 +4,16 @@ import { content } from "./util";
 
 export const read = async (id: string): Promise<Read> => {
   const url = `https://lectortmo.com/view_uploads/${id}`;
-  const txt = await content(url);
-  const $ = cheerio.load(txt);
+  const { current_url, innerHTML } = await content(url);
+  if (current_url.endsWith("paginated")) {
+    const newR = await content(current_url.replace(/paginated/, "cascade"));
+    return load(newR.innerHTML);
+  }
+  return load(innerHTML);
+};
+
+function load(innerHTML: string) {
+  const $ = cheerio.load(innerHTML);
   const id_ =
     $(".pbl.pbl_top .OUTBRAIN")
       .attr("data-src")
@@ -17,21 +25,21 @@ export const read = async (id: string): Promise<Read> => {
     .text()
     .trim()
     .replace(/\n/g, " ");
-  let pages = $("img").length;
+  const imgs = $("img");
+  const pages = imgs.length;
 
-  if (pages <= 1) {
-    const o = $("option").length;
-    const s = $("select").length;
-    pages = o / s;
-    if (isNaN(pages) || pages === null) {
-      pages = 1;
-    }
-  }
+  const urls: Read["imgs"] = [];
+
+  imgs.each((i, el) => {
+    const url = $(el).attr("data-src") || "";
+    urls.push({ url, page: i + 1 });
+  });
 
   return {
     id: id_,
     title,
     info,
     pages,
+    imgs: urls,
   };
-};
+}

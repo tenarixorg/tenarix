@@ -1,10 +1,11 @@
 import os from "os";
 import fs from "fs";
-import { details, getImg, home, library, read } from "./scraper";
+import { details, home, library, read } from "./scraper";
 import { app, BrowserWindow, ipcMain } from "electron";
 import { decrypt, encrypt, getHash } from "./crypto";
 import { join, resolve } from "path";
 import { Readable } from "stream";
+import { download } from "./download";
 
 const isWin7 = os.release().startsWith("6.1");
 if (isWin7) app.disableHardwareAcceleration();
@@ -81,7 +82,7 @@ app.on("second-instance", () => {
 });
 
 ipcMain.on("download", async (e, { rid, root }) => {
-  const { id, pages } = await read(rid);
+  const { id, imgs } = await read(rid);
   const main =
     resolve(app.getPath("desktop")) + "/.dreader" + `/${getHash(root)}`;
   const base = main + `/${rid}`;
@@ -89,19 +90,28 @@ ipcMain.on("download", async (e, { rid, root }) => {
   if (!fs.existsSync(main)) fs.mkdirSync(main, { recursive: true });
   if (!fs.existsSync(base)) fs.mkdirSync(base, { recursive: true });
 
-  for (let i = 0; i < pages; i++) {
-    const url = `https://lectortmo.com/viewer/${id}/paginated/${i + 1}`;
+  for (const img of imgs) {
     try {
-      const img = await getImg(url);
-      const stream = Readable.from(img);
+      console.log("downloading...", img.page);
+      const data = await download(img.url);
+      const stream = Readable.from(data);
       await encrypt(
         "some random password",
-        resolve(base, `./${id}_${i + 1}`),
+        resolve(base, `./${id}_${img.page}`),
         stream
       );
+      console.log("done");
     } catch (error: any) {
-      // TODO: notify errror
-      console.log(error.message);
+      console.log("failed...", img.page);
+      console.log("retrying..." + img.page);
+      const data = await download(img.url);
+      const stream = Readable.from(data);
+      await encrypt(
+        "some random password",
+        resolve(base, `./${id}_${img.page}`),
+        stream
+      );
+      console.log("done");
     }
   }
   e.reply("download:done", rid);
@@ -127,10 +137,18 @@ ipcMain.on("get:read:init", async (e, { id }) => {
   e.reply("res:read:init", res);
 });
 
-ipcMain.on("get:read:page", async (e, { page, id }) => {
-  const url = `https://lectortmo.com/viewer/${id}/paginated/${page}`;
-  const res = (await getImg(url)) as Buffer;
-  e.reply("res:read:page", res);
+ipcMain.on("get:read:page", async (e, { url }) => {
+  try {
+    console.log("reading");
+
+    const res = await download(url);
+    e.reply("res:read:page", res);
+  } catch (error: any) {
+    console.log("failing");
+    console.log("reading");
+    const res = await download(url);
+    e.reply("res:read:page", res);
+  }
 });
 
 ipcMain.on("get:read:local", async (e, a) => {

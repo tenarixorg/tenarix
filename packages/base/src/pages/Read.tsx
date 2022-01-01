@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import styled from "styled-components";
 import { RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
 import { SpinnerDotted, SpinnerInfinity } from "spinners-react";
@@ -99,6 +99,30 @@ export const Read: React.FC = () => {
 
   const mounted = useRef(false);
 
+  const getNext = useCallback(() => {
+    if (current <= 1) setCurrent(1);
+    if (current >= (data?.pages || 1)) setCurrent(data?.pages || 1);
+    if (data?.id)
+      if (remote) {
+        if (data.imgs.length > 0) {
+          const url = data.imgs[current - 1]?.url;
+          if (url) {
+            setLoading(true);
+            api.send("get:read:page", { url });
+          }
+        }
+      } else {
+        setLoading(true);
+        api.send("get:read:local", {
+          rid: params.id,
+          root: params.route,
+          id: data.id,
+          page: current,
+          total: data.pages,
+        });
+      }
+  }, [current, data?.pages, data?.id, remote]);
+
   useEffect(() => {
     api.on("res:read:local", (_e, buff) => {
       if (typeof buff === "boolean" && !buff) {
@@ -140,23 +164,8 @@ export const Read: React.FC = () => {
     };
   }, []);
   useEffect(() => {
-    if (current <= 1) setCurrent(1);
-    if (current >= (data?.pages || 1)) setCurrent(data?.pages || 1);
-    if (data?.id)
-      if (remote) {
-        setLoading(true);
-        api.send("get:read:page", { page: current, id: data.id });
-      } else {
-        setLoading(true);
-        api.send("get:read:local", {
-          rid: params.id,
-          root: params.route,
-          id: data.id,
-          page: current,
-          total: data.pages,
-        });
-      }
-  }, [current, data?.id, remote]);
+    getNext();
+  }, [getNext]);
 
   return (
     <Container>

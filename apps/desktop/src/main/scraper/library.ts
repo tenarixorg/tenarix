@@ -20,8 +20,8 @@ export const library = async (
   page: string,
   filters?: Filters
 ): Promise<Library> => {
-  const txt = await content(libraryParams(page, filters));
-  const $ = cheerio.load(txt);
+  const { innerHTML } = await content(libraryParams(page, filters));
+  const $ = cheerio.load(innerHTML);
   const items: LibItem[] = [];
   $("main .row .element a").each((_, e) => {
     const route = $(e).attr("href")?.trim().split("/library/")[1] || "";
