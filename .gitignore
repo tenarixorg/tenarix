@@ -37,3 +37,6 @@ yarn-error.log*
 
 # turbo
 .turbo
+
+# CI - CD
+yarn.lock
