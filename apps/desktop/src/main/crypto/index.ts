@@ -31,7 +31,10 @@ export const decrypt = (password: string, inputP: string) => {
     const decipher = createDecipheriv(algorithm, key, iv);
     const input = createReadStream(inputP);
     try {
-      stream2buffer(input.pipe(decipher)).then(resolve);
+      const data = input.pipe(decipher);
+      stream2buffer(data)
+        .then(resolve)
+        .catch((err) => reject(err));
     } catch (error) {
       reject(error);
     }
@@ -39,8 +42,15 @@ export const decrypt = (password: string, inputP: string) => {
 };
 
 export const getHash = (data: string) => {
-  const h = createHash("md5");
-  return h.update(data).digest("hex");
+  return new Promise<string>((resolve, reject) => {
+    const h = createHash("md5");
+    try {
+      const res = h.update(data).digest("hex");
+      resolve(res);
+    } catch (error) {
+      reject(error);
+    }
+  });
 };
 
 export async function stream2buffer(stream: Writable): Promise<Buffer> {
