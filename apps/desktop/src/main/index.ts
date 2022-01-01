@@ -84,7 +84,7 @@ app.on("second-instance", () => {
 ipcMain.on("download", async (e, { rid, root }) => {
   const { id, imgs } = await read(rid);
   const main =
-    resolve(app.getPath("desktop")) + "/.dreader" + `/${getHash(root)}`;
+    resolve(app.getPath("desktop")) + "/.dreader" + `/${await getHash(root)}`;
   const base = main + `/${rid}`;
 
   if (!fs.existsSync(main)) fs.mkdirSync(main, { recursive: true });
@@ -152,7 +152,8 @@ ipcMain.on("get:read:page", async (e, { url }) => {
 });
 
 ipcMain.on("get:read:local", async (e, a) => {
-  const main = app.getPath("desktop") + "/.dreader" + `/${getHash(a.root)}`;
+  const main =
+    app.getPath("desktop") + "/.dreader" + `/${await getHash(a.root)}`;
 
   if (!fs.existsSync(resolve(main))) {
     e.reply("res:read:local", false);
