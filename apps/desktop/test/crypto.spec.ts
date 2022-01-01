@@ -7,7 +7,7 @@ describe("Encryption", () => {
     const file = fs.createReadStream(resolve(__dirname, "./helper/crypto.txt"));
     const res = await encrypt(
       "some random password",
-      resolve(__dirname, "./out/crypto.txt.enc"),
+      resolve(__dirname, "./out_/crypto.txt.enc"),
       file
     );
     expect(res).toEqual(true);
@@ -17,7 +17,7 @@ describe("Encryption", () => {
     try {
       await encrypt(
         "some random password",
-        resolve(__dirname, "./out/crypto.txt.fail"),
+        resolve(__dirname, "./out_/crypto.txt.fail"),
         null as any
       );
     } catch (error) {
@@ -30,7 +30,7 @@ describe("Decryption", () => {
   test("should decrypt file", async () => {
     const res = await decrypt(
       "some random password",
-      resolve(__dirname, "./out/crypto.txt.enc")
+      resolve(__dirname, "./out_/crypto.txt.enc")
     );
     expect(res).toBeDefined();
   });
@@ -39,7 +39,7 @@ describe("Decryption", () => {
     try {
       await decrypt(
         "wrong password",
-        resolve(__dirname, "./out/crypto.txt.enc")
+        resolve(__dirname, "./out_/crypto.txt.enc")
       );
     } catch (error) {
       expect(error).toBeDefined();
@@ -50,7 +50,7 @@ describe("Decryption", () => {
     try {
       await decrypt(
         "some random password",
-        resolve(__dirname, "./out/crypto.txt.fail")
+        resolve(__dirname, "./out_/crypto.txt.fail")
       );
     } catch (error) {
       expect(error).toBeDefined();
