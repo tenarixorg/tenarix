@@ -100,6 +100,7 @@ ipcMain.on("download", async (e, { rid, root }) => {
         stream
       );
     } catch (error: any) {
+      // TODO: notify errror
       console.log(error.message);
     }
   }
@@ -133,15 +134,15 @@ ipcMain.on("get:read:page", async (e, { page, id }) => {
 });
 
 ipcMain.on("get:read:local", async (e, a) => {
-  const main =
-    resolve(app.getPath("desktop")) + "/.dreader" + `/${getHash(a.root)}`;
-  if (!fs.existsSync(main)) {
+  const main = app.getPath("desktop") + "/.dreader" + `/${getHash(a.root)}`;
+
+  if (!fs.existsSync(resolve(main))) {
     e.reply("res:read:local", false);
     return;
   }
   const base = main + `/${a.rid}`;
 
-  if (!fs.existsSync(base)) {
+  if (!fs.existsSync(resolve(base))) {
     e.reply("res:read:local", false);
     return;
   }

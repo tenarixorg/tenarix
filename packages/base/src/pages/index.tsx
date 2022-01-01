@@ -27,7 +27,7 @@ export const Pages: React.FC = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/details/:route" element={<Details />} />
-        <Route path="/read/:id" element={<Read />} />
+        <Route path="/read/:route/:id" element={<Read />} />
         <Route path="/library/:query" element={<Library />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

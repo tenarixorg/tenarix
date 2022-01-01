@@ -252,10 +252,10 @@ export const Details: React.FC = () => {
               {data?.chapters.map((e, i) => (
                 <div key={i}>
                   <Chapter
-                    root={data.subtitle}
+                    root={params.route || ""}
                     chapter={e}
                     handler={(id) => {
-                      navigation(`/read/${id}`);
+                      navigation(`/read/${params.route}/${id}`);
                     }}
                   />
                 </div>

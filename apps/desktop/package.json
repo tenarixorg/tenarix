@@ -1,5 +1,5 @@
 {
-  "name": "x-reader",
+  "name": "x-reader-app",
   "version": "1.0.0",
   "description": "TODO",
   "main": "dist/main/index.cjs",
@@ -13,7 +13,10 @@
   },
   "author": "Akuqt",
   "dependencies": {
-    "axios": "^0.24.0",
+    "base": "*",
+    "types": "*",
+    "config": "*",
+    "components": "*",
     "cheerio": "^1.0.0-rc.10",
     "puppeteer": "^13.0.1",
     "puppeteer-extra": "^3.2.3",
@@ -23,11 +26,7 @@
     "react-icons": "^4.3.1",
     "react-router-dom": "^6.2.1",
     "spinners-react": "^1.0.6",
-    "styled-components": "^5.3.3",
-    "components": "*",
-    "config": "*",
-    "types": "*",
-    "base": "*"
+    "styled-components": "^5.3.3"
   },
   "devDependencies": {
     "@types/react": "^17.0.33",
@@ -44,7 +43,15 @@
       "electron",
       "electron/**",
       "electron-builder",
-      "electron-builder/**"
+      "electron-builder/**",
+      "cheerio",
+      "cheerio/**",
+      "puppeteer",
+      "puppeteer/**",
+      "puppeteer-extra",
+      "puppeteer-extra/**",
+      "puppeteer-extra-plugin-stealth",
+      "puppeteer-extra-plugin-stealth/**"
     ]
   }
 }

@@ -1,10 +1,12 @@
 {
-  "appId": "akuqt",
+  "appId": "x-reader.app",
   "asar": true,
+  "asarUnpack": "node_modules/puppeteer/.local-chromium/**/*",
   "directories": {
     "output": "release/${version}"
   },
-  "files": ["!node_modules", "dist", "package.json"],
+  "files": ["!node_modules/electron", "dist", "package.json"],
+  "includeSubNodeModules": false,
   "mac": {
     "artifactName": "${productName}_${version}.${ext}",
     "target": ["dmg"]

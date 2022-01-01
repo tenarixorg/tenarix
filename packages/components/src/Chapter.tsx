@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { Chapter as ChapterProps } from "types";
 import {
@@ -93,15 +93,6 @@ const { api } = window.bridge;
 export const Chapter: React.FC<Props> = (props) => {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    api.on("download:done", () => {
-      setLoading(false);
-    });
-    return () => {
-      api.removeAllListeners("download:done");
-    };
-  }, []);
   return (
     <Container>
       <Main width="100%">
@@ -117,6 +108,10 @@ export const Chapter: React.FC<Props> = (props) => {
         <Main width="110px">
           <Btn
             onClick={() => {
+              api.on("download:done", () => {
+                setLoading(false);
+                api.removeAllListeners("download:done");
+              });
               setLoading(true);
               api.send("download", {
                 rid: props.chapter.links[0].id,

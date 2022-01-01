@@ -3,8 +3,15 @@ import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
 puppeteer.use(StealthPlugin());
 
+const getChromiumExecPath = () => {
+  return puppeteer.executablePath().replace("app.asar", "app.asar.unpacked");
+};
+
 export const content = async (url: string) => {
-  const browser = await puppeteer.launch({ headless: true });
+  const browser = await puppeteer.launch({
+    headless: true,
+    executablePath: getChromiumExecPath(),
+  });
   const page = await browser.newPage();
   await page.setRequestInterception(true);
   page.on("request", (req) => {
@@ -37,7 +44,10 @@ export const content = async (url: string) => {
 };
 
 export const getImg = async (url: string) => {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    headless: true,
+    executablePath: getChromiumExecPath(),
+  });
   const page_ = await browser.newPage();
 
   await page_.setRequestInterception(true);

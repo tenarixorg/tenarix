@@ -112,14 +112,6 @@ export const Read: React.FC = () => {
         }
       }
     });
-    // (async () => {
-    //   mounted.current && setLoading2(true);
-    //   const res = await Get<{ result: ReadT }>(`/read/${params.id}`);
-    //   if (mounted.current) {
-    //     setData(res.data.result);
-    //     setLoading2(false);
-    //   }
-    // })();
 
     api.on("res:read:init", (_e, res) => {
       if (mounted.current) {
@@ -158,7 +150,7 @@ export const Read: React.FC = () => {
         setLoading(true);
         api.send("get:read:local", {
           rid: params.id,
-          root: data.title,
+          root: params.route,
           id: data.id,
           page: current,
           total: data.pages,
