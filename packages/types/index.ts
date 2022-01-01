@@ -51,11 +51,17 @@ export interface Page {
   img: string;
 }
 
+interface Img {
+  url: string;
+  page: number;
+}
+
 export interface Read {
   id: string;
   title: string;
   info: string;
   pages: number;
+  imgs: Img[];
 }
 
 export interface HomeBase {

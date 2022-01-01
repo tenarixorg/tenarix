@@ -43,7 +43,9 @@ export const getHash = (data: string) => {
   return h.update(data).digest("hex");
 };
 
-async function stream2buffer(stream: Writable): Promise<Buffer> {
+export async function stream2buffer(
+  stream: Writable | Readable
+): Promise<Buffer> {
   return new Promise<Buffer>((resolve, reject) => {
     const _buf = Array<any>();
     stream.on("data", (chunk) => _buf.push(chunk));

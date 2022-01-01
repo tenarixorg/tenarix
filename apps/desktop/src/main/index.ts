@@ -1,10 +1,11 @@
 import os from "os";
 import fs from "fs";
-import { details, getImg, home, library, read } from "./scraper";
+import { details, home, library, read } from "./scraper";
 import { app, BrowserWindow, ipcMain } from "electron";
 import { decrypt, encrypt, getHash } from "./crypto";
 import { join, resolve } from "path";
 import { Readable } from "stream";
+import { download } from "./download";
 
 const isWin7 = os.release().startsWith("6.1");
 if (isWin7) app.disableHardwareAcceleration();
@@ -81,7 +82,7 @@ app.on("second-instance", () => {
 });
 
 ipcMain.on("download", async (e, { rid, root }) => {
-  const { id, pages } = await read(rid);
+  const { id, imgs } = await read(rid);
   const main =
     resolve(app.getPath("desktop")) + "/.dreader" + `/${getHash(root)}`;
   const base = main + `/${rid}`;
@@ -89,14 +90,13 @@ ipcMain.on("download", async (e, { rid, root }) => {
   if (!fs.existsSync(main)) fs.mkdirSync(main, { recursive: true });
   if (!fs.existsSync(base)) fs.mkdirSync(base, { recursive: true });
 
-  for (let i = 0; i < pages; i++) {
-    const url = `https://lectortmo.com/viewer/${id}/paginated/${i + 1}`;
+  for (let i = 0; i < imgs.length; i++) {
     try {
-      const img = await getImg(url);
+      const img = await download(imgs[i].url);
       const stream = Readable.from(img);
       await encrypt(
         "some random password",
-        resolve(base, `./${id}_${i + 1}`),
+        resolve(base, `./${id}_${imgs[i].page}`),
         stream
       );
     } catch (error: any) {
@@ -127,9 +127,8 @@ ipcMain.on("get:read:init", async (e, { id }) => {
   e.reply("res:read:init", res);
 });
 
-ipcMain.on("get:read:page", async (e, { page, id }) => {
-  const url = `https://lectortmo.com/viewer/${id}/paginated/${page}`;
-  const res = (await getImg(url)) as Buffer;
+ipcMain.on("get:read:page", async (e, { url }) => {
+  const res = (await download(url)) as Buffer;
   e.reply("res:read:page", res);
 });
 

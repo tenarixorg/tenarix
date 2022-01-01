@@ -3,8 +3,8 @@ import { HomeBase, Home, HomeBase2 } from "types";
 import { encodeRoute, content } from "./util";
 
 export const home = async (): Promise<Home> => {
-  const txt = await content("https://lectortmo.com");
-  const $ = cheerio.load(txt);
+  const { innerHTML } = await content("https://lectortmo.com");
+  const $ = cheerio.load(innerHTML);
   const popular: HomeBase[] = [];
   const trending: HomeBase[] = [];
   const latest: HomeBase[] = [];

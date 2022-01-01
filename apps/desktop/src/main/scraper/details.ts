@@ -5,8 +5,8 @@ import { content } from "./util";
 
 export const details = async (route: string): Promise<Details> => {
   const url = "https://lectortmo.com/library/" + decodeRoute(route);
-  const txt = await content(url);
-  const $ = cheerio.load(txt);
+  const { innerHTML } = await content(url);
+  const $ = cheerio.load(innerHTML);
   const chapters: Chapter[] = [];
   const genders: string[] = [];
   $("main ul.list-group li.list-group-item.upload-link").each((_, e) => {
