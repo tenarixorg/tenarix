@@ -121,7 +121,15 @@ export const Read: React.FC = () => {
           total: data.pages,
         });
       }
-  }, [current, data?.pages, data?.id, remote]);
+  }, [
+    current,
+    data?.pages,
+    data?.id,
+    remote,
+    data?.imgs,
+    params.id,
+    params.route,
+  ]);
 
   useEffect(() => {
     api.on("res:read:local", (_e, buff) => {
@@ -162,7 +170,7 @@ export const Read: React.FC = () => {
       api.removeAllListeners("res:read:page");
       api.removeAllListeners("res:read:local");
     };
-  }, []);
+  }, [params.id]);
   useEffect(() => {
     getNext();
   }, [getNext]);

@@ -1,8 +1,8 @@
 import { contextBridge, ipcRenderer } from "electron";
-import { useLoading } from "./loading";
+import { getLoading } from "./loading";
 import { domReady } from "./utils";
 
-const { appendLoading, removeLoading } = useLoading();
+const { appendLoading, removeLoading } = getLoading();
 
 (async () => {
   await domReady();

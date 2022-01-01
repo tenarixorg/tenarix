@@ -112,7 +112,7 @@ export const Navbar: React.FC<Props> = (props) => {
       document.removeEventListener("mousedown", handleSearch);
       api.removeAllListeners("resize");
     };
-  }, []);
+  }, [handleSearch]);
   return (
     <Container>
       <Menu width="fit-content" dir="left" padding="0px">

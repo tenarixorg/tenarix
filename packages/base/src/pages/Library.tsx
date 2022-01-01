@@ -121,7 +121,7 @@ export const Library: React.FC = () => {
     });
     setLoading(true);
     api.send("get:library", {
-      page,
+      page: 1,
       filters: {
         title: params.query,
         filterBy: "title",
@@ -144,7 +144,7 @@ export const Library: React.FC = () => {
         },
       });
     }
-  }, [page]);
+  }, [params.query, page]);
 
   return (
     <Container>

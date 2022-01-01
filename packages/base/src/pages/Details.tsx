@@ -143,7 +143,7 @@ export const Details: React.FC = () => {
     return () => {
       api.removeAllListeners("res:details");
     };
-  }, []);
+  }, [params.route]);
 
   return (
     <>
