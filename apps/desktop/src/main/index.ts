@@ -90,18 +90,28 @@ ipcMain.on("download", async (e, { rid, root }) => {
   if (!fs.existsSync(main)) fs.mkdirSync(main, { recursive: true });
   if (!fs.existsSync(base)) fs.mkdirSync(base, { recursive: true });
 
-  for (let i = 0; i < imgs.length; i++) {
+  for (const img of imgs) {
     try {
-      const img = await download(imgs[i].url);
-      const stream = Readable.from(img);
+      console.log("downloading...", img.page);
+      const data = await download(img.url);
+      const stream = Readable.from(data);
       await encrypt(
         "some random password",
-        resolve(base, `./${id}_${imgs[i].page}`),
+        resolve(base, `./${id}_${img.page}`),
         stream
       );
+      console.log("done");
     } catch (error: any) {
-      // TODO: notify errror
-      console.log(error.message);
+      console.log("failed...", img.page);
+      console.log("retrying..." + img.page);
+      const data = await download(img.url);
+      const stream = Readable.from(data);
+      await encrypt(
+        "some random password",
+        resolve(base, `./${id}_${img.page}`),
+        stream
+      );
+      console.log("done");
     }
   }
   e.reply("download:done", rid);
@@ -128,8 +138,17 @@ ipcMain.on("get:read:init", async (e, { id }) => {
 });
 
 ipcMain.on("get:read:page", async (e, { url }) => {
-  const res = (await download(url)) as Buffer;
-  e.reply("res:read:page", res);
+  try {
+    console.log("reading");
+
+    const res = await download(url);
+    e.reply("res:read:page", res);
+  } catch (error: any) {
+    console.log("failing");
+    console.log("reading");
+    const res = await download(url);
+    e.reply("res:read:page", res);
+  }
 });
 
 ipcMain.on("get:read:local", async (e, a) => {
