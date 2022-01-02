@@ -3,7 +3,10 @@ import urls from "./helper/urls";
 
 describe("Download", () => {
   test("should download", async () => {
-    const res = await download(urls[0]);
+    const res = await download(urls[0], {
+      "User-Agent": "curl/7.55.1",
+      Accept: "*/*",
+    });
     expect(res).toBeInstanceOf(Buffer);
   });
 
