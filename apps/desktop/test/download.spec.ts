@@ -6,6 +6,7 @@ describe("Download", () => {
     const res = await download(urls[0], {
       "User-Agent": "curl/7.55.1",
       Accept: "*/*",
+      Referer: "https://lectortmo.com",
     });
     expect(res).toBeInstanceOf(Buffer);
   });
