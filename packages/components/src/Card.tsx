@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { img404 } from "assets";
 
 const Container = styled.div<{ pointer?: boolean; disabled?: boolean }>`
   position: relative;
@@ -87,9 +88,11 @@ export const Card: React.FC<Props> = (props) => {
           <Txt style={{ padding: "0px 10px" }}>{props.title}</Txt>
         </Badge>
       )}
-      <Badge top="10%" color="#e81c6f" width="40%" left="60%" bl>
-        <Txt>{props.type}</Txt>
-      </Badge>
+      {props.type && (
+        <Badge top="10%" color="#e81c6f" width="40%" left="60%" bl>
+          <Txt>{props.type}</Txt>
+        </Badge>
+      )}
       <img
         src={props.img}
         alt="card-image"
@@ -97,6 +100,10 @@ export const Card: React.FC<Props> = (props) => {
           width: "100%",
         }}
         draggable={false}
+        onError={(e) => {
+          e.currentTarget.onerror = null;
+          e.currentTarget.src = img404;
+        }}
       />
       {props.score && (
         <Score>

@@ -1,3 +1,7 @@
+import { load } from "cheerio";
+import { Page as BPage } from "puppeteer";
+import { OutgoingHttpHeaders } from "http";
+
 export interface ChapterInfo {
   src: string;
   id: string;
@@ -54,6 +58,7 @@ export interface Page {
 interface Img {
   url: string;
   page: number;
+  free: boolean;
 }
 
 export interface Read {
@@ -83,7 +88,29 @@ export interface HomeBase2 {
 
 export interface Home {
   popular: HomeBase[];
-  trending: HomeBase[];
-  latest: HomeBase[];
-  updates: HomeBase2[];
 }
+
+export interface AppContent {
+  home: () => Promise<Home>;
+  details: (route: string) => Promise<Details>;
+  library: (page: string, filters: Filters) => Promise<Library>;
+  read: (id: string) => Promise<Read>;
+  name: string;
+  opts?: {
+    headers: OutgoingHttpHeaders;
+  };
+}
+
+export interface Content {
+  innerHTML: string;
+  current_url: string;
+}
+
+export interface Opts {
+  action?: (page: BPage) => Promise<void>;
+  scripts?: boolean;
+}
+
+export type GetContent = (url: string, opts?: Opts) => Promise<Content>;
+
+export type Parser = typeof load;

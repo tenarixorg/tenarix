@@ -1,11 +1,14 @@
 import os from "os";
 import fs from "fs";
-import { details, home, library, read } from "./scraper";
+import { content, parser } from "./scraper";
 import { app, BrowserWindow, ipcMain } from "electron";
 import { decrypt, encrypt, getHash } from "./crypto";
 import { join, resolve } from "path";
 import { Readable } from "stream";
 import { download } from "./download";
+import { extention } from "extensions/tumangaonline";
+
+const { home, library, read, details, opts } = extention(content, parser);
 
 const isWin7 = os.release().startsWith("6.1");
 if (isWin7) app.disableHardwareAcceleration();
@@ -93,7 +96,7 @@ ipcMain.on("download", async (e, { rid, root }) => {
   for (const img of imgs) {
     try {
       console.log("downloading...", img.page);
-      const data = await download(img.url);
+      const data = await download(img.url, opts?.headers);
       const stream = Readable.from(data);
       await encrypt(
         "some random password",
@@ -104,7 +107,7 @@ ipcMain.on("download", async (e, { rid, root }) => {
     } catch (error: any) {
       console.log("failed...", img.page);
       console.log("retrying..." + img.page);
-      const data = await download(img.url);
+      const data = await download(img.url, opts?.headers);
       const stream = Readable.from(data);
       await encrypt(
         "some random password",
@@ -119,6 +122,7 @@ ipcMain.on("download", async (e, { rid, root }) => {
 
 ipcMain.on("get:home", async (e) => {
   const res = await home();
+
   e.reply("res:home", res);
 });
 
@@ -134,20 +138,25 @@ ipcMain.on("get:library", async (e, { page, filters }) => {
 
 ipcMain.on("get:read:init", async (e, { id }) => {
   const res = await read(id);
+  console.log(res.info);
+
   e.reply("res:read:init", res);
 });
 
-ipcMain.on("get:read:page", async (e, { url }) => {
-  try {
-    console.log("reading");
-
-    const res = await download(url);
-    e.reply("res:read:page", res);
-  } catch (error: any) {
-    console.log("failing");
-    console.log("reading");
-    const res = await download(url);
-    e.reply("res:read:page", res);
+ipcMain.on("get:read:page", async (e, { img }) => {
+  if (!img.free) {
+    try {
+      console.log("reading");
+      const res = await download(img.url, opts?.headers);
+      e.reply("res:read:page", res);
+    } catch (error: any) {
+      console.log("failing");
+      console.log("reading");
+      const res = await download(img.url, opts?.headers);
+      e.reply("res:read:page", res);
+    }
+  } else {
+    e.reply("res:read:page", img.url);
   }
 });
 

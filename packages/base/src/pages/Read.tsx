@@ -105,10 +105,10 @@ export const Read: React.FC = () => {
     if (data?.id)
       if (remote) {
         if (data.imgs.length > 0) {
-          const url = data.imgs[current - 1]?.url;
-          if (url) {
+          const im = data.imgs[current - 1];
+          if (im) {
             setLoading(true);
-            api.send("get:read:page", { url });
+            api.send("get:read:page", { img: im });
           }
         }
       } else {
@@ -153,11 +153,18 @@ export const Read: React.FC = () => {
     });
 
     api.on("res:read:page", async (_e, buff) => {
-      const blob = new Blob([buff as Buffer]);
-      const im = URL.createObjectURL(blob);
-      if (mounted.current) {
-        setImg(im);
-        setLoading(false);
+      if (typeof buff === "string") {
+        if (mounted.current) {
+          setImg(buff);
+          setLoading(false);
+        }
+      } else {
+        const blob = new Blob([buff as Buffer]);
+        const im = URL.createObjectURL(blob);
+        if (mounted.current) {
+          setImg(im);
+          setLoading(false);
+        }
       }
     });
 
@@ -219,7 +226,7 @@ export const Read: React.FC = () => {
               }` || "Title"}
           </Txt>
           <Txt fs="20px" color="#fff">
-            {data?.info.substring(0, data?.info.indexOf("S"))}
+            {data?.info.substring(0, data?.info.indexOf("S")) || data?.info}
             {" - " + current + "/" + data?.pages}
           </Txt>
         </>

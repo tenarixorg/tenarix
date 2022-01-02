@@ -1,5 +1,7 @@
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
+import { load } from "cheerio";
+import { Content, Opts } from "types";
 
 puppeteer.use(StealthPlugin());
 
@@ -7,7 +9,9 @@ const getChromiumExecPath = () => {
   return puppeteer.executablePath().replace("app.asar", "app.asar.unpacked");
 };
 
-export const content = async (url: string) => {
+export const parser = load;
+
+export const content = async (url: string, opts?: Opts): Promise<Content> => {
   const browser = await puppeteer.launch({
     headless: true,
     executablePath: getChromiumExecPath(),
@@ -15,13 +19,21 @@ export const content = async (url: string) => {
   const page = await browser.newPage();
   await page.setRequestInterception(true);
   page.on("request", (req) => {
-    if (req.resourceType() !== "document") {
-      req.abort();
-    } else {
+    if (req.resourceType() === "document") {
       req.continue();
+    } else if (
+      (req.resourceType() === "script" || req.resourceType() === "xhr") &&
+      opts?.scripts
+    ) {
+      req.continue();
+    } else {
+      req.abort();
     }
   });
   await page.goto(url);
+  if (opts?.action) {
+    await opts.action(page);
+  }
   const innerHTML = await page.evaluate(() => {
     const main = document.body;
     for (const form of main.querySelectorAll("form")) {
