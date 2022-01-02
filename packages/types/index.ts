@@ -91,11 +91,11 @@ export interface Home {
 }
 
 export interface AppContent {
+  name: string;
   home: () => Promise<Home>;
   details: (route: string) => Promise<Details>;
   library: (page: string, filters: Filters) => Promise<Library>;
   read: (id: string) => Promise<Read>;
-  name: string;
   opts?: {
     headers: OutgoingHttpHeaders;
   };
@@ -114,3 +114,5 @@ export interface Opts {
 export type GetContent = (url: string, opts?: Opts) => Promise<Content>;
 
 export type Parser = typeof load;
+
+export type Extension = (content: GetContent, parser: Parser) => AppContent;

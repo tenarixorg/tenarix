@@ -4,9 +4,7 @@ import { decodeRoute, encodeRoute } from "./util";
 export const _details = (content: GetContent, parser: Parser) => {
   return async (route: string): Promise<Details> => {
     const url = "https://heavenmanga.com/" + decodeRoute(route);
-    console.time("tes:");
     const { innerHTML } = await content(url, { scripts: true });
-    console.timeEnd("tes:");
     const $ = parser(innerHTML);
     const chapters: Chapter[] = [];
     const genders: string[] = [];
@@ -55,12 +53,7 @@ export const _details = (content: GetContent, parser: Parser) => {
       baseLink =
         chlink?.substring(0, chlink.length - cp.toString().length) || "";
     }
-    console.log(baseLink);
     baseLink = encodeRoute(baseLink.split(".com/")[1]);
-
-    // const init = total_c - total_c1 < 0 ? 0 : total_c - total_c1;
-
-    // console.log(init);
 
     for (let i = 0; i < cp; i++) {
       chapters.push({
