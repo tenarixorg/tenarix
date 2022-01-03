@@ -1,5 +1,5 @@
 import { Extension } from "types";
-import heaven from "./heavenmanga";
-import tmo from "./tumangaonline";
+import heavenmanga from "./heavenmanga";
+import tumangaonline from "./tumangaonline";
 
-export const extensions: Extension[] = [tmo, heaven];
+export const extensions: Extension[] = [tumangaonline, heavenmanga];
