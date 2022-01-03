@@ -28,8 +28,12 @@ jobs:
         run: npx chendln -t crlf -i yarn.lock
       - name: Install dependencies
         run: yarn
-      - name: Build
+      - name: Build_Windows
+        if: ${{runner.os == 'Windows'}}
         run: yarn build
+      - name: Build_Unix
+        if: ${{runner.os != 'Windows'}}
+        run: USE_HARD_LINKS=false yarn build
       - name: Upload build artifacts
         uses: actions/upload-artifact@v2
         with:

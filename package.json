@@ -55,7 +55,5 @@
     "npm": ">=7.0.0",
     "node": ">=14.0.0"
   },
-  "dependencies": {
-    "cross-env": "^7.0.3"
-  }
+  "dependencies": {}
 }

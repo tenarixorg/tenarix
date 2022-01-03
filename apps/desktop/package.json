@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "dev": "node scripts/watch.mjs",
-    "build": "cross-env USE_HARD_LINKS=false node scripts/build.mjs && electron-builder",
+    "build": "node scripts/build.mjs && electron-builder",
     "test": "jest"
   },
   "engines": {
