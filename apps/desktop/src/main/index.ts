@@ -1,14 +1,7 @@
 import os from "os";
-import fs from "fs";
-import { app, BrowserWindow, ipcMain } from "electron";
-import { decrypt, encrypt, getHash } from "./crypto";
-import { join, resolve } from "path";
-import { Readable } from "stream";
-import { download } from "./download";
-import base from "./core";
-
-let currentSourceName = "tu_manga_online";
-let currentSource = base[currentSourceName];
+import { app, BrowserWindow } from "electron";
+import { join } from "path";
+import { handler } from "./core";
 
 const isWin7 = os.release().startsWith("6.1");
 if (isWin7) app.disableHardwareAcceleration();
@@ -35,6 +28,8 @@ async function mainWin() {
     },
   });
 
+  handler(win);
+
   win?.on("resize", () => {
     if (win?.isNormal()) {
       win.webContents.send("resize", false);
@@ -56,20 +51,6 @@ async function mainWin() {
 
 app.whenReady().then(mainWin);
 
-ipcMain.on("closeApp", () => {
-  win?.close();
-});
-ipcMain.on("minimizeApp", () => {
-  win?.minimize();
-});
-ipcMain.on("maximizeApp", () => {
-  if (win?.isMaximized()) {
-    win.restore();
-  } else {
-    win?.maximize();
-  }
-});
-
 app.on("window-all-closed", () => {
   win = null;
   if (process.platform !== "darwin") {
@@ -81,116 +62,5 @@ app.on("second-instance", () => {
   if (win) {
     if (win.isMinimized()) win.restore();
     win.focus();
-  }
-});
-
-ipcMain.on("download", async (e, { rid, root }) => {
-  const { id, imgs } = await currentSource.read(rid);
-  const main =
-    resolve(app.getPath("desktop")) + "/.dreader" + `/${await getHash(root)}`;
-  const base = main + `/${rid}`;
-
-  if (!fs.existsSync(main)) fs.mkdirSync(main, { recursive: true });
-  if (!fs.existsSync(base)) fs.mkdirSync(base, { recursive: true });
-
-  for (const img of imgs) {
-    try {
-      console.log("downloading...", img.page);
-      const data = await download(img.url, currentSource.opts?.headers);
-      const stream = Readable.from(data);
-      await encrypt(
-        "some random password",
-        resolve(base, `./${id}_${img.page}`),
-        stream
-      );
-      console.log("done");
-    } catch (error: any) {
-      console.log("failed...", img.page);
-      console.log("retrying..." + img.page);
-      const data = await download(img.url, currentSource.opts?.headers);
-      const stream = Readable.from(data);
-      await encrypt(
-        "some random password",
-        resolve(base, `./${id}_${img.page}`),
-        stream
-      );
-      console.log("done");
-    }
-  }
-  e.reply("download:done", rid);
-});
-
-ipcMain.on("get:settings", (e) => {
-  const res = Object.keys(base);
-  e.reply("res:settings", { current: currentSourceName, data: res });
-});
-
-ipcMain.on("change:source", (e, { source }) => {
-  currentSource = base[source];
-  currentSourceName = source;
-  e.reply("res:change:source", true);
-});
-
-ipcMain.on("get:home", async (e) => {
-  const res = await currentSource.home();
-  e.reply("res:home", res);
-});
-
-ipcMain.on("get:details", async (e, { route }) => {
-  const res = await currentSource.details(route);
-  e.reply("res:details", res);
-});
-
-ipcMain.on("get:library", async (e, { page, filters }) => {
-  const res = await currentSource.library(page, filters);
-  e.reply("res:library", res.items);
-});
-
-ipcMain.on("get:read:init", async (e, { id }) => {
-  const res = await currentSource.read(id);
-  e.reply("res:read:init", res);
-});
-
-ipcMain.on("get:read:page", async (e, { img }) => {
-  if (!img.free) {
-    try {
-      console.log("reading");
-      const res = await download(img.url, currentSource.opts?.headers);
-      e.reply("res:read:page", res);
-    } catch (error: any) {
-      console.log("failing");
-      console.log("reading");
-      const res = await download(img.url, currentSource.opts?.headers);
-      e.reply("res:read:page", res);
-    }
-  } else {
-    e.reply("res:read:page", img.url);
-  }
-});
-
-ipcMain.on("get:read:local", async (e, a) => {
-  const main =
-    app.getPath("desktop") + "/.dreader" + `/${await getHash(a.root)}`;
-
-  if (!fs.existsSync(resolve(main))) {
-    e.reply("res:read:local", false);
-    return;
-  }
-  const base = main + `/${a.rid}`;
-
-  if (!fs.existsSync(resolve(base))) {
-    e.reply("res:read:local", false);
-    return;
-  }
-  if (a.page > a.total) {
-    e.reply("res:read:local", false);
-    return;
-  }
-  const file = base + `/${a.id}_${a.page}`;
-  try {
-    const res = await decrypt("some random password", file);
-    e.reply("res:read:local", res);
-  } catch (error: any) {
-    e.reply("res:read:local", false);
   }
 });
