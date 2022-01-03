@@ -77,10 +77,7 @@ export const Home: React.FC = () => {
   const navigation = useNavigate();
 
   const [data, setData] = useState<HomeT>({
-    latest: [],
     popular: [],
-    trending: [],
-    updates: [],
   });
 
   const [loading, setLoading] = useState(true);
@@ -128,74 +125,6 @@ export const Home: React.FC = () => {
                   demography={e.demography}
                   title={e.title}
                   score={e.score}
-                />
-              ))}
-          </Grid>
-
-          <Head>
-            <Txt>Tendencia</Txt>
-          </Head>
-
-          <Grid>
-            {data.trending &&
-              data.trending.length !== 0 &&
-              data.trending.map((e, i) => (
-                <Card
-                  pointer
-                  key={i}
-                  img={e.img}
-                  onClick={() => {
-                    navigation(`/details/${e.route}`);
-                  }}
-                  type={e.type}
-                  demography={e.demography}
-                  title={e.title}
-                  score={e.score}
-                />
-              ))}
-          </Grid>
-
-          <Head>
-            <Txt>Ultimos Añadidos</Txt>
-          </Head>
-
-          <Grid>
-            {data.latest &&
-              data.latest.length !== 0 &&
-              data.latest.map((e, i) => (
-                <Card
-                  pointer
-                  key={i}
-                  img={e.img}
-                  onClick={() => {
-                    navigation(`/details/${e.route}`);
-                  }}
-                  type={e.type}
-                  demography={e.demography}
-                  title={e.title}
-                  score={e.score}
-                />
-              ))}
-          </Grid>
-
-          <Head>
-            <Txt>Nuevos Capitulos</Txt>
-          </Head>
-
-          <Grid>
-            {data.updates &&
-              data.updates.length !== 0 &&
-              data.updates.map((e, i) => (
-                <Card
-                  pointer
-                  key={i}
-                  img={e.img}
-                  onClick={() => {
-                    navigation(`/details/${e.route}`);
-                  }}
-                  type={e.type}
-                  title={e.title}
-                  chapter={e.chapter}
                 />
               ))}
           </Grid>

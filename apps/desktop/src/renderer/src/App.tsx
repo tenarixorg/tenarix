@@ -25,6 +25,9 @@ export const App: React.FC = () => {
         minimize={() => {
           api.send("minimizeApp");
         }}
+        settings={() => {
+          window.location.href = "#/settings";
+        }}
       />
       <main style={{ marginTop: 30 }}>
         <Base />

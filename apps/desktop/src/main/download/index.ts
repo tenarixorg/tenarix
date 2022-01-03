@@ -1,24 +1,30 @@
 import http from "http";
 import https from "https";
 
-export const download = async (url: string) => {
+export const download = async (
+  url: string,
+  headers?: http.OutgoingHttpHeaders
+) => {
   const proto = !url.charAt(4).localeCompare("s") ? https : http;
+  console.log(url);
 
   return new Promise<Buffer>((resolve, reject) => {
     const request = proto.get(
       url,
       {
-        headers: {
-          "User-Agent": "curl/7.55.1",
-          Accept: "*/*",
-          Referer: "https://lectortmo.com",
-        },
+        headers,
         timeout: 2000,
       },
       (response) => {
         if (response.statusCode !== 200) {
-          reject(new Error(`Failed to get '${url}' (${response.statusCode})`));
-          return;
+          if (response.statusCode === 301 || response.statusCode === 302) {
+            return download(response.headers.location || "");
+          } else {
+            reject(
+              new Error(`Failed to get '${url}' (${response.statusCode})`)
+            );
+            return;
+          }
         }
         request.end();
 

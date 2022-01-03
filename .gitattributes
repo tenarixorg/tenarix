@@ -1,4 +1,3 @@
 * text=auto
 *.* text eol=lf
-yarn.lock text eol=crlf
 /.idea/* text eol=crlf

@@ -9,6 +9,7 @@ import {
   RiArrowRightSLine,
   RiHome2Line,
   RiCheckboxBlankLine,
+  RiSettings2Line,
 } from "react-icons/ri";
 
 const { api } = window.bridge;
@@ -84,6 +85,7 @@ interface Props {
   back: () => void;
   home: () => void;
   forward: () => void;
+  settings: () => void;
 }
 
 export const Navbar: React.FC<Props> = (props) => {
@@ -134,6 +136,11 @@ export const Navbar: React.FC<Props> = (props) => {
       </Menu>
       <Drag />
       <Menu width="fit-content" dir="right">
+        <Item>
+          <Btn hc="#c4c4c42f" onClick={props.settings}>
+            <RiSettings2Line size={18} color="#ffffff" />
+          </Btn>
+        </Item>
         <Item>
           <Btn
             hc="#c4c4c42f"
