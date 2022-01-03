@@ -1,0 +1,13 @@
+{
+  "name": "clean",
+  "version": "0.0.0",
+  "main": "index.js",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node ."
+  },
+  "dependencies": {
+    "rimraf": "^3.0.2"
+  }
+}
