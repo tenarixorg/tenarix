@@ -1,20 +1,26 @@
 import React from "react";
 import { Navbar } from "components";
 import { Base } from "base";
+import { ThemeProvider, useTheme } from "utils";
 const { api } = window.bridge;
 
-export const App: React.FC = () => {
+const Main: React.FC = () => {
+  const { colors } = useTheme();
+
   return (
     <div>
       <Navbar
+        colors={colors}
         back={() => {
-          window.history.back();
+          if (!window.location.href.includes("settings")) window.history.back();
         }}
         home={() => {
-          window.location.href = "#/";
+          if (!window.location.href.includes("settings"))
+            window.location.href = "#/";
         }}
         forward={() => {
-          window.history.forward();
+          if (!window.location.href.includes("settings"))
+            window.history.forward();
         }}
         close={() => {
           api.send("closeApp");
@@ -26,12 +32,27 @@ export const App: React.FC = () => {
           api.send("minimizeApp");
         }}
         settings={() => {
-          window.location.href = "#/settings";
+          if (!window.location.href.includes("settings")) {
+            window.history.pushState(
+              { prev: window.location.href },
+              "",
+              "#/settings/source"
+            );
+            window.location.href = "#/settings/source";
+          }
         }}
       />
-      <main style={{ marginTop: 30 }}>
+      <main style={{ marginTop: 22 }}>
         <Base />
       </main>
     </div>
+  );
+};
+
+export const App: React.FC = () => {
+  return (
+    <ThemeProvider>
+      <Main />
+    </ThemeProvider>
   );
 };
