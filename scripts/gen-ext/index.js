@@ -87,7 +87,16 @@ async function main(n, d, Help) {
     }
     s += `import ${d} from "./${d}";\n\n` + spt[i + 1];
 
-    s = s.substring(0, s.length - 2) + ", " + d + "];\n";
+    if (spt[i + 1].endsWith("];")) {
+      s = s.substring(0, s.length - 2) + ", " + d + "];\n";
+    } else {
+      s += "\n";
+      while (i < spt.length - 3) {
+        i++;
+        s += spt[i + 1] + "\n";
+      }
+      s = s.substring(0, s.length - 3) + "  " + d + ",\n" + spt[i + 1] + "\n";
+    }
 
     const final = fs.createWriteStream(join(__ext, "index.ts"));
 
