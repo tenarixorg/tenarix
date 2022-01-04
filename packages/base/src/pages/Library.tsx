@@ -5,14 +5,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Library as LibraryT } from "types";
 import { SpinnerDotted } from "spinners-react";
 import { Card } from "components";
+import { useTheme } from "utils";
 const { api } = window.bridge;
 
-export const Container = styled.div`
+export const Container = styled.div<{ bg: string; scrollColor: string }>`
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #1a1a1a;
+  background-color: ${(p) => p.bg};
   overflow-y: scroll;
   z-index: 1;
   height: 100vh;
@@ -24,16 +25,16 @@ export const Container = styled.div`
   }
 
   ::-webkit-scrollbar-track {
-    background: #b4b4b434;
+    background: transparent;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #4f9ce8;
+    background: ${(p) => p.scrollColor};
     border-radius: 30px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #2076ee;
+    background: ${(p) => p.scrollColor};
   }
 `;
 
@@ -62,7 +63,7 @@ const Btn = styled.button<{ right?: boolean }>`
   }
 `;
 
-const Grid = styled.div`
+const Grid = styled.div<{ bg: string }>`
   display: grid;
   grid-gap: 10px;
   grid-template-columns: repeat(4, 1fr);
@@ -73,7 +74,7 @@ const Grid = styled.div`
     grid-template-columns: repeat(3, 1fr);
   }
   z-index: 2;
-  background-color: #1a1a1a;
+  background-color: ${(p) => p.bg};
 `;
 
 const Head = styled.div`
@@ -114,6 +115,8 @@ export const Library: React.FC = () => {
 
   const [page, setPage] = useState(1);
 
+  const { colors } = useTheme();
+
   useEffect(() => {
     api.on("res:library", (_e, res) => {
       setData(res);
@@ -147,19 +150,20 @@ export const Library: React.FC = () => {
   }, [params.query, page]);
 
   return (
-    <Container>
+    <Container bg={colors.background1} scrollColor={colors.primary}>
       {!loading ? (
         <>
           <Head>
-            <Txt fs="16px" color="#fff">
+            <Txt fs="16px" color={colors.fontPrimary}>
               Resultados
             </Txt>
           </Head>
-          <Grid>
+          <Grid bg={colors.background1}>
             {data &&
               data.length !== 0 &&
               data.map((e, i) => (
                 <Card
+                  colors={colors}
                   pointer
                   key={i}
                   img={e.img}
@@ -176,13 +180,17 @@ export const Library: React.FC = () => {
 
           <Pagination>
             <Btn onClick={() => setPage((c) => c - 1)}>
-              <BsChevronDoubleLeft size={24} color="#fff" />
+              <BsChevronDoubleLeft size={24} color={colors.buttons.color} />
             </Btn>
-            <Txt fs="20px" color="#fff" style={{ margin: "0px 10px" }}>
+            <Txt
+              fs="20px"
+              color={colors.buttons.color}
+              style={{ margin: "0px 10px" }}
+            >
               {page}
             </Txt>
             <Btn right onClick={() => setPage((c) => c + 1)}>
-              <BsChevronDoubleRight size={24} color="#fff" />
+              <BsChevronDoubleRight size={24} color={colors.buttons.color} />
             </Btn>
           </Pagination>
         </>
@@ -192,7 +200,7 @@ export const Library: React.FC = () => {
             size={100}
             thickness={180}
             speed={100}
-            color="#e81c6f"
+            color={colors.secondary}
           />
         </Loading>
       )}

@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { Theme } from "utils";
 
 const Circle = styled.div<{ color: string }>`
   display: flex;
@@ -11,19 +12,20 @@ const Circle = styled.div<{ color: string }>`
   margin-right: 8px;
 `;
 
-const Container = styled.div`
+const Container = styled.div<{ bg: string; border: string }>`
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
   padding: 4px 8px;
-  background-color: #146def;
-  border: 1px solid #ffffff50;
+  background-color: ${(p) => p.bg};
+  border: 1px solid ${(p) => p.border};
   width: fit-content;
 `;
 
 interface Props {
   state: string;
+  colors: Theme["dark"];
 }
 
 const getColor = (prop: string): string => {
@@ -35,7 +37,7 @@ const getColor = (prop: string): string => {
 
 export const Status: React.FC<Props> = (props) => {
   return (
-    <Container>
+    <Container bg={props.colors.primary} border={props.colors.buttons.border}>
       <Circle color={getColor(props.state)} />
       <p
         style={{

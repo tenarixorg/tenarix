@@ -4,10 +4,12 @@ import { RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
 import { SpinnerDotted, SpinnerInfinity } from "spinners-react";
 import { Read as ReadT } from "types";
 import { useParams } from "react-router-dom";
+import { useTheme } from "utils";
 
 const { api } = window.bridge;
 
-const Container = styled.div`
+const Container = styled.div<{ bg: string; scrollColor: string }>`
+  background-color: ${(p) => p.bg};
   position: relative;
   display: flex;
   flex-direction: column;
@@ -27,12 +29,12 @@ const Container = styled.div`
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #4f9ce8;
+    background: ${(p) => p.scrollColor};
     border-radius: 30px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #2076ee;
+    background: ${(p) => p.scrollColor};
   }
   img {
     width: 80%;
@@ -67,9 +69,9 @@ const Btn = styled.button<{ right?: boolean }>`
 
 const Nav = styled.div`
   position: sticky;
-  top: calc(50% - 30px);
+  top: calc(50% - 22px);
   left: 0;
-  width: 90%;
+  width: 92%;
   height: 0px;
   display: flex;
   flex-direction: row;
@@ -96,6 +98,8 @@ export const Read: React.FC = () => {
   const [loading2, setLoading2] = useState(true);
 
   const [remote, setRemote] = useState(false);
+
+  const { colors } = useTheme();
 
   const mounted = useRef(false);
 
@@ -183,7 +187,7 @@ export const Read: React.FC = () => {
   }, [getNext]);
 
   return (
-    <Container>
+    <Container bg={colors.background1} scrollColor={colors.primary}>
       <Nav>
         <Btn
           onClick={() => {
@@ -191,7 +195,7 @@ export const Read: React.FC = () => {
           }}
           disabled={loading || current <= 1}
         >
-          <RiArrowLeftSLine size={60} color="#2076ee" />
+          <RiArrowLeftSLine size={60} color={colors.primary} />
         </Btn>
         <Btn
           right
@@ -200,7 +204,7 @@ export const Read: React.FC = () => {
           }}
           disabled={loading || current >= (data?.pages || 1)}
         >
-          <RiArrowRightSLine size={60} color="#2076ee" />
+          <RiArrowRightSLine size={60} color={colors.primary} />
         </Btn>
       </Nav>
       {loading2 ? (
@@ -211,12 +215,12 @@ export const Read: React.FC = () => {
           style={{
             marginTop: 20,
           }}
-          color="#e81c6f"
+          color={colors.secondary}
           secondaryColor="rgba(0, 0, 0, 0.44)"
         />
       ) : (
         <>
-          <Txt fs="30px" color="#fff" style={{}}>
+          <Txt fs="30px" color={colors.fontPrimary} style={{}}>
             {data?.title.substring(0, 50) +
               `${
                 (data?.title || "").length >
@@ -225,7 +229,7 @@ export const Read: React.FC = () => {
                   : ""
               }` || "Title"}
           </Txt>
-          <Txt fs="20px" color="#fff">
+          <Txt fs="20px" color={colors.fontPrimary}>
             {data?.info.substring(0, data?.info.indexOf("S")) || data?.info}
             {" - " + current + "/" + data?.pages}
           </Txt>
@@ -237,7 +241,7 @@ export const Read: React.FC = () => {
             size={100}
             thickness={180}
             speed={100}
-            color="#e81c6f"
+            color={colors.secondary}
           />
         </Loading>
       ) : (

@@ -1,14 +1,18 @@
 import fs from "fs";
 import base from "./extension";
-import { ipcMain, BrowserWindow, app } from "electron";
+import { ipcMain, BrowserWindow, app, nativeTheme } from "electron";
 import { resolve } from "path";
 import { decrypt, encrypt, getHash } from "../crypto";
 import { download } from "../download";
 import { Readable } from "stream";
+import { theme } from "utils";
 
 export const handler = (win?: BrowserWindow) => {
   let currentSourceName = "tu_manga_online";
   let currentSource = base[currentSourceName];
+  let currentTheme: "dark" | "light" = nativeTheme.shouldUseDarkColors
+    ? "dark"
+    : "light";
 
   ipcMain.on("closeApp", () => {
     win?.close();
@@ -22,6 +26,16 @@ export const handler = (win?: BrowserWindow) => {
     } else {
       win?.maximize();
     }
+  });
+
+  ipcMain.on("get:theme", (e) => {
+    e.reply("change:theme", theme[currentTheme]);
+  });
+
+  ipcMain.on("toggle:theme", (e) => {
+    currentTheme = currentTheme === "dark" ? "light" : "dark";
+    e.reply("change:theme", theme[currentTheme]);
+    e.reply("res:toggle:theme", currentTheme);
   });
 
   ipcMain.on("download", async (e, { rid, root }) => {

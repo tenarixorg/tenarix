@@ -10,8 +10,9 @@
     "react-router-dom": "^6.2.1",
     "styled-components": "^5.3.3",
     "types": "*",
-    "config": "*",
-    "assets": "*"
+    "utils": "*",
+    "assets": "*",
+    "config": "*"
   },
   "devDependencies": {
     "@types/react": "^17.0.38",

@@ -6,12 +6,13 @@ import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 import { useNavigate, useParams } from "react-router-dom";
 import { Details as DetailsT } from "types";
 import { SpinnerDotted } from "spinners-react";
+import { useTheme } from "utils";
 
 const { api } = window.bridge;
 
-const Container = styled.div`
+const Container = styled.div<{ bg: string; scrollColor: string }>`
   display: block;
-  background-color: #1a1a1a;
+  background-color: ${(p) => p.bg};
   overflow-y: scroll;
   height: 100vh;
   padding-bottom: 20px;
@@ -25,12 +26,12 @@ const Container = styled.div`
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #4f9ce8;
+    background: ${(p) => p.scrollColor};
     border-radius: 30px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #2076ee;
+    background: ${(p) => p.scrollColor};
   }
 `;
 
@@ -87,7 +88,7 @@ const CardInfo = styled.div`
   width: 25%;
 `;
 
-const ChaptersHeader = styled.div`
+const ChaptersHeader = styled.div<{ bg: string }>`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -98,7 +99,7 @@ const ChaptersHeader = styled.div`
   position: -webkit-sticky;
   position: sticky;
   top: -1px;
-  background-color: #1a1a1a;
+  background-color: ${(p) => p.bg};
   width: 100%;
 `;
 
@@ -109,26 +110,28 @@ const Info = styled.div`
   padding: 0px 20px;
 `;
 
-const ChaptersContainer = styled.div`
+const ChaptersContainer = styled.div<{ bg: string }>`
   display: flex;
   flex-direction: column;
   align-items: space-between;
   width: 100%;
   padding: 10px 10px 20px 10px;
-  background-color: #242424;
+  background-color: ${(p) => p.bg};
 `;
 
-const Loading = styled.div`
+const Loading = styled.div<{ bg: string }>`
   display: flex;
   width: 100%;
   height: 100vh;
   justify-content: center;
   align-items: center;
+  background-color: ${(p) => p.bg};
 `;
 
 export const Details: React.FC = () => {
   const navigation = useNavigate();
   const params = useParams();
+  const { colors } = useTheme();
   const [data, setData] = useState<DetailsT>();
   const [order, setOrder] = useState(true);
   const [show, setShow] = useState(true);
@@ -148,20 +151,21 @@ export const Details: React.FC = () => {
   return (
     <>
       {loading ? (
-        <Loading>
+        <Loading bg={colors.background1}>
           <SpinnerDotted
             size={100}
             thickness={180}
             speed={100}
-            color="#e81c6f"
+            color={colors.secondary}
           />
         </Loading>
       ) : (
-        <Container>
+        <Container bg={colors.background1} scrollColor={colors.primary}>
           {data && (
             <InfoContainer>
               <CardInfo>
                 <Card
+                  colors={colors}
                   disabled
                   img={data.img}
                   type={data.type}
@@ -170,15 +174,20 @@ export const Details: React.FC = () => {
                 />
               </CardInfo>
               <Info>
-                <Txt fs="35px" bold color="#ffffff" style={{ width: "92%" }}>
+                <Txt
+                  fs="35px"
+                  bold
+                  color={colors.fontPrimary}
+                  style={{ width: "95%" }}
+                >
                   {data.title}
                 </Txt>
-                <Txt fs="26px" bold color="#8d8d8d">
+                <Txt fs="26px" bold color={colors.fontSecondary}>
                   {data.subtitle}
                 </Txt>
                 <Txt
                   fs="16px"
-                  color="#c0c0c0"
+                  color={colors.fontSecondary}
                   style={{
                     margin: "20px 0px 10px 0px",
                     textIndent: 10,
@@ -191,31 +200,31 @@ export const Details: React.FC = () => {
                 <Txt
                   fs="24px"
                   bold
-                  color="#c4c4c4"
+                  color={colors.fontSecondary}
                   style={{ margin: "20px 0px 10px 0px" }}
                 >
                   Géneros
                 </Txt>
                 <GenderContainer>
                   {data.genders.map((e, i) => (
-                    <GenderBadge text={e} key={i + e} />
+                    <GenderBadge colors={colors} text={e} key={i + e} />
                   ))}
                 </GenderContainer>
                 <Txt
                   fs="24px"
                   bold
-                  color="#c4c4c4"
+                  color={colors.fontSecondary}
                   style={{ margin: "20px 0px 10px 0px" }}
                 >
                   Estado
                 </Txt>
-                <Status state={data.status} />
+                <Status colors={colors} state={data.status} />
               </Info>
             </InfoContainer>
           )}
-          <ChaptersHeader>
+          <ChaptersHeader bg={colors.background1}>
             <Txt
-              color="#ffffff"
+              color={colors.fontPrimary}
               pointer
               fs="25px"
               bold
@@ -233,25 +242,26 @@ export const Details: React.FC = () => {
                 }}
               >
                 {!order ? (
-                  <BsSortNumericDown color="#e83588" size={25} />
+                  <BsSortNumericDown color={colors.secondary} size={25} />
                 ) : (
-                  <BsSortNumericUpAlt color="#e83588" size={25} />
+                  <BsSortNumericUpAlt color={colors.secondary} size={25} />
                 )}
               </Btn>
               <Btn onClick={() => setShow((c) => !c)}>
                 {show ? (
-                  <RiArrowUpSLine color="#e83588" size={30} />
+                  <RiArrowUpSLine color={colors.secondary} size={30} />
                 ) : (
-                  <RiArrowDownSLine color="#e83588" size={30} />
+                  <RiArrowDownSLine color={colors.secondary} size={30} />
                 )}
               </Btn>
             </Main>
           </ChaptersHeader>
           {show && (
-            <ChaptersContainer>
+            <ChaptersContainer bg={colors.background2}>
               {data?.chapters.map((e, i) => (
                 <div key={i}>
                   <Chapter
+                    colors={colors}
                     root={params.route || ""}
                     chapter={e}
                     handler={(id) => {

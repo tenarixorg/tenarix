@@ -11,16 +11,17 @@ import {
   RiCheckboxBlankLine,
   RiSettings2Line,
 } from "react-icons/ri";
+import { Theme } from "utils";
 
 const { api } = window.bridge;
 
-const Container = styled.div`
+const Container = styled.div<{ bg: string }>`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  background-color: black;
+  background-color: ${(p) => p.bg};
   position: fixed;
   top: 0;
   z-index: 100;
@@ -28,19 +29,21 @@ const Container = styled.div`
 
 const Drag = styled.div`
   flex-grow: 1;
-  height: 30px;
+  height: 22px;
   -webkit-app-region: drag;
 `;
 
-const Input = styled.input<{ width: string }>`
+const Input = styled.input<{ width: string; bg: string; color: string }>`
   border: none;
   outline: none;
-  border-bottom: 1px solid white;
-  background-color: black;
-  color: white;
+  border-bottom: 1px solid ${(p) => p.color};
+  background-color: ${(p) => p.bg};
+  color: ${(p) => p.color};
   width: ${(p) => p.width};
   transition: width 300ms ease-in-out;
   margin-right: 10px;
+  font-size: 14px;
+  line-height: 0px;
 `;
 
 const Menu = styled.div<{
@@ -69,8 +72,8 @@ const Btn = styled.button<{ hc: string }>`
   justify-content: center;
   align-items: center;
   background-color: transparent;
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 22px;
   border: none;
   outline: none;
   &:hover {
@@ -86,6 +89,7 @@ interface Props {
   home: () => void;
   forward: () => void;
   settings: () => void;
+  colors: Theme["dark"];
 }
 
 export const Navbar: React.FC<Props> = (props) => {
@@ -116,40 +120,52 @@ export const Navbar: React.FC<Props> = (props) => {
     };
   }, [handleSearch]);
   return (
-    <Container>
+    <Container bg={props.colors.navbar.background}>
       <Menu width="fit-content" dir="left" padding="0px">
         <Item>
-          <Btn onClick={props.back} hc="#c4c4c42f">
-            <RiArrowLeftSLine size={22} color="#ffffff" />
+          <Btn onClick={props.back} hc={props.colors.navbar.buttons.hover}>
+            <RiArrowLeftSLine
+              size={22}
+              color={props.colors.navbar.buttons.color}
+            />
           </Btn>
         </Item>
         <Item>
-          <Btn onClick={props.home} hc="#c4c4c42f">
-            <RiHome2Line size={18} color="#ffffff" />
+          <Btn onClick={props.home} hc={props.colors.navbar.buttons.hover}>
+            <RiHome2Line size={18} color={props.colors.navbar.buttons.color} />
           </Btn>
         </Item>
         <Item>
-          <Btn onClick={props.forward} hc="#c4c4c42f">
-            <RiArrowRightSLine size={22} color="#ffffff" />
+          <Btn onClick={props.forward} hc={props.colors.navbar.buttons.hover}>
+            <RiArrowRightSLine
+              size={22}
+              color={props.colors.navbar.buttons.color}
+            />
           </Btn>
         </Item>
       </Menu>
       <Drag />
       <Menu width="fit-content" dir="right">
         <Item>
-          <Btn hc="#c4c4c42f" onClick={props.settings}>
-            <RiSettings2Line size={18} color="#ffffff" />
+          <Btn hc={props.colors.navbar.buttons.hover} onClick={props.settings}>
+            <RiSettings2Line
+              style={{}}
+              size={15}
+              color={props.colors.navbar.buttons.color}
+            />
           </Btn>
         </Item>
         <Item>
           <Btn
-            hc="#c4c4c42f"
+            hc={props.colors.navbar.buttons.hover}
             onClick={() => {
-              setSearch((c) => !c);
-              inputRef.current?.focus();
+              if (!window.location.href.includes("settings")) {
+                setSearch((c) => !c);
+                inputRef.current?.focus();
+              }
             }}
           >
-            <MdSearch size={22} color="#ffffff" />
+            <MdSearch size={18} color={props.colors.navbar.buttons.color} />
           </Btn>
         </Item>
         <Item>
@@ -162,6 +178,8 @@ export const Navbar: React.FC<Props> = (props) => {
             }}
           >
             <Input
+              color={props.colors.navbar.buttons.color}
+              bg="transparent"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               ref={inputRef}
@@ -172,27 +190,36 @@ export const Navbar: React.FC<Props> = (props) => {
         </Item>
         <Item>
           <Btn
-            hc="#c4c4c42f"
+            hc={props.colors.navbar.buttons.hover}
             onClick={props.minimize}
             style={{
               alignItems: "flex-end",
             }}
           >
-            <RiSubtractFill size={22} color="#ffffff" />
+            <RiSubtractFill
+              size={16}
+              color={props.colors.navbar.buttons.color}
+            />
           </Btn>
         </Item>
         <Item>
-          <Btn onClick={props.maximize} hc="#c4c4c42f">
+          <Btn onClick={props.maximize} hc={props.colors.navbar.buttons.hover}>
             {resize ? (
-              <RiCheckboxMultipleBlankLine size={18} color="#ffffff" />
+              <RiCheckboxMultipleBlankLine
+                size={14}
+                color={props.colors.navbar.buttons.color}
+              />
             ) : (
-              <RiCheckboxBlankLine size={18} color="#ffffff" />
+              <RiCheckboxBlankLine
+                size={14}
+                color={props.colors.navbar.buttons.color}
+              />
             )}
           </Btn>
         </Item>
         <Item>
           <Btn onClick={props.close} hc="#f41d1d">
-            <RiCloseFill size={22} color="#ffffff" />
+            <RiCloseFill size={16} color={props.colors.navbar.buttons.color} />
           </Btn>
         </Item>
       </Menu>

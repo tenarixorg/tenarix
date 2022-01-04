@@ -4,14 +4,15 @@ import { Home as HomeT } from "types";
 import { SpinnerDotted } from "spinners-react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "components";
+import { useTheme } from "utils";
 
 const { api } = window.bridge;
 
-export const Container = styled.div`
+export const Container = styled.div<{ bg: string; scrollColor: string }>`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #1a1a1a;
+  background-color: ${(p) => p.bg};
   overflow-y: scroll;
   height: 100vh;
   padding: 0px 0px 40px 0px;
@@ -26,12 +27,12 @@ export const Container = styled.div`
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #4f9ce8;
+    background: ${(p) => p.scrollColor};
     border-radius: 30px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #2076ee;
+    background: ${(p) => p.scrollColor};
   }
 `;
 
@@ -76,6 +77,8 @@ const Loading = styled.div`
 export const Home: React.FC = () => {
   const navigation = useNavigate();
 
+  const { colors } = useTheme();
+
   const [data, setData] = useState<HomeT>({
     popular: [],
   });
@@ -94,14 +97,14 @@ export const Home: React.FC = () => {
   }, []);
 
   return (
-    <Container>
+    <Container bg={colors.background1} scrollColor={colors.primary}>
       {loading ? (
         <Loading>
           <SpinnerDotted
             size={100}
             thickness={180}
             speed={100}
-            color="#e81c6f"
+            color={colors.secondary}
           />
         </Loading>
       ) : (
@@ -115,6 +118,7 @@ export const Home: React.FC = () => {
               data.popular.length !== 0 &&
               data.popular.map((e, i) => (
                 <Card
+                  colors={colors}
                   pointer
                   key={i}
                   img={e.img}

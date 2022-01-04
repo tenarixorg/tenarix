@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { img404 } from "assets";
+import { Theme } from "utils";
 
 const Container = styled.div<{ pointer?: boolean; disabled?: boolean }>`
   position: relative;
@@ -10,7 +11,7 @@ const Container = styled.div<{ pointer?: boolean; disabled?: boolean }>`
     !p.disabled &&
     `transition: transform 400ms ease-in-out;
   &:hover {
-    transform: translateY(-4px) scale(1.008);
+    transform: translateY(-4px);
   }`};
 `;
 
@@ -74,6 +75,7 @@ interface Props {
   onClick?: () => void;
   pointer?: boolean;
   disabled?: boolean;
+  colors: Theme["dark"];
 }
 
 export const Card: React.FC<Props> = (props) => {
@@ -89,7 +91,13 @@ export const Card: React.FC<Props> = (props) => {
         </Badge>
       )}
       {props.type && (
-        <Badge top="10%" color="#e81c6f" width="40%" left="60%" bl>
+        <Badge
+          top="10%"
+          color={props.colors.secondary}
+          width="40%"
+          left="60%"
+          bl
+        >
           <Txt>{props.type}</Txt>
         </Badge>
       )}
@@ -111,12 +119,23 @@ export const Card: React.FC<Props> = (props) => {
         </Score>
       )}
       {props.demography && (
-        <Badge top="calc(100% - 61px)" width="85%" left="0" color="#2076ee">
+        <Badge
+          top="calc(100% - 61px)"
+          width="85%"
+          left="0"
+          color={props.colors.primary}
+        >
           <Txt>{props.demography}</Txt>
         </Badge>
       )}
       {props.chapter && (
-        <Badge top="calc(100% - 61px)" width="70%" br left="0" color="#2076ee">
+        <Badge
+          top="calc(100% - 61px)"
+          width="70%"
+          br
+          left="0"
+          color={props.colors.primary}
+        >
           <Txt>Capítulo: {props.chapter}</Txt>
         </Badge>
       )}

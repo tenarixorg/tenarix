@@ -9,6 +9,7 @@ import {
   RiDownloadCloudLine,
 } from "react-icons/ri";
 import { SpinnerCircular } from "spinners-react";
+import { Theme } from "utils";
 
 const Container = styled.div`
   display: flex;
@@ -29,11 +30,13 @@ const Txt = styled.p<{
   fs: string;
   bold?: boolean;
   wrap?: string;
+  color: string;
 }>`
   cursor: ${(p) => (p.pointer ? "pointer" : "default")};
   margin-bottom: 4px;
   font-size: ${(p) => p.fs};
   font-weight: ${(p) => (p.bold ? "600" : "normal")};
+  color: ${(p) => p.color};
   ${(p) =>
     p.wrap
       ? `
@@ -86,6 +89,7 @@ interface Props {
   chapter: ChapterProps;
   handler: (id: string) => void;
   root: string;
+  colors: Theme["dark"];
 }
 
 const { api } = window.bridge;
@@ -97,6 +101,7 @@ export const Chapter: React.FC<Props> = (props) => {
     <Container>
       <Main width="100%">
         <Txt
+          color={props.colors.fontPrimary}
           wrap="true"
           fs="18px"
           pointer
@@ -121,19 +126,23 @@ export const Chapter: React.FC<Props> = (props) => {
             disabled={loading}
           >
             {loading ? (
-              <SpinnerCircular size={22} color="#e83588" thickness={140} />
+              <SpinnerCircular
+                size={22}
+                color={props.colors.secondary}
+                thickness={140}
+              />
             ) : (
-              <RiDownloadCloudLine color="#e83588" size={22} />
+              <RiDownloadCloudLine color={props.colors.secondary} size={22} />
             )}
           </Btn>
           <Btn onClick={() => props.handler(props.chapter.links[0].id)}>
-            <RiPlayFill color="#e83588" size={25} />
+            <RiPlayFill color={props.colors.secondary} size={25} />
           </Btn>
           <Btn onClick={() => setShow((c) => !c)}>
             {show ? (
-              <RiArrowUpSLine color="#e83588" size={30} />
+              <RiArrowUpSLine color={props.colors.secondary} size={30} />
             ) : (
-              <RiArrowDownSLine color="#e83588" size={30} />
+              <RiArrowDownSLine color={props.colors.secondary} size={30} />
             )}
           </Btn>
         </Main>
@@ -158,11 +167,13 @@ export const Chapter: React.FC<Props> = (props) => {
                 }}
               >
                 <Line init={ii === 0} />
-                <Txt fs="15px">{el.src}</Txt>
+                <Txt color={props.colors.fontPrimary} fs="15px">
+                  {el.src}
+                </Txt>
               </div>
               <Btn onClick={() => props.handler(el.id)}>
                 <RiPlayCircleFill
-                  color="#e83588"
+                  color={props.colors.secondary}
                   size={22}
                   style={{ marginRight: 45 }}
                 />
