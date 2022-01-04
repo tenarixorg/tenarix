@@ -1,26 +1,33 @@
 import React, { useEffect, useState } from "react";
+import styled from "styled-components";
+import { useTheme } from "utils";
 const { api } = window.bridge;
 
 const capitalize = (data: string) => data[0].toUpperCase() + data.slice(1);
 const format = (source: string) =>
   source.split("_").reduce((acc, curr) => acc + " " + capitalize(curr), "");
 
-export const Settings: React.FC = () => {
+const Select = styled.select`
+  border: none;
+  outline: none;
+`;
+const Option = styled.option`
+  border: none;
+  outline: none;
+`;
+
+export const Source: React.FC = () => {
   const [opts, setOpts] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [source, setSource] = useState("");
-  const [done, setDone] = useState(false);
+
+  const { colors } = useTheme();
 
   useEffect(() => {
     api.on("res:settings", (_e, res) => {
       setOpts(res.data);
       setSource(res.current);
       setLoading(false);
-    });
-
-    api.on("res:change:source", (_e, res) => {
-      setDone(res);
-      window.location.href = "#/";
     });
 
     api.send("get:settings");
@@ -30,29 +37,25 @@ export const Settings: React.FC = () => {
       api.removeAllListeners("res:change:source");
     };
   }, []);
+
+  useEffect(() => {
+    api.send("change:source", { source });
+  }, [source]);
   return (
     <div>
       {loading ? (
-        <p>Loading...</p>
+        <p style={{ color: colors.fontSecondary }}>Loading...</p>
       ) : (
-        <div>
-          <p>{!done ? "waiting..." : "done"}</p>
-          <p>{format(source)}</p>
-          <select value={source} onChange={(e) => setSource(e.target.value)}>
+        <>
+          <p style={{ color: colors.fontSecondary }}>{format(source)}</p>
+          <Select value={source} onChange={(e) => setSource(e.target.value)}>
             {opts.map((op, i) => (
-              <option value={op} key={i}>
+              <Option value={op} key={i}>
                 {format(op)}
-              </option>
+              </Option>
             ))}
-          </select>
-          <button
-            onClick={() => {
-              api.send("change:source", { source });
-            }}
-          >
-            Aplicar
-          </button>
-        </div>
+          </Select>
+        </>
       )}
     </div>
   );

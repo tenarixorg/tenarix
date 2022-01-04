@@ -37,6 +37,7 @@
     "spinners-react": "^1.0.6",
     "styled-components": "^5.3.3",
     "types": "*",
+    "utils": "*",
     "extensions": "*"
   },
   "devDependencies": {

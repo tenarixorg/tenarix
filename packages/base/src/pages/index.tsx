@@ -30,7 +30,7 @@ export const Pages: React.FC = () => {
         <Route path="/details/:route" element={<Details />} />
         <Route path="/read/:route/:id" element={<Read />} />
         <Route path="/library/:query" element={<Library />} />
-        <Route path="/settings" element={<Settings />} />
+        <Route path="/settings/*" element={<Settings />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </HashRouter>
