@@ -13,6 +13,14 @@
     "node": ">=14.17.0"
   },
   "author": "Akuqt",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Akuqt/x-reader.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Akuqt/x-reader/issues"
+  },
+  "homepage": "https://github.com/Akuqt/x-reader#readme",
   "dependencies": {
     "base": "*",
     "cheerio": "^1.0.0-rc.10",

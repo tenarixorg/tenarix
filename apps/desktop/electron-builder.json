@@ -25,5 +25,9 @@
     "perMachine": false,
     "allowToChangeInstallationDirectory": true,
     "deleteAppDataOnUninstall": false
+  },
+  "linux": {
+    "target": "AppImage",
+    "artifactName": "${productName}_${version}.${ext}"
   }
 }
