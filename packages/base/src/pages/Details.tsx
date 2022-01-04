@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
 import { BsSortNumericDown, BsSortNumericUpAlt } from "react-icons/bs";
 import { Chapter, Status, GenderBadge, Card } from "components";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
@@ -7,126 +6,21 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Details as DetailsT } from "types";
 import { SpinnerDotted } from "spinners-react";
 import { useTheme } from "utils";
+import {
+  Btn,
+  CardInfo,
+  ChaptersContainer,
+  ChaptersHeader,
+  Container,
+  GenderContainer,
+  Info,
+  InfoContainer,
+  Loading,
+  Main,
+  Txt,
+} from "components/src/Elements";
 
 const { api } = window.bridge;
-
-const Container = styled.div<{ bg: string; scrollColor: string }>`
-  display: block;
-  background-color: ${(p) => p.bg};
-  overflow-y: scroll;
-  height: 100vh;
-  padding-bottom: 20px;
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 0px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: ${(p) => p.scrollColor};
-    border-radius: 30px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: ${(p) => p.scrollColor};
-  }
-`;
-
-const Btn = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: transparent;
-  outline: none;
-  border: none;
-  cursor: pointer;
-`;
-
-const Txt = styled.p<{
-  pointer?: boolean;
-  fs: string;
-  bold?: boolean;
-  color: string;
-}>`
-  cursor: ${(p) => (p.pointer ? "pointer" : "default")};
-  margin-bottom: 4px;
-  font-size: ${(p) => p.fs};
-  font-weight: ${(p) => (p.bold ? "600" : "normal")};
-  color: ${(p) => p.color};
-`;
-
-const Main = styled.div<{ width: string }>`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  width: ${(p) => p.width};
-  align-items: center;
-`;
-
-const InfoContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  width: 100%;
-  padding: 10px;
-`;
-
-const GenderContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-`;
-
-const CardInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 25%;
-`;
-
-const ChaptersHeader = styled.div<{ bg: string }>`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0px 10px 8px 10px;
-  margin: 5px 0px 0px 0px;
-  border-bottom: 1px solid #b4b4b434;
-  position: -webkit-sticky;
-  position: sticky;
-  top: -1px;
-  background-color: ${(p) => p.bg};
-  width: 100%;
-`;
-
-const Info = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 75%;
-  padding: 0px 20px;
-`;
-
-const ChaptersContainer = styled.div<{ bg: string }>`
-  display: flex;
-  flex-direction: column;
-  align-items: space-between;
-  width: 100%;
-  padding: 10px 10px 20px 10px;
-  background-color: ${(p) => p.bg};
-`;
-
-const Loading = styled.div<{ bg: string }>`
-  display: flex;
-  width: 100%;
-  height: 100vh;
-  justify-content: center;
-  align-items: center;
-  background-color: ${(p) => p.bg};
-`;
 
 export const Details: React.FC = () => {
   const navigation = useNavigate();
@@ -149,9 +43,13 @@ export const Details: React.FC = () => {
   }, [params.route]);
 
   return (
-    <>
+    <Container
+      bg={colors.background1}
+      scrollColor={colors.primary}
+      padding="0px 0px 20px 0px"
+    >
       {loading ? (
-        <Loading bg={colors.background1}>
+        <Loading>
           <SpinnerDotted
             size={100}
             thickness={180}
@@ -160,7 +58,7 @@ export const Details: React.FC = () => {
           />
         </Loading>
       ) : (
-        <Container bg={colors.background1} scrollColor={colors.primary}>
+        <>
           {data && (
             <InfoContainer>
               <CardInfo>
@@ -175,6 +73,7 @@ export const Details: React.FC = () => {
               </CardInfo>
               <Info>
                 <Txt
+                  margin="0px 0px 4px 0px"
                   fs="35px"
                   bold
                   color={colors.fontPrimary}
@@ -182,11 +81,17 @@ export const Details: React.FC = () => {
                 >
                   {data.title}
                 </Txt>
-                <Txt fs="26px" bold color={colors.fontSecondary}>
+                <Txt
+                  fs="26px"
+                  margin="0px 0px 4px 0px"
+                  bold
+                  color={colors.fontSecondary}
+                >
                   {data.subtitle}
                 </Txt>
                 <Txt
                   fs="16px"
+                  margin="0px 0px 4px 0px"
                   color={colors.fontSecondary}
                   style={{
                     margin: "20px 0px 10px 0px",
@@ -200,6 +105,7 @@ export const Details: React.FC = () => {
                 <Txt
                   fs="24px"
                   bold
+                  margin="0px 0px 4px 0px"
                   color={colors.fontSecondary}
                   style={{ margin: "20px 0px 10px 0px" }}
                 >
@@ -213,6 +119,7 @@ export const Details: React.FC = () => {
                 <Txt
                   fs="24px"
                   bold
+                  margin="0px 0px 4px 0px"
                   color={colors.fontSecondary}
                   style={{ margin: "20px 0px 10px 0px" }}
                 >
@@ -227,6 +134,7 @@ export const Details: React.FC = () => {
               color={colors.fontPrimary}
               pointer
               fs="25px"
+              margin="0px 0px 4px 0px"
               bold
               onClick={() => setShow((c) => !c)}
             >
@@ -272,8 +180,8 @@ export const Details: React.FC = () => {
               ))}
             </ChaptersContainer>
           )}
-        </Container>
+        </>
       )}
-    </>
+    </Container>
   );
 };
