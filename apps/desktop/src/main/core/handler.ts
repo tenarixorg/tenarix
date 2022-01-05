@@ -1,14 +1,15 @@
 import fs from "fs";
 import base from "./extension";
 import { ipcMain, BrowserWindow, app, nativeTheme } from "electron";
-import { resolve } from "path";
 import { decrypt, encrypt, getHash } from "../crypto";
 import { download } from "../download";
 import { Readable } from "stream";
+import { resolve } from "path";
+import { getImg } from "../scraper";
 import { theme } from "utils";
 
 export const handler = (win?: BrowserWindow) => {
-  let currentSourceName = "tu_manga_online";
+  let currentSourceName = "inmanga";
   let currentSource = base[currentSourceName];
   let currentTheme: "dark" | "light" = nativeTheme.shouldUseDarkColors
     ? "dark"
@@ -40,34 +41,47 @@ export const handler = (win?: BrowserWindow) => {
 
   ipcMain.on("download", async (e, { rid, root }) => {
     const { id, imgs } = await currentSource.read(rid);
+    const _rid = (rid as string).includes("=") ? await getHash(rid) : rid;
     const main =
       resolve(app.getPath("desktop")) + "/.dreader" + `/${await getHash(root)}`;
-    const base = main + `/${rid}`;
-
+    const base = main + `/${_rid}`;
     if (!fs.existsSync(main)) fs.mkdirSync(main, { recursive: true });
     if (!fs.existsSync(base)) fs.mkdirSync(base, { recursive: true });
-
     for (const img of imgs) {
       try {
         console.log("downloading...", img.page);
-        const data = await download(img.url, currentSource.opts?.headers);
-        const stream = Readable.from(data);
-        await encrypt(
-          "some random password",
-          resolve(base, `./${id}_${img.page}`),
-          stream
-        );
+        let data: Buffer | null = null;
+        if (img.free) {
+          data = await getImg(img.url);
+        } else {
+          data = await download(img.url, currentSource.opts?.headers);
+        }
+        if (data) {
+          const stream = Readable.from(data);
+          await encrypt(
+            "some random password",
+            resolve(base, `./${id}_${img.page}`),
+            stream
+          );
+        }
         console.log("done");
       } catch (error: any) {
         console.log("failed...", img.page);
         console.log("retrying..." + img.page);
-        const data = await download(img.url, currentSource.opts?.headers);
-        const stream = Readable.from(data);
-        await encrypt(
-          "some random password",
-          resolve(base, `./${id}_${img.page}`),
-          stream
-        );
+        let data: Buffer | null = null;
+        if (img.free) {
+          data = await getImg(img.url);
+        } else {
+          data = await download(img.url, currentSource.opts?.headers);
+        }
+        if (data) {
+          const stream = Readable.from(data);
+          await encrypt(
+            "some random password",
+            resolve(base, `./${id}_${img.page}`),
+            stream
+          );
+        }
         console.log("done");
       }
     }
@@ -80,9 +94,10 @@ export const handler = (win?: BrowserWindow) => {
   });
 
   ipcMain.on("change:source", (e, { source }) => {
+    const c = currentSourceName;
     currentSource = base[source];
     currentSourceName = source;
-    e.reply("res:change:source", true);
+    e.reply("res:change:source", { c, n: source });
   });
 
   ipcMain.on("get:home", async (e) => {
@@ -123,15 +138,14 @@ export const handler = (win?: BrowserWindow) => {
   });
 
   ipcMain.on("get:read:local", async (e, a) => {
+    const _rid = (a.rid as string).includes("=") ? await getHash(a.rid) : a.rid;
     const main =
       app.getPath("desktop") + "/.dreader" + `/${await getHash(a.root)}`;
-
     if (!fs.existsSync(resolve(main))) {
       e.reply("res:read:local", false);
       return;
     }
-    const base = main + `/${a.rid}`;
-
+    const base = main + `/${_rid}`;
     if (!fs.existsSync(resolve(base))) {
       e.reply("res:read:local", false);
       return;

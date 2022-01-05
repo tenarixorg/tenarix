@@ -1,6 +1,6 @@
 import cheerio from "cheerio";
 import { GetContent, Parser, Read } from "types";
-import { decodeRoute } from "./util";
+import { decodeRoute } from "utils";
 
 export const _read = (content: GetContent, parser: Parser) => {
   return async (id: string): Promise<Read> => {

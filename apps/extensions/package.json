@@ -7,6 +7,7 @@
   "dependencies": {
     "types": "*",
     "config": "*",
+    "utils": "*",
     "cheerio": "^1.0.0-rc.10",
     "puppeteer": "^13.0.1"
   }

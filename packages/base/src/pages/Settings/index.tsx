@@ -5,6 +5,8 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import { Advanced, Appearance, Source } from "./App";
 import { useTheme } from "utils";
 
+const { api } = window.bridge;
+
 const Container = styled.div`
   display: flex;
   justify-content: center;
@@ -98,7 +100,7 @@ const Setting = styled.div<{ noBorder?: boolean }>`
   padding-top: ${(p) => (p.noBorder ? "0px" : "10px")};
 `;
 
-const SettingOpt = styled.button<{ hc: string }>`
+const SettingOpt = styled.button<{ hc: string; selected?: boolean }>`
   border: none;
   outline: none;
   cursor: pointer;
@@ -107,7 +109,7 @@ const SettingOpt = styled.button<{ hc: string }>`
   margin-top: 10px;
   padding: 0px 10px;
   border-radius: 5px;
-  background-color: transparent;
+  background-color: ${(p) => (p.selected ? p.hc : "transparent")};
   &:hover {
     background-color: ${(p) => p.hc};
   }
@@ -130,8 +132,14 @@ export const Settings: React.FC = () => {
   const navigation = useNavigate();
   const { colors } = useTheme();
   const [prevUrl, setPrevUrl] = useState("");
+  const [chsource, setChsource] = useState({ c: "", n: "" });
 
   useEffect(() => {
+    api.on("res:change:source", (_e, res) => {
+      console.log(res);
+
+      setChsource(res);
+    });
     setPrevUrl(window.history.state.prev);
   }, []);
 
@@ -146,6 +154,7 @@ export const Settings: React.FC = () => {
               </p>
             </Header>
             <SettingOpt
+              selected={window.location.href.includes("source")}
               hc={colors.buttons.hover}
               onClick={() => {
                 navigation("/settings/source");
@@ -154,6 +163,7 @@ export const Settings: React.FC = () => {
               <p style={{ color: colors.fontSecondary }}>Extensión</p>
             </SettingOpt>
             <SettingOpt
+              selected={window.location.href.includes("appearance")}
               hc={colors.buttons.hover}
               onClick={() => {
                 navigation("/settings/appearance");
@@ -162,6 +172,7 @@ export const Settings: React.FC = () => {
               <p style={{ color: colors.fontSecondary }}>Apariencia</p>
             </SettingOpt>
             <SettingOpt
+              selected={window.location.href.includes("advanced")}
               hc={colors.buttons.hover}
               onClick={() => {
                 navigation("/settings/advanced");
@@ -188,7 +199,12 @@ export const Settings: React.FC = () => {
           bg="transparent"
           margin="0px 0px 0px 10px"
           onClick={() => {
-            window.location.href = prevUrl;
+            if (chsource.c !== chsource.n) {
+              console.log(chsource);
+              window.location.href = "#/";
+            } else {
+              window.location.href = prevUrl;
+            }
           }}
         >
           <RiCloseLine size={25} color={colors.buttons.color} />

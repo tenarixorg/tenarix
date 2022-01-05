@@ -102,15 +102,17 @@ export const Details: React.FC = () => {
                   {data.description}
                 </Txt>
 
-                <Txt
-                  fs="24px"
-                  bold
-                  margin="0px 0px 4px 0px"
-                  color={colors.fontSecondary}
-                  style={{ margin: "20px 0px 10px 0px" }}
-                >
-                  Géneros
-                </Txt>
+                {data.genders.length > 0 && (
+                  <Txt
+                    fs="24px"
+                    bold
+                    margin="0px 0px 4px 0px"
+                    color={colors.fontSecondary}
+                    style={{ margin: "20px 0px 10px 0px" }}
+                  >
+                    Géneros
+                  </Txt>
+                )}
                 <GenderContainer>
                   {data.genders.map((e, i) => (
                     <GenderBadge colors={colors} text={e} key={i + e} />
