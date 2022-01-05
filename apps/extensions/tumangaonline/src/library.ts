@@ -1,5 +1,5 @@
 import { Filters, GetContent, LibItem, Library, Parser } from "types";
-import { encodeRoute } from "./util";
+import { encodeRoute } from "utils";
 
 const libraryParams = (page: string, filters?: Filters) => {
   return `https://lectortmo.com/library?order_item=likes_count&order_dir=desc&title=${

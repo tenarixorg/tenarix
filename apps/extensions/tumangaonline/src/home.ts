@@ -1,5 +1,5 @@
 import { HomeBase, Home, GetContent, Parser } from "types";
-import { encodeRoute } from "./util";
+import { encodeRoute } from "utils";
 
 export const _home =
   (content: GetContent, parser: Parser) => async (): Promise<Home> => {

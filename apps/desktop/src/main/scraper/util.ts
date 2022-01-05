@@ -3,6 +3,9 @@ import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import { load } from "cheerio";
 import { Content, Opts } from "types";
 
+const UA =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36 OPR/82.0.4227.50";
+
 puppeteer.use(StealthPlugin());
 
 const getChromiumExecPath = () => {
@@ -30,6 +33,7 @@ export const content = async (url: string, opts?: Opts): Promise<Content> => {
       req.abort();
     }
   });
+  await page.setUserAgent(UA);
   await page.goto(url);
   if (opts?.action) {
     await opts.action(page);
@@ -56,10 +60,32 @@ export const content = async (url: string, opts?: Opts): Promise<Content> => {
   return { innerHTML, current_url };
 };
 
-export const encodeRoute = (data: string) => {
-  return data.replace(/\//g, "=");
-};
-
-export const decodeRoute = (enco: string) => {
-  return enco.replace(/=/g, "/");
+export const getImg = async (url: string) => {
+  const browser = await puppeteer.launch();
+  const page_ = await browser.newPage();
+  await page_.setRequestInterception(true);
+  page_.on("request", (req) => {
+    if (req.resourceType() !== "document" && req.resourceType() !== "image") {
+      req.abort();
+    } else {
+      req.continue();
+    }
+  });
+  await page_.goto(url, { waitUntil: "networkidle0" });
+  await page_.waitForSelector("img", { timeout: 30000 });
+  await page_.setViewport({ height: 1920, width: 1080, deviceScaleFactor: 2 });
+  const image = await page_.$("img");
+  const box = await image?.boundingBox();
+  const x = box?.x;
+  const y = box?.y;
+  const w = box?.width;
+  const h = box?.height;
+  const img = await page_.screenshot({
+    encoding: "binary",
+    clip: { x: x || 0, y: y || 0, width: w || 0, height: h || 0 },
+    type: "jpeg",
+    quality: 100,
+  });
+  await browser.close();
+  return img as Buffer;
 };

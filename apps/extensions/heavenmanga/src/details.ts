@@ -1,5 +1,5 @@
 import { Chapter, Details, GetContent, Parser } from "types";
-import { decodeRoute, encodeRoute } from "./util";
+import { decodeRoute, encodeRoute } from "utils";
 
 export const _details = (content: GetContent, parser: Parser) => {
   return async (route: string): Promise<Details> => {

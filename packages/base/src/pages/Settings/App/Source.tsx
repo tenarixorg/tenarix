@@ -34,12 +34,11 @@ export const Source: React.FC = () => {
 
     return () => {
       api.removeAllListeners("res:settings");
-      api.removeAllListeners("res:change:source");
     };
   }, []);
 
   useEffect(() => {
-    api.send("change:source", { source });
+    source && api.send("change:source", { source });
   }, [source]);
   return (
     <div>

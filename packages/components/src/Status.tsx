@@ -27,18 +27,10 @@ interface Props {
   state: string;
   colors: Theme["dark"];
 }
-
-const getColor = (prop: string): string => {
-  if (prop.includes("inalz")) return "#f41d1d";
-  if (prop.includes("ublic")) return "#24b61f";
-  if (prop.includes("ausa")) return "#0891d1";
-  return "red";
-};
-
 export const Status: React.FC<Props> = (props) => {
   return (
     <Container bg={props.colors.primary} border={props.colors.buttons.border}>
-      <Circle color={getColor(props.state)} />
+      <Circle color={props.colors.secondary} />
       <p
         style={{
           fontSize: 15,
