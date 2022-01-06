@@ -5,7 +5,7 @@ import { getCache, setCache, hasCache } from "../store";
 import { decrypt, encrypt, getHash } from "../crypto";
 import { Readable } from "stream";
 import { resolve } from "path";
-import { getImg } from "../scraper";
+import { getImg } from "scraper";
 import { theme } from "utils";
 
 export const handler = (win?: BrowserWindow) => {

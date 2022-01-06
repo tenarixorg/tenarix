@@ -39,7 +39,9 @@
     "spinners-react": "^1.0.6",
     "styled-components": "^5.3.3",
     "types": "*",
-    "utils": "*"
+    "utils": "*",
+    "scraper": "*",
+    "context-providers": "*"
   },
   "devDependencies": {
     "@types/jest": "^27.4.0",

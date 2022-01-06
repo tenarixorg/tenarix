@@ -1,7 +1,7 @@
 import React from "react";
 import { Navbar } from "components";
 import { Base } from "base";
-import { ThemeProvider, useTheme } from "utils";
+import { ThemeProvider, useTheme } from "context-providers";
 const { api } = window.bridge;
 
 const Main: React.FC = () => {
