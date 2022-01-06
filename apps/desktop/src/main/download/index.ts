@@ -13,7 +13,7 @@ export const download = async (
       url,
       {
         headers,
-        timeout: 2000,
+        timeout: 5000,
       },
       (response) => {
         if (response.statusCode !== 200) {

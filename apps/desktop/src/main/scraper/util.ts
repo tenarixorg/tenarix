@@ -60,9 +60,11 @@ export const content = async (url: string, opts?: Opts): Promise<Content> => {
   return { innerHTML, current_url };
 };
 
-export const getImg = async (url: string) => {
-  const browser = await puppeteer.launch();
+export const getImg = async (url: string, headers?: Record<string, string>) => {
+  const browser = await puppeteer.launch({ headless: true });
   const page_ = await browser.newPage();
+  await page_.setUserAgent(UA);
+  await page_.setExtraHTTPHeaders(headers || {});
   await page_.setRequestInterception(true);
   page_.on("request", (req) => {
     if (req.resourceType() !== "document" && req.resourceType() !== "image") {
@@ -71,9 +73,9 @@ export const getImg = async (url: string) => {
       req.continue();
     }
   });
-  await page_.goto(url, { waitUntil: "networkidle0" });
+  await page_.goto(url, { waitUntil: "networkidle2" });
   await page_.waitForSelector("img", { timeout: 30000 });
-  await page_.setViewport({ height: 1920, width: 1080, deviceScaleFactor: 2 });
+  await page_.setViewport({ height: 4320, width: 7680, deviceScaleFactor: 1 });
   const image = await page_.$("img");
   const box = await image?.boundingBox();
   const x = box?.x;

@@ -1,8 +1,8 @@
 import fs from "fs";
 import base from "./extension";
-import { ipcMain, BrowserWindow, app, nativeTheme } from "electron";
+import { ipcMain, BrowserWindow, app, nativeTheme, session } from "electron";
+import { getCache, setCache, hasCache } from "../store";
 import { decrypt, encrypt, getHash } from "../crypto";
-import { download } from "../download";
 import { Readable } from "stream";
 import { resolve } from "path";
 import { getImg } from "../scraper";
@@ -14,6 +14,21 @@ export const handler = (win?: BrowserWindow) => {
   let currentTheme: "dark" | "light" = nativeTheme.shouldUseDarkColors
     ? "dark"
     : "light";
+
+  const filter = {
+    urls: ["*://*/*"],
+  };
+
+  session.defaultSession.webRequest.onBeforeSendHeaders(filter, (det, cb) => {
+    const url = new URL(det.url);
+    det.requestHeaders["Origin"] = url.origin;
+    if (currentSource.opts) {
+      for (const key of Object.keys(currentSource.opts.headers)) {
+        det.requestHeaders[key] = currentSource.opts.headers[key];
+      }
+    }
+    cb({ cancel: false, requestHeaders: det.requestHeaders });
+  });
 
   ipcMain.on("closeApp", () => {
     win?.close();
@@ -39,8 +54,7 @@ export const handler = (win?: BrowserWindow) => {
     e.reply("res:toggle:theme", currentTheme);
   });
 
-  ipcMain.on("download", async (e, { rid, root }) => {
-    const { id, imgs } = await currentSource.read(rid);
+  ipcMain.on("download", async (e, { rid, root, id, imgs }) => {
     const _rid = (rid as string).includes("=") ? await getHash(rid) : rid;
     const main =
       resolve(app.getPath("desktop")) + "/.dreader" + `/${await getHash(root)}`;
@@ -48,42 +62,15 @@ export const handler = (win?: BrowserWindow) => {
     if (!fs.existsSync(main)) fs.mkdirSync(main, { recursive: true });
     if (!fs.existsSync(base)) fs.mkdirSync(base, { recursive: true });
     for (const img of imgs) {
-      try {
-        console.log("downloading...", img.page);
-        let data: Buffer | null = null;
-        if (img.free) {
-          data = await getImg(img.url);
-        } else {
-          data = await download(img.url, currentSource.opts?.headers);
-        }
-        if (data) {
-          const stream = Readable.from(data);
-          await encrypt(
-            "some random password",
-            resolve(base, `./${id}_${img.page}`),
-            stream
-          );
-        }
-        console.log("done");
-      } catch (error: any) {
-        console.log("failed...", img.page);
-        console.log("retrying..." + img.page);
-        let data: Buffer | null = null;
-        if (img.free) {
-          data = await getImg(img.url);
-        } else {
-          data = await download(img.url, currentSource.opts?.headers);
-        }
-        if (data) {
-          const stream = Readable.from(data);
-          await encrypt(
-            "some random password",
-            resolve(base, `./${id}_${img.page}`),
-            stream
-          );
-        }
-        console.log("done");
-      }
+      console.log("downloading...", img.page);
+      const data = await getImg(img.url, currentSource.opts?.headers);
+      const stream = Readable.from(data);
+      await encrypt(
+        "some random password",
+        resolve(base, `./${id}_${img.page}`),
+        stream
+      );
+      console.log("done");
     }
     e.reply("download:done", rid);
   });
@@ -101,40 +88,51 @@ export const handler = (win?: BrowserWindow) => {
   });
 
   ipcMain.on("get:home", async (e) => {
-    const res = await currentSource.home();
-    e.reply("res:home", res);
+    if (hasCache(currentSourceName, "home")) {
+      e.reply("res:home", getCache(currentSourceName, "home"));
+    } else {
+      const res = await currentSource.home();
+      setCache(currentSourceName, "home", res);
+      e.reply("res:home", res);
+    }
   });
 
   ipcMain.on("get:details", async (e, { route }) => {
-    const res = await currentSource.details(route);
-    e.reply("res:details", res);
+    const key = "details" + route;
+    if (hasCache(currentSourceName, key)) {
+      e.reply("res:details", getCache(currentSourceName, key));
+    } else {
+      const res = await currentSource.details(route);
+      setCache(currentSourceName, key, res);
+      e.reply("res:details", res);
+    }
   });
 
   ipcMain.on("get:library", async (e, { page, filters }) => {
-    const res = await currentSource.library(page, filters);
-    e.reply("res:library", res.items);
+    const key =
+      "library" + page + JSON.stringify(filters).replace(/({|}|,|"|:)/g, "");
+    if (hasCache(currentSourceName, key)) {
+      e.reply("res:library", getCache(currentSourceName, key));
+    } else {
+      const res = await currentSource.library(page, filters);
+      setCache(currentSourceName, key, res.items);
+      e.reply("res:library", res.items);
+    }
   });
 
   ipcMain.on("get:read:init", async (e, { id }) => {
-    const res = await currentSource.read(id);
-    e.reply("res:read:init", res);
+    const key = "read" + id;
+    if (hasCache(currentSourceName, key)) {
+      e.reply("res:read:init", getCache(currentSourceName, key));
+    } else {
+      const res = await currentSource.read(id);
+      setCache(currentSourceName, key, res);
+      e.reply("res:read:init", res);
+    }
   });
 
   ipcMain.on("get:read:page", async (e, { img }) => {
-    if (!img.free) {
-      try {
-        console.log("reading");
-        const res = await download(img.url, currentSource.opts?.headers);
-        e.reply("res:read:page", res);
-      } catch (error: any) {
-        console.log("failing");
-        console.log("reading");
-        const res = await download(img.url, currentSource.opts?.headers);
-        e.reply("res:read:page", res);
-      }
-    } else {
-      e.reply("res:read:page", img.url);
-    }
+    e.reply("res:read:page", img);
   });
 
   ipcMain.on("get:read:local", async (e, a) => {
@@ -150,13 +148,15 @@ export const handler = (win?: BrowserWindow) => {
       e.reply("res:read:local", false);
       return;
     }
-    if (a.page > a.total) {
-      e.reply("res:read:local", false);
-      return;
-    }
-    const file = base + `/${a.id}_${a.page}`;
+    const res: Buffer[] = [];
+    console.log("using local");
     try {
-      const res = await decrypt("some random password", file);
+      for (let i = 0; i < a.total; i++) {
+        const file = base + `/${a.id}_${i + 1}`;
+        const res_ = await decrypt("some random password", file);
+        res.push(res_);
+      }
+
       e.reply("res:read:local", res);
     } catch (error: any) {
       e.reply("res:read:local", false);

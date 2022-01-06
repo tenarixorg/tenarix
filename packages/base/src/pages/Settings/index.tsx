@@ -154,7 +154,7 @@ export const Settings: React.FC = () => {
               </p>
             </Header>
             <SettingOpt
-              selected={window.location.href.includes("source")}
+              selected={window.location.href.endsWith("source")}
               hc={colors.buttons.hover}
               onClick={() => {
                 navigation("/settings/source");
@@ -163,7 +163,7 @@ export const Settings: React.FC = () => {
               <p style={{ color: colors.fontSecondary }}>Extensión</p>
             </SettingOpt>
             <SettingOpt
-              selected={window.location.href.includes("appearance")}
+              selected={window.location.href.endsWith("appearance")}
               hc={colors.buttons.hover}
               onClick={() => {
                 navigation("/settings/appearance");
@@ -172,7 +172,7 @@ export const Settings: React.FC = () => {
               <p style={{ color: colors.fontSecondary }}>Apariencia</p>
             </SettingOpt>
             <SettingOpt
-              selected={window.location.href.includes("advanced")}
+              selected={window.location.href.endsWith("advanced")}
               hc={colors.buttons.hover}
               onClick={() => {
                 navigation("/settings/advanced");
