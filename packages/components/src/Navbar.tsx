@@ -1,16 +1,14 @@
+/* eslint-disable react/display-name */
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import styled from "styled-components";
 import { MdSearch } from "react-icons/md";
 import {
-  RiArrowLeftSLine,
   RiCloseFill,
   RiCheckboxMultipleBlankLine,
   RiSubtractFill,
-  RiArrowRightSLine,
-  RiHome2Line,
   RiCheckboxBlankLine,
-  RiSettings2Line,
 } from "react-icons/ri";
+import { AiOutlineMenu } from "react-icons/ai";
 import { Theme } from "utils";
 
 const { api } = window.bridge;
@@ -80,149 +78,157 @@ const Btn = styled.button<{ hc: string }>`
     background-color: ${(p) => p.hc};
   }
 `;
+const Btn2 = styled.button<{ hc: string; animate?: boolean }>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  width: 24px;
+  height: 22px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  &:hover {
+    background-color: ${(p) => p.hc};
+  }
+  transition: transform 400ms ease-in-out;
+
+  transform: rotate(${(p) => (p.animate ? "90" : "0")}deg);
+`;
 
 interface Props {
   close: () => void;
   minimize: () => void;
   maximize: () => void;
-  back: () => void;
-  home: () => void;
-  forward: () => void;
-  settings: () => void;
+  sidebar: () => void;
   colors: Theme["dark"];
+  sideAni?: boolean;
 }
+export const Navbar = React.forwardRef<HTMLButtonElement, Props>(
+  (props, ref) => {
+    const [resize, setResize] = useState(true);
+    const [search, setSearch] = useState(false);
+    const [query, setQuery] = useState("");
+    const inputRef = useRef<HTMLInputElement | null>(null);
 
-export const Navbar: React.FC<Props> = (props) => {
-  const [resize, setResize] = useState(true);
-  const [search, setSearch] = useState(false);
-  const [query, setQuery] = useState("");
-  const inputRef = useRef<HTMLInputElement | null>(null);
+    const handleSearch = useCallback(
+      (e: MouseEvent) => {
+        if (!inputRef.current?.contains(e.target as Node)) {
+          setSearch(false);
+        }
+      },
+      [inputRef]
+    );
 
-  const handleSearch = useCallback(
-    (e: MouseEvent) => {
-      if (!inputRef.current?.contains(e.target as Node)) {
-        setSearch(false);
-      }
-    },
-    [inputRef]
-  );
+    useEffect(() => {
+      api.on("resize", (_e, p) => {
+        setResize(p);
+      });
 
-  useEffect(() => {
-    api.on("resize", (_e, p) => {
-      setResize(p);
-    });
+      document.addEventListener("mousedown", handleSearch);
 
-    document.addEventListener("mousedown", handleSearch);
-
-    return () => {
-      document.removeEventListener("mousedown", handleSearch);
-      api.removeAllListeners("resize");
-    };
-  }, [handleSearch]);
-  return (
-    <Container bg={props.colors.navbar.background}>
-      <Menu width="fit-content" dir="left" padding="0px">
-        <Item>
-          <Btn onClick={props.back} hc={props.colors.navbar.buttons.hover}>
-            <RiArrowLeftSLine
-              size={22}
-              color={props.colors.navbar.buttons.color}
-            />
-          </Btn>
-        </Item>
-        <Item>
-          <Btn onClick={props.home} hc={props.colors.navbar.buttons.hover}>
-            <RiHome2Line size={18} color={props.colors.navbar.buttons.color} />
-          </Btn>
-        </Item>
-        <Item>
-          <Btn onClick={props.forward} hc={props.colors.navbar.buttons.hover}>
-            <RiArrowRightSLine
-              size={22}
-              color={props.colors.navbar.buttons.color}
-            />
-          </Btn>
-        </Item>
-      </Menu>
-      <Drag />
-      <Menu width="fit-content" dir="right">
-        <Item>
-          <Btn hc={props.colors.navbar.buttons.hover} onClick={props.settings}>
-            <RiSettings2Line
-              style={{}}
-              size={15}
-              color={props.colors.navbar.buttons.color}
-            />
-          </Btn>
-        </Item>
-        <Item>
-          <Btn
-            hc={props.colors.navbar.buttons.hover}
-            onClick={() => {
-              if (!window.location.href.includes("settings")) {
-                setSearch((c) => !c);
-                inputRef.current?.focus();
-              }
-            }}
-          >
-            <MdSearch size={18} color={props.colors.navbar.buttons.color} />
-          </Btn>
-        </Item>
-        <Item>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              setSearch(false);
-              setQuery("");
-              window.location.href = `#/library/${query}`;
-            }}
-          >
-            <Input
-              color={props.colors.navbar.buttons.color}
-              bg="transparent"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              ref={inputRef}
-              type="text"
-              width={search ? "200px" : "0px"}
-            />
-          </form>
-        </Item>
-        <Item>
-          <Btn
-            hc={props.colors.navbar.buttons.hover}
-            onClick={props.minimize}
-            style={{
-              alignItems: "flex-end",
-            }}
-          >
-            <RiSubtractFill
-              size={16}
-              color={props.colors.navbar.buttons.color}
-            />
-          </Btn>
-        </Item>
-        <Item>
-          <Btn onClick={props.maximize} hc={props.colors.navbar.buttons.hover}>
-            {resize ? (
-              <RiCheckboxMultipleBlankLine
-                size={14}
+      return () => {
+        document.removeEventListener("mousedown", handleSearch);
+        api.removeAllListeners("resize");
+      };
+    }, [handleSearch]);
+    return (
+      <Container bg={props.colors.navbar.background}>
+        <Menu width="fit-content" dir="left" padding="0px">
+          <Item>
+            <Btn2
+              animate={props.sideAni}
+              onClick={() => {
+                props.sidebar();
+              }}
+              hc="transparent"
+              style={{ marginLeft: 2, width: 30 }}
+              ref={ref}
+            >
+              <AiOutlineMenu
+                size={18}
                 color={props.colors.navbar.buttons.color}
               />
-            ) : (
-              <RiCheckboxBlankLine
-                size={14}
+            </Btn2>
+          </Item>
+        </Menu>
+        <Drag />
+        <Menu width="fit-content" dir="right">
+          <Item>
+            <Btn
+              hc={props.colors.navbar.buttons.hover}
+              onClick={() => {
+                if (!window.location.href.includes("settings")) {
+                  setSearch((c) => !c);
+                  inputRef.current?.focus();
+                }
+              }}
+            >
+              <MdSearch size={18} color={props.colors.navbar.buttons.color} />
+            </Btn>
+          </Item>
+          <Item>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setSearch(false);
+                setQuery("");
+                window.location.href = `#/library/${query}`;
+              }}
+            >
+              <Input
+                color={props.colors.navbar.buttons.color}
+                bg="transparent"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                ref={inputRef}
+                type="text"
+                width={search ? "200px" : "0px"}
+              />
+            </form>
+          </Item>
+          <Item>
+            <Btn
+              hc={props.colors.navbar.buttons.hover}
+              onClick={props.minimize}
+              style={{
+                alignItems: "flex-end",
+              }}
+            >
+              <RiSubtractFill
+                size={16}
                 color={props.colors.navbar.buttons.color}
               />
-            )}
-          </Btn>
-        </Item>
-        <Item>
-          <Btn onClick={props.close} hc="#f41d1d">
-            <RiCloseFill size={16} color={props.colors.navbar.buttons.color} />
-          </Btn>
-        </Item>
-      </Menu>
-    </Container>
-  );
-};
+            </Btn>
+          </Item>
+          <Item>
+            <Btn
+              onClick={props.maximize}
+              hc={props.colors.navbar.buttons.hover}
+            >
+              {resize ? (
+                <RiCheckboxMultipleBlankLine
+                  size={14}
+                  color={props.colors.navbar.buttons.color}
+                />
+              ) : (
+                <RiCheckboxBlankLine
+                  size={14}
+                  color={props.colors.navbar.buttons.color}
+                />
+              )}
+            </Btn>
+          </Item>
+          <Item>
+            <Btn onClick={props.close} hc="#f41d1d">
+              <RiCloseFill
+                size={16}
+                color={props.colors.navbar.buttons.color}
+              />
+            </Btn>
+          </Item>
+        </Menu>
+      </Container>
+    );
+  }
+);

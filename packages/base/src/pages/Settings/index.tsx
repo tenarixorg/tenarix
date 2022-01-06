@@ -136,8 +136,6 @@ export const Settings: React.FC = () => {
 
   useEffect(() => {
     api.on("res:change:source", (_e, res) => {
-      console.log(res);
-
       setChsource(res);
     });
     setPrevUrl(window.history.state.prev);
