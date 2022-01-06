@@ -106,6 +106,7 @@ export const Card: React.FC<Props> = (props) => {
         alt="card-image"
         style={{
           width: "100%",
+          height: "100%",
         }}
         draggable={false}
         onError={(e) => {

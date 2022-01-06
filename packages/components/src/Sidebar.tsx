@@ -32,7 +32,7 @@ const Container = styled.div<{ closed?: boolean; bg: string }>`
 
 const BottomOpts = styled.div`
   position: absolute;
-  bottom: 40px;
+  bottom: 10%;
   width: 100%;
   display: flex;
   flex-direction: column;
