@@ -1,18 +1,21 @@
 /* eslint-disable no-undef */
 import yargs from "yargs";
 import fs from "fs";
+import { index, read, home, library, details } from "./template/src/index.js";
 import { fileURLToPath } from "url";
+import { packagejson } from "./template/packagejson.js";
+import { tsconfig } from "./template/tsconfig.js";
 import { hideBin } from "yargs/helpers";
 import { join } from "path";
+
 import {
-  index,
-  read,
-  home,
-  library,
-  details,
-  packagejson,
-  tsconfig,
-} from "./template/index.js";
+  tindex,
+  tread,
+  thome,
+  tlibrary,
+  tdetails,
+  thelper,
+} from "./template/test/index.js";
 
 const { n, d, Help } = yargs(hideBin(process.argv)).argv;
 const __ext = join(fileURLToPath(import.meta.url), "../../../apps/extensions/");
@@ -43,6 +46,21 @@ async function main(n, d, Help) {
     const homeF = fs.createWriteStream(join(__root, "src/", "home.ts"));
     const tsconfigF = fs.createWriteStream(join(__root, "tsconfig.json"));
     const packageF = fs.createWriteStream(join(__root, "package.json"));
+    fs.mkdirSync(join(__root, "test/helper/"), { recursive: true });
+    const tindexF = fs.createWriteStream(
+      join(__root, "test/", "index.spec.ts")
+    );
+    const tlibraryF = fs.createWriteStream(
+      join(__root, "test/", "library.spec.ts")
+    );
+    const treadF = fs.createWriteStream(join(__root, "test/", "read.spec.ts"));
+    const tdetailsF = fs.createWriteStream(
+      join(__root, "test/", "details.spec.ts")
+    );
+    const thomeF = fs.createWriteStream(join(__root, "test/", "home.spec.ts"));
+    const thelperF = fs.createWriteStream(
+      join(__root, "test/helper/", "index.ts")
+    );
 
     indexF.write(index(n), (err) => {
       if (err) throw err;
@@ -53,22 +71,57 @@ async function main(n, d, Help) {
       if (err) throw err;
       libraryF.close();
     });
+
     readF.write(read, (err) => {
       if (err) throw err;
       readF.close();
     });
+
     detailsF.write(details, (err) => {
       if (err) throw err;
       detailsF.close();
     });
+
     homeF.write(home, (err) => {
       if (err) throw err;
       homeF.close();
     });
+
+    tindexF.write(tindex, (err) => {
+      if (err) throw err;
+      tindexF.close();
+    });
+
+    tlibraryF.write(tlibrary, (err) => {
+      if (err) throw err;
+      tlibraryF.close();
+    });
+
+    treadF.write(tread, (err) => {
+      if (err) throw err;
+      treadF.close();
+    });
+
+    tdetailsF.write(tdetails, (err) => {
+      if (err) throw err;
+      tdetailsF.close();
+    });
+
+    thomeF.write(thome, (err) => {
+      if (err) throw err;
+      thomeF.close();
+    });
+
+    thelperF.write(thelper, (err) => {
+      if (err) throw err;
+      thelperF.close();
+    });
+
     tsconfigF.write(tsconfig, (err) => {
       if (err) throw err;
       tsconfigF.close();
     });
+
     packageF.write(packagejson(d), (err) => {
       if (err) throw err;
       packageF.close();
