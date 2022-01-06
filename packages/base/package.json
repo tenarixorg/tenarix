@@ -12,7 +12,8 @@
     "react-router-dom": "^6.2.1",
     "styled-components": "^5.3.3",
     "types": "*",
-    "utils": "*"
+    "utils": "*",
+    "context-providers": "*"
   },
   "devDependencies": {
     "@types/react": "^17.0.38",

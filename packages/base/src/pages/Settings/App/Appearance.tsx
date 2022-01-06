@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useTheme } from "utils";
+import { useTheme } from "context-providers";
 const { api } = window.bridge;
 
 export const Appearance: React.FC = () => {

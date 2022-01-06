@@ -4,7 +4,7 @@ import { BsChevronBarExpand } from "react-icons/bs";
 import { SpinnerDotted, SpinnerInfinity } from "spinners-react";
 import { Read as ReadT } from "types";
 import { useParams } from "react-router-dom";
-import { useTheme } from "utils";
+import { useTheme } from "context-providers";
 import {
   BtnAni,
   Container,

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { RiCloseLine } from "react-icons/ri";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { Advanced, Appearance, Source } from "./App";
-import { useTheme } from "utils";
+import { useTheme } from "context-providers";
 
 const { api } = window.bridge;
 

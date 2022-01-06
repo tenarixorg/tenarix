@@ -1,5 +1,5 @@
 import React from "react";
-import { useTheme } from "utils";
+import { useTheme } from "context-providers";
 
 export const Advanced: React.FC = () => {
   const { colors } = useTheme();

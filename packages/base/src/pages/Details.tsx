@@ -5,7 +5,7 @@ import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 import { useNavigate, useParams } from "react-router-dom";
 import { Details as DetailsT } from "types";
 import { SpinnerDotted } from "spinners-react";
-import { useTheme } from "utils";
+import { useTheme } from "context-providers";
 import {
   Btn,
   CardInfo,

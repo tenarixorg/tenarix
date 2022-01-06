@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { useTheme } from "utils";
+import { useTheme } from "context-providers";
 const { api } = window.bridge;
 
 const capitalize = (data: string) => data[0].toUpperCase() + data.slice(1);

@@ -1,5 +1,4 @@
 export * from "./theme";
-export * from "./context";
 
 export const encodeRoute = (data: string) => {
   return data.replace(/\//g, "=");

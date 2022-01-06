@@ -3,7 +3,7 @@ import { Container, Grid, Loading, Head, Txt } from "components/src/Elements";
 import { Home as HomeT } from "types";
 import { SpinnerDotted } from "spinners-react";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "utils";
+import { useTheme } from "context-providers";
 import { Card } from "components";
 
 const { api } = window.bridge;
