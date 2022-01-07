@@ -3,7 +3,7 @@ import { RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
 import { BsChevronBarExpand } from "react-icons/bs";
 import { SpinnerDotted, SpinnerInfinity } from "spinners-react";
 import { Read as ReadT } from "types";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { useTheme } from "context-providers";
 import {
   BtnAni,
@@ -40,6 +40,7 @@ export const Read: React.FC = () => {
   const [remote, setRemote] = useState(false);
   const [cascade, setCascade] = useState(false);
   const [localImgs, setLocalImgs] = useState<string[]>([]);
+  const { state: URLstate } = useLocation();
 
   const getNext = useCallback(() => {
     if (current <= 1) setCurrent(1);
@@ -112,7 +113,10 @@ export const Read: React.FC = () => {
       }
     });
 
-    api.send("get:read:init", { id: params.id });
+    api.send("get:read:init", {
+      id: params.id,
+      ext: (URLstate as any)?.ext || "",
+    });
 
     mounted.current = true;
     return () => {
@@ -121,7 +125,7 @@ export const Read: React.FC = () => {
       api.removeAllListeners("res:read:page");
       api.removeAllListeners("res:read:local");
     };
-  }, [params.id]);
+  }, [params.id, URLstate]);
 
   useEffect(() => {
     getNext();

@@ -145,13 +145,15 @@ export const handler = (win?: BrowserWindow) => {
     }
   });
 
-  ipcMain.on("get:read:init", async (e, { id }) => {
+  ipcMain.on("get:read:init", async (e, { id, ext }) => {
     const key = "read" + id;
-    if (hasCache(currentSourceName, key)) {
-      e.reply("res:read:init", getCache(currentSourceName, key));
+    const source = ext || currentSourceName;
+    currentSource = base[source];
+    if (hasCache(source, key)) {
+      e.reply("res:read:init", getCache(source, key));
     } else {
       const res = await currentSource.read(id);
-      setCache(currentSourceName, key, res);
+      setCache(source, key, res);
       e.reply("res:read:init", res);
     }
   });

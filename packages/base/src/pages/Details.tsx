@@ -195,7 +195,9 @@ export const Details: React.FC = () => {
                     root={params.route || ""}
                     chapter={e}
                     handler={(id) => {
-                      navigation(`/read/${params.route}/${id}`);
+                      navigation(`/read/${params.route}/${id}`, {
+                        state: { ext: (URLstate as any)?.ext || "" },
+                      });
                     }}
                   />
                 </div>
