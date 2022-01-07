@@ -20,4 +20,4 @@ limitations under the License.
 
 ## Disclaimer
 
-The application's developer doesn't have any affiliation with the content providers available.
+Developers have no affiliation with the available content providers.
