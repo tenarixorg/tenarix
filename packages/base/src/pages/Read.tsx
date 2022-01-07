@@ -203,15 +203,7 @@ export const Read: React.FC = () => {
             <>
               {cascade && data?.imgs && data.imgs.length > 0 ? (
                 data?.imgs.map((im, ix) => (
-                  <ReadImg
-                    src={im.url}
-                    key={ix}
-                    alt="img"
-                    draggable={false}
-                    onLoad={() => {
-                      console.log("loaded");
-                    }}
-                  />
+                  <ReadImg src={im.url} key={ix} alt="img" draggable={false} />
                 ))
               ) : (
                 <ReadImg src={img} alt="img" draggable={false} />
@@ -221,15 +213,7 @@ export const Read: React.FC = () => {
             <>
               {cascade && localImgs.length > 0 ? (
                 localImgs.map((im, ix) => (
-                  <ReadImg
-                    src={im}
-                    key={ix}
-                    alt="img"
-                    draggable={false}
-                    onLoad={() => {
-                      console.log("loaded");
-                    }}
-                  />
+                  <ReadImg src={im} key={ix} alt="img" draggable={false} />
                 ))
               ) : (
                 <ReadImg src={img} alt="img" draggable={false} />

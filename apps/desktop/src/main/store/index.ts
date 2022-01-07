@@ -17,3 +17,5 @@ export const getCache = <T>(ext: string, target: string): T | undefined => {
 export const hasCache = (ext: string, target: string): boolean => {
   return store.has(`${ext}_${target}`);
 };
+
+export * from "./favorites";

@@ -1,7 +1,16 @@
 import fs from "fs";
 import base from "./extension";
 import { ipcMain, BrowserWindow, app, nativeTheme, session } from "electron";
-import { getCache, setCache, hasCache } from "../store";
+import {
+  getCache,
+  setCache,
+  hasCache,
+  hasFavorite,
+  setFavorite,
+  removeFavorite,
+  getFavorite,
+  getAllFavs,
+} from "../store";
 import { decrypt, encrypt, getHash } from "../crypto";
 import { Readable } from "stream";
 import { resolve } from "path";
@@ -97,14 +106,30 @@ export const handler = (win?: BrowserWindow) => {
     }
   });
 
-  ipcMain.on("get:details", async (e, { route }) => {
+  ipcMain.on("get:details", async (e, { route, ext }) => {
+    if (ext) {
+      e.reply("res:details", {
+        res: getFavorite(ext, route),
+        fav: true,
+      });
+      return;
+    }
+
     const key = "details" + route;
-    if (hasCache(currentSourceName, key)) {
-      e.reply("res:details", getCache(currentSourceName, key));
+    if (hasFavorite(currentSourceName, route)) {
+      e.reply("res:details", {
+        res: getFavorite(currentSourceName, route),
+        fav: true,
+      });
+    } else if (hasCache(currentSourceName, key)) {
+      e.reply("res:details", {
+        res: getCache(currentSourceName, key),
+        fav: false,
+      });
     } else {
       const res = await currentSource.details(route);
       setCache(currentSourceName, key, res);
-      e.reply("res:details", res);
+      e.reply("res:details", { res, fav: false });
     }
   });
 
@@ -149,7 +174,6 @@ export const handler = (win?: BrowserWindow) => {
       return;
     }
     const res: Buffer[] = [];
-    console.log("using local");
     try {
       for (let i = 0; i < a.total; i++) {
         const file = base + `/${a.id}_${i + 1}`;
@@ -161,5 +185,20 @@ export const handler = (win?: BrowserWindow) => {
     } catch (error: any) {
       e.reply("res:read:local", false);
     }
+  });
+
+  ipcMain.on("set:favorite", (_e, { route, data }) => {
+    if (hasFavorite(currentSourceName, route)) return;
+    setFavorite(currentSourceName, route, data);
+  });
+
+  ipcMain.on("remove:favorite", (_e, { route, ext }) => {
+    const _ext = ext || currentSource;
+    removeFavorite(_ext, route);
+  });
+
+  ipcMain.on("get:favorites", (e) => {
+    const res = getAllFavs();
+    e.reply("res:favorites", res);
   });
 };

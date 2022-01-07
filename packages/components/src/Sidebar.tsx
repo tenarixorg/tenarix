@@ -7,8 +7,7 @@ import {
   RiArrowRightSLine,
   RiHome2Line,
 } from "react-icons/ri";
-import { BsBook } from "react-icons/bs";
-import { IoCogOutline } from "react-icons/io5";
+import { IoCogOutline, IoHeartOutline } from "react-icons/io5";
 
 const upAni = "translateY(-4px)";
 const rotAni = "rotate(45deg)";
@@ -25,7 +24,7 @@ const Container = styled.div<{ closed?: boolean; bg: string }>`
   width: ${(p) => (p.closed ? "0px" : "32px")};
   transition: width 400ms ease-in-out;
   background-color: ${(p) => p.bg};
-  z-index: 10;
+  z-index: 100;
   position: absolute;
   top: 0;
 `;
@@ -92,9 +91,9 @@ export const Sidebar = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
         <Btn
           animation={upAni}
           onClick={props.favorites}
-          margin="0px 0px 10px 0px"
+          margin="0px 0px 12px 0px"
         >
-          <BsBook size={19} color={props.colors.navbar.buttons.color} />
+          <IoHeartOutline size={22} color={props.colors.navbar.buttons.color} />
         </Btn>
         <Btn
           animation={rotAni}

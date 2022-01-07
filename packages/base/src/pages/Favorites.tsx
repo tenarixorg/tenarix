@@ -1,29 +1,35 @@
 import React, { useState, useEffect } from "react";
-import { Container, Grid, Loading, Head, Txt } from "components/src/Elements";
-import { Home as HomeT } from "types";
+import { Container, Grid, Head, Loading, Txt } from "components/src/Elements";
 import { SpinnerDotted } from "spinners-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "context-providers";
+import { Details } from "types";
 import { Card } from "components";
 
 const { api } = window.bridge;
 
-export const Home: React.FC = () => {
+interface FavHome {
+  route: string;
+  ext: string;
+  data: Details;
+}
+
+export const Favorites: React.FC = () => {
   const navigation = useNavigate();
   const { colors } = useTheme();
+  const [favs, setFavs] = useState<FavHome[]>([]);
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<HomeT>({
-    popular: [],
-  });
 
   useEffect(() => {
-    api.on("res:home", (_e, res) => {
+    api.on("res:favorites", (_e, res) => {
+      setFavs(res);
       setLoading(false);
-      setData(res);
     });
-    api.send("get:home");
+
+    api.send("get:favorites");
+
     return () => {
-      api.removeAllListeners("res:home");
+      api.removeAllListeners("res:favorites");
     };
   }, []);
 
@@ -46,26 +52,32 @@ export const Home: React.FC = () => {
         <>
           <Head>
             <Txt fs="16px" bold color={colors.fontPrimary}>
-              Popular
+              Favoritos
             </Txt>
           </Head>
 
           <Grid margin="10px 0px 0px 5px">
-            {data.popular &&
-              data.popular.length !== 0 &&
-              data.popular.map((e, i) => (
+            {favs &&
+              favs.length !== 0 &&
+              favs.map((e, i) => (
                 <Card
                   colors={colors}
                   pointer
+                  showFav
+                  favorite
                   key={i}
-                  img={e.img}
+                  img={e.data.img}
                   onClick={() => {
-                    navigation(`/details/${e.route}`);
+                    navigation(`/details/${e.route}`, {
+                      state: { ext: e.ext },
+                    });
                   }}
-                  type={e.type}
-                  demography={e.demography}
-                  title={e.title}
-                  score={e.score}
+                  type={e.data.type}
+                  title={e.data.title}
+                  setFavorite={() => {
+                    api.send("remove:favorite", { route: e.route, ext: e.ext });
+                    api.send("get:favorites");
+                  }}
                 />
               ))}
           </Grid>

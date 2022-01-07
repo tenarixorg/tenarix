@@ -198,7 +198,6 @@ export const Settings: React.FC = () => {
           margin="0px 0px 0px 10px"
           onClick={() => {
             if (chsource.c !== chsource.n) {
-              console.log(chsource);
               window.location.href = "#/";
             } else {
               window.location.href = prevUrl;

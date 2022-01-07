@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { BsSortNumericDown, BsSortNumericUpAlt } from "react-icons/bs";
 import { Chapter, Status, GenderBadge, Card } from "components";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Details as DetailsT } from "types";
 import { SpinnerDotted } from "spinners-react";
 import { useTheme } from "context-providers";
@@ -28,19 +28,26 @@ export const Details: React.FC = () => {
   const { colors } = useTheme();
   const [data, setData] = useState<DetailsT>();
   const [order, setOrder] = useState(true);
-  const [show, setShow] = useState(true);
+  const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [favorite2, setFavorite2] = useState(false);
+
+  const { state: URLstate } = useLocation();
 
   useEffect(() => {
-    api.on("res:details", (_e, res) => {
+    api.on("res:details", (_e, { res, fav }) => {
       setData(res);
+      setFavorite2(fav);
       setLoading(false);
     });
-    api.send("get:details", { route: params.route });
+    api.send("get:details", {
+      route: params.route,
+      ext: (URLstate as any)?.ext || "",
+    });
     return () => {
       api.removeAllListeners("res:details");
     };
-  }, [params.route]);
+  }, [params.route, URLstate]);
 
   return (
     <Container
@@ -69,6 +76,19 @@ export const Details: React.FC = () => {
                   type={data.type}
                   score={data.score}
                   demography={data.demography}
+                  showFav
+                  favorite={favorite2}
+                  setFavorite={(f) => {
+                    setFavorite2(f);
+                    if (f) {
+                      api.send("set:favorite", { route: params.route, data });
+                    } else {
+                      api.send("remove:favorite", {
+                        route: params.route,
+                        ext: (URLstate as any)?.ext || "",
+                      });
+                    }
+                  }}
                 />
               </CardInfo>
               <Info>

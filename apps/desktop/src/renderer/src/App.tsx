@@ -68,7 +68,8 @@ const Main: React.FC = () => {
             setClosed((c) => !c);
           }}
           favorites={() => {
-            //TODO
+            window.location.href = "#/favorites";
+            setClosed((c) => !c);
           }}
           settings={() => {
             window.history.pushState(
