@@ -1,6 +1,5 @@
 import { load } from "cheerio";
 import { Page as BPage } from "puppeteer";
-import { OutgoingHttpHeaders } from "http";
 
 export interface ChapterInfo {
   src: string;
@@ -97,7 +96,7 @@ export interface AppContent {
   library: (page: string, filters: Filters) => Promise<Library>;
   read: (id: string) => Promise<Read>;
   opts?: {
-    headers: OutgoingHttpHeaders;
+    headers: Record<string, string>;
   };
 }
 

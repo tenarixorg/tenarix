@@ -1,6 +1,6 @@
 import fs from "fs";
-import { resolve } from "path";
 import { decrypt, encrypt, getHash } from "../src/main/crypto";
+import { resolve } from "path";
 
 describe("Encryption", () => {
   test("should encrypt file", async () => {

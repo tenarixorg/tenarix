@@ -1,4 +1,4 @@
-import { content, parser } from "../scraper";
+import { content, parser } from "scraper";
 import { extensions } from "extensions";
 import { AppContent } from "types";
 

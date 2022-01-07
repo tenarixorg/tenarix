@@ -25,5 +25,3 @@ export * from "./details.js";
 export * from "./home.js";
 export * from "./library.js";
 export * from "./read.js";
-export * from "./packagejson.js";
-export * from "./tsconfig.js";

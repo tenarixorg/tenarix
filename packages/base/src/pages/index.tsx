@@ -5,6 +5,7 @@ import { Details } from "./Details";
 import { Home } from "./Home";
 import { Read } from "./Read";
 import { Settings } from "./Settings";
+import { Favorites } from "./Favorites";
 
 const NotFound = () => {
   const navigation = useNavigate();
@@ -30,6 +31,7 @@ export const Pages: React.FC = () => {
         <Route path="/details/:route" element={<Details />} />
         <Route path="/read/:route/:id" element={<Read />} />
         <Route path="/library/:query" element={<Library />} />
+        <Route path="/favorites" element={<Favorites />} />
         <Route path="/settings/*" element={<Settings />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

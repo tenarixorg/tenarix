@@ -1,26 +1,44 @@
-import React from "react";
-import { Navbar } from "components";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { ThemeProvider, useTheme } from "context-providers";
+import { Navbar, Sidebar } from "components";
 import { Base } from "base";
-import { ThemeProvider, useTheme } from "utils";
+
 const { api } = window.bridge;
 
 const Main: React.FC = () => {
   const { colors } = useTheme();
+  const [closed, setClosed] = useState(true);
+  const sidebarRef = useRef<HTMLDivElement | null>(null);
+  const sidebarExcludeRef = useRef<HTMLButtonElement | null>(null);
+
+  const handleSidebar = useCallback(
+    (e: MouseEvent) => {
+      if (
+        !sidebarRef.current?.contains(e.target as Node) &&
+        !sidebarExcludeRef.current?.contains(e.target as Node)
+      ) {
+        setClosed(true);
+      }
+    },
+    [sidebarRef]
+  );
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleSidebar);
+
+    return () => {
+      document.removeEventListener("mousedown", handleSidebar);
+    };
+  }, [handleSidebar]);
 
   return (
-    <div>
+    <>
       <Navbar
+        ref={sidebarExcludeRef}
         colors={colors}
-        back={() => {
-          if (!window.location.href.includes("settings")) window.history.back();
-        }}
-        home={() => {
-          if (!window.location.href.includes("settings"))
-            window.location.href = "#/";
-        }}
-        forward={() => {
-          if (!window.location.href.includes("settings"))
-            window.history.forward();
+        sideAni={!closed}
+        sidebar={() => {
+          if (!window.location.href.includes("settings")) setClosed((c) => !c);
         }}
         close={() => {
           api.send("closeApp");
@@ -31,21 +49,41 @@ const Main: React.FC = () => {
         minimize={() => {
           api.send("minimizeApp");
         }}
-        settings={() => {
-          if (!window.location.href.includes("settings")) {
+      />
+      <main style={{ marginTop: 22, position: "relative" }}>
+        <Sidebar
+          ref={sidebarRef}
+          closed={closed}
+          colors={colors}
+          back={() => {
+            window.history.back();
+            setClosed((c) => !c);
+          }}
+          home={() => {
+            window.location.href = "#/";
+            setClosed((c) => !c);
+          }}
+          forward={() => {
+            window.history.forward();
+            setClosed((c) => !c);
+          }}
+          favorites={() => {
+            window.location.href = "#/favorites";
+            setClosed((c) => !c);
+          }}
+          settings={() => {
             window.history.pushState(
               { prev: window.location.href },
               "",
               "#/settings/source"
             );
             window.location.href = "#/settings/source";
-          }
-        }}
-      />
-      <main style={{ marginTop: 22 }}>
+            setClosed((c) => !c);
+          }}
+        />
         <Base />
       </main>
-    </div>
+    </>
   );
 };
 

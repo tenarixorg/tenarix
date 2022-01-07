@@ -1,1 +1,4 @@
-{ "extends": "config/base.config.json" }
+{
+  "extends": "config/base.config.json",
+  "include": ["*"]
+}

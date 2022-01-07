@@ -4,11 +4,22 @@
   "private": true,
   "main": "index.ts",
   "types": "index.ts",
+  "scripts": {
+    "test": "jest"
+  },
   "dependencies": {
-    "types": "*",
-    "config": "*",
-    "utils": "*",
     "cheerio": "^1.0.0-rc.10",
-    "puppeteer": "^13.0.1"
+    "config": "*",
+    "puppeteer": "^13.0.1",
+    "puppeteer-extra": "^3.2.3",
+    "puppeteer-extra-plugin-stealth": "^2.9.0",
+    "scraper": "*",
+    "types": "*",
+    "utils": "*"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.4.0",
+    "jest": "^27.4.7",
+    "ts-jest": "^27.1.2"
   }
 }

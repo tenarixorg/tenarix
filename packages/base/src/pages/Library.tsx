@@ -3,7 +3,7 @@ import { BsChevronDoubleLeft, BsChevronDoubleRight } from "react-icons/bs";
 import { useNavigate, useParams } from "react-router-dom";
 import { Library as LibraryT } from "types";
 import { SpinnerDotted } from "spinners-react";
-import { useTheme } from "utils";
+import { useTheme } from "context-providers";
 import { Card } from "components";
 import {
   BtnAni,

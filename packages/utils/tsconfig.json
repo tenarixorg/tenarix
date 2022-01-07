@@ -1,12 +1,4 @@
 {
   "extends": "config/base.config.json",
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "allowJs": true,
-    "skipDefaultLibCheck": true,
-    "resolveJsonModule": true,
-    "jsx": "react-jsx"
-  },
-  "include": ["src", "global.d.ts"]
+  "include": ["src"]
 }

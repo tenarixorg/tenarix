@@ -27,6 +27,16 @@
     "prettier": "^2.5.1",
     "turbo": "latest"
   },
+  "author": "Akuqt",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Akuqt/x-reader.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Akuqt/x-reader/issues"
+  },
+  "homepage": "https://github.com/Akuqt/x-reader#readme",
   "turbo": {
     "pipeline": {
       "build": {
@@ -47,6 +57,9 @@
       "test": {
         "dependsOn": [
           "^test"
+        ],
+        "outputs": [
+          "coverage/**"
         ]
       }
     }

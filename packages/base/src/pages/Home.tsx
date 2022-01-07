@@ -3,7 +3,7 @@ import { Container, Grid, Loading, Head, Txt } from "components/src/Elements";
 import { Home as HomeT } from "types";
 import { SpinnerDotted } from "spinners-react";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "utils";
+import { useTheme } from "context-providers";
 import { Card } from "components";
 
 const { api } = window.bridge;
@@ -31,7 +31,7 @@ export const Home: React.FC = () => {
     <Container
       bg={colors.background1}
       scrollColor={colors.primary}
-      padding="0px 0px 40px 0px"
+      padding="0px 10px 40px 10px"
     >
       {loading ? (
         <Loading>

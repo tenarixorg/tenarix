@@ -97,6 +97,8 @@ const { api } = window.bridge;
 export const Chapter: React.FC<Props> = (props) => {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
+  const id_ = props.chapter.links[0].id;
+
   return (
     <Container>
       <Main width="100%">
@@ -113,15 +115,21 @@ export const Chapter: React.FC<Props> = (props) => {
         <Main width="110px">
           <Btn
             onClick={() => {
+              api.on("res:read:init", (_e, res) => {
+                api.removeAllListeners("res:read:init");
+                api.send("download", {
+                  rid: id_,
+                  root: props.root,
+                  id: res.id,
+                  imgs: res.imgs,
+                });
+              });
               api.on("download:done", () => {
                 setLoading(false);
                 api.removeAllListeners("download:done");
               });
               setLoading(true);
-              api.send("download", {
-                rid: props.chapter.links[0].id,
-                root: props.root,
-              });
+              api.send("get:read:init", { id: id_ });
             }}
             disabled={loading}
           >

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { RiCloseLine } from "react-icons/ri";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { Advanced, Appearance, Source } from "./App";
-import { useTheme } from "utils";
+import { useTheme } from "context-providers";
 
 const { api } = window.bridge;
 
@@ -136,8 +136,6 @@ export const Settings: React.FC = () => {
 
   useEffect(() => {
     api.on("res:change:source", (_e, res) => {
-      console.log(res);
-
       setChsource(res);
     });
     setPrevUrl(window.history.state.prev);
@@ -154,7 +152,7 @@ export const Settings: React.FC = () => {
               </p>
             </Header>
             <SettingOpt
-              selected={window.location.href.includes("source")}
+              selected={window.location.href.endsWith("source")}
               hc={colors.buttons.hover}
               onClick={() => {
                 navigation("/settings/source");
@@ -163,7 +161,7 @@ export const Settings: React.FC = () => {
               <p style={{ color: colors.fontSecondary }}>Extensión</p>
             </SettingOpt>
             <SettingOpt
-              selected={window.location.href.includes("appearance")}
+              selected={window.location.href.endsWith("appearance")}
               hc={colors.buttons.hover}
               onClick={() => {
                 navigation("/settings/appearance");
@@ -172,7 +170,7 @@ export const Settings: React.FC = () => {
               <p style={{ color: colors.fontSecondary }}>Apariencia</p>
             </SettingOpt>
             <SettingOpt
-              selected={window.location.href.includes("advanced")}
+              selected={window.location.href.endsWith("advanced")}
               hc={colors.buttons.hover}
               onClick={() => {
                 navigation("/settings/advanced");
@@ -200,7 +198,6 @@ export const Settings: React.FC = () => {
           margin="0px 0px 0px 10px"
           onClick={() => {
             if (chsource.c !== chsource.n) {
-              console.log(chsource);
               window.location.href = "#/";
             } else {
               window.location.href = prevUrl;

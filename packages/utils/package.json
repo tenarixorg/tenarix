@@ -4,10 +4,6 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "dependencies": {
-    "config": "*",
-    "react": "^17.0.2"
-  },
-  "devDependencies": {
-    "@types/react": "^17.0.38"
+    "config": "*"
   }
 }

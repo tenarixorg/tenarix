@@ -11,9 +11,6 @@ export const _library = (content: GetContent, parser: Parser) => {
     const { innerHTML } = await content(libraryParams(filters?.title || ""), {
       scripts: true,
       action: async (page) => {
-        await page.screenshot({ path: "test.png", fullPage: true });
-        await page.waitForTimeout(6000);
-        await page.screenshot({ path: "test2.png", fullPage: true });
         await page.waitForSelector("a.manga-result");
       },
     });

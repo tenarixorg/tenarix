@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
+import { BsChevronBarExpand } from "react-icons/bs";
 import { SpinnerDotted, SpinnerInfinity } from "spinners-react";
 import { Read as ReadT } from "types";
-import { useParams } from "react-router-dom";
-import { useTheme } from "utils";
+import { useParams, useLocation } from "react-router-dom";
+import { useTheme } from "context-providers";
 import {
   BtnAni,
   Container,
@@ -11,7 +12,19 @@ import {
   ReadImg,
   ReadNav,
   Txt,
+  Btn,
 } from "components/src/Elements";
+import styled from "styled-components";
+
+const CP = styled.div<{ rot?: boolean }>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  transition: transform 400ms ease-in-out;
+
+  transform: rotate(${(p) => (p.rot ? "0" : "90")}deg);
+`;
 
 const { api } = window.bridge;
 
@@ -25,6 +38,9 @@ export const Read: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [loading2, setLoading2] = useState(true);
   const [remote, setRemote] = useState(false);
+  const [cascade, setCascade] = useState(false);
+  const [localImgs, setLocalImgs] = useState<string[]>([]);
+  const { state: URLstate } = useLocation();
 
   const getNext = useCallback(() => {
     if (current <= 1) setCurrent(1);
@@ -32,21 +48,28 @@ export const Read: React.FC = () => {
     if (data?.id)
       if (remote) {
         if (data.imgs.length > 0) {
+          setLoading(true);
           const im = data.imgs[current - 1];
           if (im) {
-            setLoading(true);
-            api.send("get:read:page", { img: im });
+            api.send("get:read:page", { img: im.url });
           }
         }
       } else {
         setLoading(true);
-        api.send("get:read:local", {
-          rid: params.id,
-          root: params.route,
-          id: data.id,
-          page: current,
-          total: data.pages,
-        });
+        if (localImgs.length > 0) {
+          const im = localImgs[current - 1];
+          if (im) {
+            api.send("get:read:page", { img: im });
+          }
+        } else {
+          api.send("get:read:local", {
+            rid: params.id,
+            root: params.route,
+            id: data.id,
+            page: current,
+            total: data.pages,
+          });
+        }
       }
   }, [
     current,
@@ -56,19 +79,30 @@ export const Read: React.FC = () => {
     data?.imgs,
     params.id,
     params.route,
+    localImgs,
   ]);
 
   useEffect(() => {
-    api.on("res:read:local", (_e, buff) => {
-      if (typeof buff === "boolean" && !buff) {
+    api.on("res:read:local", (_e, res) => {
+      if (typeof res === "boolean" && !res) {
         setRemote(true);
       } else {
-        const blob = new Blob([buff as Buffer]);
-        const im = URL.createObjectURL(blob);
-        if (mounted.current) {
-          setImg(im);
-          setLoading(false);
+        const imgs_: string[] = [];
+        for (const buff of res) {
+          const blob = new Blob([buff as Buffer]);
+          const im = URL.createObjectURL(blob);
+          imgs_.push(im);
         }
+        if (mounted.current) {
+          setLocalImgs(imgs_);
+        }
+      }
+    });
+
+    api.on("res:read:page", (_e, res) => {
+      if (mounted.current) {
+        setImg(res);
+        setLoading(false);
       }
     });
 
@@ -79,23 +113,10 @@ export const Read: React.FC = () => {
       }
     });
 
-    api.on("res:read:page", async (_e, buff) => {
-      if (typeof buff === "string") {
-        if (mounted.current) {
-          setImg(buff);
-          setLoading(false);
-        }
-      } else {
-        const blob = new Blob([buff as Buffer]);
-        const im = URL.createObjectURL(blob);
-        if (mounted.current) {
-          setImg(im);
-          setLoading(false);
-        }
-      }
+    api.send("get:read:init", {
+      id: params.id,
+      ext: (URLstate as any)?.ext || "",
     });
-
-    api.send("get:read:init", { id: params.id });
 
     mounted.current = true;
     return () => {
@@ -104,7 +125,8 @@ export const Read: React.FC = () => {
       api.removeAllListeners("res:read:page");
       api.removeAllListeners("res:read:local");
     };
-  }, [params.id]);
+  }, [params.id, URLstate]);
+
   useEffect(() => {
     getNext();
   }, [getNext]);
@@ -115,25 +137,27 @@ export const Read: React.FC = () => {
       bg={colors.background1}
       scrollColor={colors.primary}
     >
-      <ReadNav>
-        <BtnAni
-          onClick={() => {
-            setCurrent((c) => c - 1);
-          }}
-          disabled={loading || current <= 1}
-        >
-          <RiArrowLeftSLine size={60} color={colors.primary} />
-        </BtnAni>
-        <BtnAni
-          right
-          onClick={() => {
-            setCurrent((c) => c + 1);
-          }}
-          disabled={loading || current >= (data?.pages || 1)}
-        >
-          <RiArrowRightSLine size={60} color={colors.primary} />
-        </BtnAni>
-      </ReadNav>
+      {!cascade && (
+        <ReadNav>
+          <BtnAni
+            onClick={() => {
+              setCurrent((c) => c - 1);
+            }}
+            disabled={loading || current <= 1}
+          >
+            <RiArrowLeftSLine size={60} color={colors.primary} />
+          </BtnAni>
+          <BtnAni
+            right
+            onClick={() => {
+              setCurrent((c) => c + 1);
+            }}
+            disabled={loading || current >= (data?.pages || 1)}
+          >
+            <RiArrowRightSLine size={60} color={colors.primary} />
+          </BtnAni>
+        </ReadNav>
+      )}
       {loading2 ? (
         <SpinnerInfinity
           size={80}
@@ -158,8 +182,14 @@ export const Read: React.FC = () => {
           </Txt>
           <Txt margin="0px 0px 4px 0px" fs="20px" color={colors.fontPrimary}>
             {data?.info.substring(0, data?.info.indexOf("S")) || data?.info}
-            {" - " + current + "/" + data?.pages}
+            {cascade ? "" : " - " + current + "/" + data?.pages}
           </Txt>
+
+          <Btn onClick={() => setCascade((c) => !c)}>
+            <CP rot={cascade}>
+              <BsChevronBarExpand color={colors.primary} size={30} />
+            </CP>
+          </Btn>
         </>
       )}
       {loading ? (
@@ -172,7 +202,29 @@ export const Read: React.FC = () => {
           />
         </Loading>
       ) : (
-        <ReadImg src={img} alt="img" draggable={false} />
+        <>
+          {remote ? (
+            <>
+              {cascade && data?.imgs && data.imgs.length > 0 ? (
+                data?.imgs.map((im, ix) => (
+                  <ReadImg src={im.url} key={ix} alt="img" draggable={false} />
+                ))
+              ) : (
+                <ReadImg src={img} alt="img" draggable={false} />
+              )}
+            </>
+          ) : (
+            <>
+              {cascade && localImgs.length > 0 ? (
+                localImgs.map((im, ix) => (
+                  <ReadImg src={im} key={ix} alt="img" draggable={false} />
+                ))
+              ) : (
+                <ReadImg src={img} alt="img" draggable={false} />
+              )}
+            </>
+          )}
+        </>
       )}
     </Container>
   );
