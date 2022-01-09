@@ -3,16 +3,10 @@ import { Container, Grid, Head, Loading, Txt } from "components/src/Elements";
 import { SpinnerDotted } from "spinners-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "context-providers";
-import { Details } from "types";
+import { FavHome } from "types";
 import { Card } from "components";
 
 const { api } = window.bridge;
-
-interface FavHome {
-  route: string;
-  ext: string;
-  data: Details;
-}
 
 export const Favorites: React.FC = () => {
   const navigation = useNavigate();

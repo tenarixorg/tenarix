@@ -14,6 +14,8 @@ const Container = styled.div<{ pointer?: boolean; disabled?: boolean }>`
   &:hover {
     transform: translateY(-4px);
   }`};
+  box-shadow: 4px 4px 9px -5px #000000;
+  border-radius: 4px;
 `;
 
 const Badge = styled.div<{

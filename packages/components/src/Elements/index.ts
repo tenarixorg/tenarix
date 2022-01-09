@@ -195,3 +195,171 @@ export const ReadImg = styled.img`
   width: 80%;
   margin-top: 10px;
 `;
+
+export const Opts = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 20px 0px 10px 0px;
+`;
+
+export const Check = styled.input<{
+  bg: string;
+  activeColor: string;
+  inactiveColor: string;
+}>`
+  position: relative;
+  margin: 0px 5px;
+  appearance: none;
+  border: none;
+  outline: none;
+  border: 1px solid black;
+
+  width: 32px;
+  height: 16px;
+  background-color: ${(p) => p.bg};
+  border-radius: 10px;
+  &:checked {
+    &::after {
+      transform: translateX(calc(200% - 6px));
+      background-color: ${(p) => p.activeColor};
+    }
+  }
+  &::after {
+    position: absolute;
+    content: "";
+    top: 2px;
+    left: 3px;
+    width: 10px;
+    height: 10px;
+    background-color: ${(p) => p.inactiveColor};
+    border-radius: 50%;
+    transition: transform 400ms ease-in-out, background-color 400ms ease-in-out;
+  }
+`;
+
+export const Header2 = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0px 0px 0px 10px;
+  font-weight: 600;
+`;
+
+export const SSection = styled.div`
+  display: grid;
+  grid-template-columns: 220px calc(100% - 220px);
+  grid-template-rows: auto;
+  width: 100%;
+  background-color: red;
+  height: 100vh;
+`;
+
+export const SSourceContainer = styled.div<{ bg: string }>`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  background-color: ${(p) => p.bg};
+`;
+
+export const SBtnContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 2%;
+  right: 2%;
+`;
+
+export const SBtn = styled.button<{
+  margin: string;
+  bg: string;
+  hc: string;
+  borderColor: string;
+}>`
+  border: none;
+  outline: none;
+  cursor: pointer;
+  border-radius: 50%;
+  z-index: 100;
+  width: 36px;
+  height: 36px;
+  margin: ${(p) => p.margin};
+  background-color: transparent;
+  border: 2px solid ${(p) => p.borderColor};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  &:hover {
+    background-color: ${(p) => p.hc};
+  }
+`;
+
+export const SPanel = styled.div<{ bg: string; scrollBg: string }>`
+  background-color: ${(p) => p.bg};
+  height: 100vh;
+  width: 100%;
+  padding: 10px 10px 40px 10px;
+  overflow-y: scroll;
+  ::-webkit-scrollbar {
+    width: 2px;
+    height: 0px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: ${(p) => p.scrollBg};
+    border-radius: 30px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: ${(p) => p.scrollBg};
+  }
+`;
+
+export const Setting = styled.div<{ noBorder?: boolean }>`
+  border-top: ${(p) => (p.noBorder ? "0" : "1")}px solid #333333b9;
+  width: 100%;
+  margin: 10px 0px;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  padding-top: ${(p) => (p.noBorder ? "0px" : "10px")};
+`;
+
+export const SettingOpt = styled.button<{ hc: string; selected?: boolean }>`
+  border: none;
+  outline: none;
+  cursor: pointer;
+  width: 100%;
+  height: 30px;
+  margin-top: 10px;
+  padding: 0px 10px;
+  border-radius: 5px;
+  background-color: ${(p) => (p.selected ? p.hc : "transparent")};
+  &:hover {
+    background-color: ${(p) => p.hc};
+  }
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  font-size: 15px;
+  font-weight: 500;
+`;
+
+export const CP = styled.div<{ rot?: boolean }>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  transition: transform 400ms ease-in-out;
+
+  transform: rotate(${(p) => (p.rot ? "0" : "90")}deg);
+`;

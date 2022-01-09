@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
-import { BsChevronBarExpand } from "react-icons/bs";
 import { SpinnerDotted, SpinnerInfinity } from "spinners-react";
-import { Read as ReadT } from "types";
 import { useParams, useLocation } from "react-router-dom";
+import { BsChevronBarExpand } from "react-icons/bs";
+import { Read as ReadT } from "types";
 import { useTheme } from "context-providers";
 import {
   BtnAni,
@@ -13,18 +13,8 @@ import {
   ReadNav,
   Txt,
   Btn,
+  CP,
 } from "components/src/Elements";
-import styled from "styled-components";
-
-const CP = styled.div<{ rot?: boolean }>`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: fit-content;
-  transition: transform 400ms ease-in-out;
-
-  transform: rotate(${(p) => (p.rot ? "0" : "90")}deg);
-`;
 
 const { api } = window.bridge;
 

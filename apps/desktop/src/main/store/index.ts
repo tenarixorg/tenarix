@@ -19,3 +19,4 @@ export const hasCache = (ext: string, target: string): boolean => {
 };
 
 export * from "./favorites";
+export * from "./pinnedExts";

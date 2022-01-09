@@ -10,6 +10,9 @@ import {
   removeFavorite,
   getFavorite,
   getAllFavs,
+  hasPinExt,
+  setPinExt,
+  removePinExt,
 } from "../store";
 import { decrypt, encrypt, getHash } from "../crypto";
 import { Readable } from "stream";
@@ -202,5 +205,40 @@ export const handler = (win?: BrowserWindow) => {
   ipcMain.on("get:favorites", (e) => {
     const res = getAllFavs();
     e.reply("res:favorites", res);
+  });
+
+  ipcMain.on("get:exts", (e) => {
+    const exts = Object.keys(base);
+    const res = exts.map((ext) => {
+      return {
+        ext,
+        pinned: hasPinExt(ext),
+      };
+    });
+    e.reply("res:exts", res);
+  });
+
+  ipcMain.on("add:pin:ext", (e, { ext }) => {
+    setPinExt(ext);
+    const exts = Object.keys(base);
+    const res = exts.map((ext_) => {
+      return {
+        ext: ext_,
+        pinned: hasPinExt(ext_),
+      };
+    });
+    e.reply("res:exts", res);
+  });
+
+  ipcMain.on("remove:pin:ext", (e, { ext }) => {
+    removePinExt(ext);
+    const exts = Object.keys(base);
+    const res = exts.map((ext_) => {
+      return {
+        ext: ext_,
+        pinned: hasPinExt(ext_),
+      };
+    });
+    e.reply("res:exts", res);
   });
 };

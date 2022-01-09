@@ -115,3 +115,14 @@ export type GetContent = (url: string, opts?: Opts) => Promise<Content>;
 export type Parser = typeof load;
 
 export type Extension = (content: GetContent, parser: Parser) => AppContent;
+
+export interface Source {
+  ext: string;
+  pinned: boolean;
+}
+
+export interface FavHome {
+  route: string;
+  ext: string;
+  data: Details;
+}

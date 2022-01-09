@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { Container } from "components/src/Elements";
 import { useTheme } from "context-providers";
+
 const { api } = window.bridge;
 
 export const Appearance: React.FC = () => {
@@ -12,7 +14,7 @@ export const Appearance: React.FC = () => {
     });
   }, []);
   return (
-    <div>
+    <Container bg={colors.background2} scrollColor={colors.primary}>
       <p style={{ color: colors.fontSecondary }}>{current}</p>
       <button
         onClick={() => {
@@ -21,6 +23,6 @@ export const Appearance: React.FC = () => {
       >
         Toggle theme
       </button>
-    </div>
+    </Container>
   );
 };
