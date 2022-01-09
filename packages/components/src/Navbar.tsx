@@ -108,8 +108,24 @@ export const Navbar = React.forwardRef<HTMLButtonElement, Props>(
   (props, ref) => {
     const [resize, setResize] = useState(true);
     const [search, setSearch] = useState(false);
+    const [showSearch, setShowSearch] = useState(false);
     const [query, setQuery] = useState("");
     const inputRef = useRef<HTMLInputElement | null>(null);
+
+    const urlHandler = useCallback((e: PopStateEvent) => {
+      const newUrl = (e.target as Window).location.href;
+
+      if (
+        newUrl.includes("home") ||
+        newUrl.includes("read") ||
+        newUrl.includes("library") ||
+        newUrl.includes("details")
+      ) {
+        setShowSearch(true);
+      } else {
+        setShowSearch(false);
+      }
+    }, []);
 
     const handleSearch = useCallback(
       (e: MouseEvent) => {
@@ -126,12 +142,15 @@ export const Navbar = React.forwardRef<HTMLButtonElement, Props>(
       });
 
       document.addEventListener("mousedown", handleSearch);
+      window.addEventListener("popstate", urlHandler);
 
       return () => {
         document.removeEventListener("mousedown", handleSearch);
         api.removeAllListeners("resize");
+        window.removeEventListener("popstate", urlHandler);
       };
-    }, [handleSearch]);
+    }, [handleSearch, urlHandler]);
+
     return (
       <Container bg={props.colors.navbar.background}>
         <Menu width="fit-content" dir="left" padding="0px">
@@ -154,39 +173,46 @@ export const Navbar = React.forwardRef<HTMLButtonElement, Props>(
         </Menu>
         <Drag />
         <Menu width="fit-content" dir="right">
-          <Item>
-            <Btn
-              hc={props.colors.navbar.buttons.hover}
-              onClick={() => {
-                if (!window.location.href.includes("settings")) {
-                  setSearch((c) => !c);
-                  inputRef.current?.focus();
-                }
-              }}
-            >
-              <MdSearch size={18} color={props.colors.navbar.buttons.color} />
-            </Btn>
-          </Item>
-          <Item>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                setSearch(false);
-                setQuery("");
-                window.location.href = `#/library/${query}`;
-              }}
-            >
-              <Input
-                color={props.colors.navbar.buttons.color}
-                bg="transparent"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                ref={inputRef}
-                type="text"
-                width={search ? "200px" : "0px"}
-              />
-            </form>
-          </Item>
+          {showSearch && (
+            <>
+              <Item>
+                <Btn
+                  hc={props.colors.navbar.buttons.hover}
+                  onClick={() => {
+                    if (!window.location.href.includes("settings")) {
+                      setSearch((c) => !c);
+                      inputRef.current?.focus();
+                    }
+                  }}
+                >
+                  <MdSearch
+                    size={18}
+                    color={props.colors.navbar.buttons.color}
+                  />
+                </Btn>
+              </Item>
+              <Item>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    setSearch(false);
+                    setQuery("");
+                    window.location.href = `#/library/${query}`;
+                  }}
+                >
+                  <Input
+                    color={props.colors.navbar.buttons.color}
+                    bg="transparent"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    ref={inputRef}
+                    type="text"
+                    width={search ? "200px" : "0px"}
+                  />
+                </form>
+              </Item>
+            </>
+          )}
           <Item>
             <Btn
               hc={props.colors.navbar.buttons.hover}

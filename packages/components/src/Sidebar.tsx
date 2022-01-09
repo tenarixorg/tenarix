@@ -1,16 +1,14 @@
 /* eslint-disable react/display-name */
 import React from "react";
 import styled from "styled-components";
-import { Theme } from "utils";
-import {
-  RiArrowLeftSLine,
-  RiArrowRightSLine,
-  RiHome2Line,
-} from "react-icons/ri";
+import { RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
 import { IoCogOutline, IoHeartOutline } from "react-icons/io5";
+import { FaRegCompass } from "react-icons/fa";
+import { Theme } from "utils";
 
-const upAni = "translateY(-4px)";
+const upAni = "translateY(-3px)";
 const rotAni = "rotate(45deg)";
+const rotAni2 = "rotate(-90deg)";
 const leftAni = "translateX(-4px)";
 const rightAni = "translateX(4px)";
 
@@ -70,16 +68,13 @@ export const Sidebar = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
       bg={props.colors.navbar.background}
       ref={ref}
     >
-      <Btn onClick={props.home} margin="0px 0px 5px 0px" animation={upAni}>
-        <RiHome2Line size={18} color={props.colors.navbar.buttons.color} />
-      </Btn>
-      <Btn onClick={props.back} animation={leftAni} margin="0px 0px 5px 0px">
+      <Btn onClick={props.back} animation={leftAni} margin="0px 0px 10px 0px">
         <RiArrowLeftSLine size={28} color={props.colors.navbar.buttons.color} />
       </Btn>
       <Btn
         onClick={props.forward}
         animation={rightAni}
-        margin="0px 0px 5px 0px"
+        margin="0px 0px 10px 0px"
       >
         <RiArrowRightSLine
           size={28}
@@ -88,19 +83,22 @@ export const Sidebar = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
       </Btn>
 
       <BottomOpts>
+        <Btn onClick={props.home} margin="0px 0px 20px 0px" animation={rotAni2}>
+          <FaRegCompass size={20} color={props.colors.navbar.buttons.color} />
+        </Btn>
         <Btn
           animation={upAni}
           onClick={props.favorites}
-          margin="0px 0px 12px 0px"
+          margin="0px 0px 20px 0px"
         >
-          <IoHeartOutline size={22} color={props.colors.navbar.buttons.color} />
+          <IoHeartOutline size={24} color={props.colors.navbar.buttons.color} />
         </Btn>
         <Btn
           animation={rotAni}
           onClick={props.settings}
           margin="0px 0px 5px 0px"
         >
-          <IoCogOutline size={22} color={props.colors.navbar.buttons.color} />
+          <IoCogOutline size={24} color={props.colors.navbar.buttons.color} />
         </Btn>
       </BottomOpts>
     </Container>

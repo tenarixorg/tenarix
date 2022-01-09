@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { BsSortNumericDown, BsSortNumericUpAlt } from "react-icons/bs";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Chapter, Status, GenderBadge, Card } from "components";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Details as DetailsT } from "types";
 import { SpinnerDotted } from "spinners-react";
 import { useTheme } from "context-providers";

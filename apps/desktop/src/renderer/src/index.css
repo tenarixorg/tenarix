@@ -6,6 +6,7 @@
   box-sizing: border-box;
   user-select: none;
   font-family: "Open Sans", sans-serif;
+  transition: background-color 400ms ease-in-out, color 100ms ease-in-out;
 }
 
 html,
