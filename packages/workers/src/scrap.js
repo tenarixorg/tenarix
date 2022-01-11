@@ -12,6 +12,7 @@ const getChromiumExecPath = () => {
   return puppeteer.executablePath().replace("app.asar", "app.asar.unpacked");
 };
 
+/* istanbul ignore next */
 const content = async (url, opts) => {
   const browser = await puppeteer.launch({
     headless: true,

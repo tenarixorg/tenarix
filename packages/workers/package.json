@@ -2,12 +2,15 @@
   "name": "workers",
   "version": "0.0.0",
   "main": "src/index.js",
+  "license": "MIT",
   "scripts": {
     "test": "jest"
   },
   "dependencies": {
-    "jest": "^27.4.7",
     "puppeteer-extra": "^3.2.3",
     "puppeteer-extra-plugin-stealth": "^2.9.0"
+  },
+  "devDependencies": {
+    "jest": "^27.4.7"
   }
 }

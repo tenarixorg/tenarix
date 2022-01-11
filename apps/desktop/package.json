@@ -41,7 +41,6 @@
     "types": "*",
     "utils": "*",
     "workers": "*",
-    "scraper": "*",
     "context-providers": "*"
   },
   "devDependencies": {

@@ -19,5 +19,9 @@ describe("Details", () => {
     expect(res.subtitle).toBeDefined();
     expect(res.title).toBeDefined();
     expect(res.type).toBeDefined();
+    expect(res.description.length).toBeGreaterThan(0);
+    expect(res.img.length).toBeGreaterThan(0);
+    expect(res.status.length).toBeGreaterThan(0);
+    expect(res.title.length).toBeGreaterThan(0);
   });
 });

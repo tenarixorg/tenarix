@@ -13,5 +13,9 @@ describe("Read", () => {
     expect(res.info).toBeDefined();
     expect(res.pages).toBeDefined();
     expect(res.title).toBeDefined();
+    expect(res.imgs.length).toBeGreaterThan(1);
+    expect(res.info.length).toBeGreaterThan(0);
+    expect(res.pages).toBeGreaterThan(0);
+    expect(res.title.length).toBeGreaterThan(0);
   });
 });
