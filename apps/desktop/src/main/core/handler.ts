@@ -2,8 +2,9 @@ import fs from "fs";
 import base from "./extension";
 import { ipcMain, BrowserWindow, app, nativeTheme, session } from "electron";
 import { decryptChapter, downloadEncrypt } from "./helper";
-import { theme } from "utils";
+import { createHash } from "crypto";
 import { resolve } from "path";
+import { theme } from "utils";
 import {
   getCache,
   setCache,
@@ -17,8 +18,6 @@ import {
   setPinExt,
   removePinExt,
 } from "../store";
-
-import { createHash } from "crypto";
 
 const getHash = (data: string) => {
   return new Promise<string>((resolve, reject) => {
@@ -48,7 +47,14 @@ export const handler = (win?: BrowserWindow) => {
     det.requestHeaders["Origin"] = url.origin;
     if (currentSource.opts) {
       for (const key of Object.keys(currentSource.opts.headers)) {
-        det.requestHeaders[key] = currentSource.opts.headers[key];
+        if (
+          key.toLowerCase() === "referer" &&
+          !!currentSource.opts.refererRule
+        ) {
+          det.requestHeaders[key] = currentSource.opts.refererRule(url.href);
+        } else {
+          det.requestHeaders[key] = currentSource.opts.headers[key];
+        }
       }
     }
     cb({ cancel: false, requestHeaders: det.requestHeaders });
@@ -93,7 +99,9 @@ export const handler = (win?: BrowserWindow) => {
       base,
       `./${id}_`,
       imgs,
-      currentSource.opts?.headers
+      currentSource.opts?.refererRule
+        ? { Referer: currentSource.opts.refererRule(imgs[0].url) }
+        : currentSource.opts?.headers
     );
 
     console.log(res);

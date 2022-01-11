@@ -12,6 +12,56 @@ const getChromiumExecPath = () => {
   return puppeteer.executablePath().replace("app.asar", "app.asar.unpacked");
 };
 
+const content = async (url, opts) => {
+  const browser = await puppeteer.launch({
+    headless: true,
+    executablePath: getChromiumExecPath(),
+  });
+  const page = await browser.newPage();
+  await page.setRequestInterception(true);
+  page.on("request", (req) => {
+    if (req.resourceType() === "document") {
+      return req.continue();
+    } else if (
+      (req.resourceType() === "script" ||
+        req.resourceType() === "xhr" ||
+        req.resourceType() === "image") &&
+      opts?.scripts
+    ) {
+      return req.continue();
+    } else {
+      return req.abort();
+    }
+  });
+  await page.setUserAgent(UA);
+  await page.setExtraHTTPHeaders(opts?.headers || {});
+  await page.goto(url);
+  if (opts?.action) {
+    await opts.action(page);
+  }
+  const innerHTML = await page.evaluate(() => {
+    const main = document.body;
+    for (const form of main.querySelectorAll("form")) {
+      form.remove();
+    }
+    for (const formr of main.querySelectorAll(".form-row")) {
+      formr.remove();
+    }
+    for (const script of main.querySelectorAll("script")) {
+      script.remove();
+    }
+    for (const iframe of main.querySelectorAll("iframe")) {
+      iframe.remove();
+    }
+    return main.innerHTML;
+  });
+  await page.close();
+  await browser.close();
+  page.removeAllListeners("request");
+  const current_url = page.url();
+  return { innerHTML, current_url };
+};
+
 const getImg = async (url, headers) => {
   const browser = await puppeteer.launch({
     headless: true,
@@ -50,4 +100,5 @@ const getImg = async (url, headers) => {
 
 module.exports = {
   getImg,
+  content,
 };

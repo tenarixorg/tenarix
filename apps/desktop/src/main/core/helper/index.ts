@@ -1,5 +1,5 @@
 import { worker } from "../worker";
-import { Read } from "types";
+import { Content, Opts, Read } from "types";
 
 export const downloadEncrypt = async (
   base: string,
@@ -60,5 +60,24 @@ export const decryptChapter = async (base: string, sufix: string) => {
     sufix
   );
 
+  return res;
+};
+
+export const getContent = async (url: string, opts?: Opts) => {
+  const res = await worker<Content>(
+    `
+    const {workerData, parentPort} = require("worker_threads");
+    const {content} = require("workers");
+
+    const [url, opts] = workerData;
+
+    (async()=>{
+      const res_ = await content(url, opts);
+      parentPort.postMessage({done: true, data: res_});
+    })();
+  `,
+    url,
+    opts
+  );
   return res;
 };
