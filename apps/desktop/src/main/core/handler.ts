@@ -1,6 +1,9 @@
 import fs from "fs";
 import base from "./extension";
 import { ipcMain, BrowserWindow, app, nativeTheme, session } from "electron";
+import { decryptChapter, downloadEncrypt } from "./helper";
+import { theme, getHash } from "utils";
+import { resolve } from "path";
 import {
   getCache,
   setCache,
@@ -14,11 +17,6 @@ import {
   setPinExt,
   removePinExt,
 } from "../store";
-import { decrypt, encrypt, getHash } from "../crypto";
-import { Readable } from "stream";
-import { resolve } from "path";
-import { getImg } from "scraper";
-import { theme } from "utils";
 
 export const handler = (win?: BrowserWindow) => {
   let currentSourceName = "inmanga";
@@ -69,21 +67,23 @@ export const handler = (win?: BrowserWindow) => {
   ipcMain.on("download", async (e, { rid, root, id, imgs }) => {
     const _rid = (rid as string).includes("=") ? await getHash(rid) : rid;
     const main =
-      resolve(app.getPath("desktop")) + "/.dreader" + `/${await getHash(root)}`;
+      resolve(app.getPath("desktop") + "/xreader") +
+      "/.dreader" +
+      `/${await getHash(root)}`;
+
     const base = main + `/${_rid}`;
     if (!fs.existsSync(main)) fs.mkdirSync(main, { recursive: true });
     if (!fs.existsSync(base)) fs.mkdirSync(base, { recursive: true });
-    for (const img of imgs) {
-      console.log("downloading...", img.page);
-      const data = await getImg(img.url, currentSource.opts?.headers);
-      const stream = Readable.from(data);
-      await encrypt(
-        "some random password",
-        resolve(base, `./${id}_${img.page}`),
-        stream
-      );
-      console.log("done");
-    }
+    console.log("downloading");
+    const res = await downloadEncrypt(
+      base,
+      `./${id}_`,
+      imgs,
+      currentSource.opts?.headers
+    );
+
+    console.log(res);
+
     e.reply("download:done", rid);
   });
 
@@ -168,7 +168,10 @@ export const handler = (win?: BrowserWindow) => {
   ipcMain.on("get:read:local", async (e, a) => {
     const _rid = (a.rid as string).includes("=") ? await getHash(a.rid) : a.rid;
     const main =
-      app.getPath("desktop") + "/.dreader" + `/${await getHash(a.root)}`;
+      app.getPath("desktop") +
+      "/xreader" +
+      "/.dreader" +
+      `/${await getHash(a.root)}`;
     if (!fs.existsSync(resolve(main))) {
       e.reply("res:read:local", false);
       return;
@@ -178,14 +181,8 @@ export const handler = (win?: BrowserWindow) => {
       e.reply("res:read:local", false);
       return;
     }
-    const res: Buffer[] = [];
     try {
-      for (let i = 0; i < a.total; i++) {
-        const file = base + `/${a.id}_${i + 1}`;
-        const res_ = await decrypt("some random password", file);
-        res.push(res_);
-      }
-
+      const res = await decryptChapter(base, `/${a.id}_`);
       e.reply("res:read:local", res);
     } catch (error: any) {
       e.reply("res:read:local", false);

@@ -23,14 +23,16 @@ export const content = async (url: string, opts?: Opts): Promise<Content> => {
   await page.setRequestInterception(true);
   page.on("request", (req) => {
     if (req.resourceType() === "document") {
-      req.continue();
+      return req.continue();
     } else if (
-      (req.resourceType() === "script" || req.resourceType() === "xhr") &&
+      (req.resourceType() === "script" ||
+        req.resourceType() === "xhr" ||
+        req.resourceType() === "image") &&
       opts?.scripts
     ) {
-      req.continue();
+      return req.continue();
     } else {
-      req.abort();
+      return req.abort();
     }
   });
   await page.setUserAgent(UA);
@@ -56,38 +58,7 @@ export const content = async (url: string, opts?: Opts): Promise<Content> => {
   });
   await page.close();
   await browser.close();
+  page.removeAllListeners("request");
   const current_url = page.url();
   return { innerHTML, current_url };
-};
-
-export const getImg = async (url: string, headers?: Record<string, string>) => {
-  const browser = await puppeteer.launch({ headless: true });
-  const page_ = await browser.newPage();
-  await page_.setUserAgent(UA);
-  await page_.setExtraHTTPHeaders(headers || {});
-  await page_.setRequestInterception(true);
-  page_.on("request", (req) => {
-    if (req.resourceType() !== "document" && req.resourceType() !== "image") {
-      req.abort();
-    } else {
-      req.continue();
-    }
-  });
-  await page_.goto(url, { waitUntil: "networkidle2" });
-  await page_.waitForSelector("img", { timeout: 30000 });
-  await page_.setViewport({ height: 4320, width: 7680, deviceScaleFactor: 1 });
-  const image = await page_.$("img");
-  const box = await image?.boundingBox();
-  const x = box?.x;
-  const y = box?.y;
-  const w = box?.width;
-  const h = box?.height;
-  const img = await page_.screenshot({
-    encoding: "binary",
-    clip: { x: x || 0, y: y || 0, width: w || 0, height: h || 0 },
-    type: "jpeg",
-    quality: 100,
-  });
-  await browser.close();
-  return img as Buffer;
 };

@@ -14,6 +14,6 @@ export default (getContent: GetContent, parser: Parser): AppContent => {
     details,
     home,
     library,
-    read
+    read,
   };
 };

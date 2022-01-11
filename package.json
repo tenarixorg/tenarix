@@ -11,7 +11,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
-    "test": "turbo run test",
+    "test": "turbo run test --parallel",
     "lint": "eslint . --ext .js,.ts,.tsx --fix",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "new:ext": "cd scripts/gen-ext && yarn start",

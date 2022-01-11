@@ -1,7 +1,7 @@
 import os from "os";
 import { app, BrowserWindow } from "electron";
-import { join } from "path";
 import { handler } from "./core";
+import { join } from "path";
 
 const isWin7 = os.release().startsWith("6.1");
 if (isWin7) app.disableHardwareAcceleration();
