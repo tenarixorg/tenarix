@@ -5,8 +5,9 @@
   "types": "src/index.ts",
   "private": true,
   "dependencies": {
-    "types": "*",
+    "axios": "^0.24.0",
     "config": "*",
+    "types": "*",
     "utils": "*"
   }
 }

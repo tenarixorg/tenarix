@@ -1,22 +1,32 @@
+import axios from "axios";
 import { Filters, GetContent, LibItem, Library, Parser } from "types";
 import { encodeRoute } from "utils";
 
-const libraryParams = (query: string) => {
-  return `https://inmanga.com/manga/consult?suggestion=${query}`;
+axios.defaults.adapter = require("axios/lib/adapters/http");
+
+const libraryParams = (query: string, page: number) => {
+  return `filter%5Bgeneres%5D%5B%5D=-1&filter%5BqueryString%5D=${query}&filter%5Bskip%5D=${
+    (page - 1) * 10
+  }&filter%5Btake%5D=10&filter%5Bsortby%5D=1&filter%5BbroadcastStatus%5D=0&filter%5BonlyFavorites%5D=false&d=`;
 };
 
-export const _library = (content: GetContent, parser: Parser) => {
-  return async (_page: string, filters?: Filters): Promise<Library> => {
+export const _library = (_content: GetContent, parser: Parser) => {
+  return async (page: string, filters?: Filters): Promise<Library> => {
     const baseUrl = "https://inmanga.com";
-    const { innerHTML } = await content(libraryParams(filters?.title || ""), {
-      scripts: true,
-      action: async (page) => {
-        await page.waitForSelector("a.manga-result");
-      },
-    });
-    const $ = parser(innerHTML);
+    const res_ = await axios.post(
+      "https://inmanga.com/manga/getMangasConsultResult",
+      libraryParams(filters?.title || "", parseInt(page)),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+
+    const $ = parser(res_.data);
+
     const items: LibItem[] = [];
-    $("#MangaConsultResult a.manga-result").each((_, el) => {
+    $("a.manga-result").each((_, el) => {
       const route = $(el).attr("href")?.trim() || "";
       const title = $(el).find(".list-group h4.ellipsed-text").text().trim();
       const img = baseUrl + "/thumbnails" + route.substring(4, route.length);
