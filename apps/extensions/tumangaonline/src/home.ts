@@ -3,10 +3,10 @@ import { encodeRoute } from "utils";
 
 export const _home =
   (content: GetContent, parser: Parser) => async (): Promise<Home> => {
-    const { innerHTML } = await content("https://lectortmo.com");
+    const { innerHTML } = await content("https://lectortmo.com/populars");
     const $ = parser(innerHTML);
     const popular: HomeBase[] = [];
-    $("main #pills-populars .element a").each((_, e) => {
+    $("main .element a").each((_, e) => {
       const route = $(e).attr("href")?.trim().split("/library/")[1] || "";
       const title = $(e).find(".thumbnail-title h4").text().trim();
       const img = ($(e).find("style").html() as string)
