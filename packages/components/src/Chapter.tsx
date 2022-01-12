@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { Chapter as ChapterProps } from "types";
+import { BsFillCheckCircleFill } from "react-icons/bs";
+import { SpinnerCircular } from "spinners-react";
+import { Theme } from "utils";
 import {
   RiPlayCircleFill,
   RiPlayFill,
@@ -8,8 +11,6 @@ import {
   RiArrowUpSLine,
   RiDownloadCloudLine,
 } from "react-icons/ri";
-import { SpinnerCircular } from "spinners-react";
-import { Theme } from "utils";
 
 const Container = styled.div`
   display: flex;
@@ -90,6 +91,7 @@ interface Props {
   handler: (id: string) => void;
   root: string;
   colors: Theme["dark"];
+  downloaded?: boolean;
 }
 
 const { api } = window.bridge;
@@ -122,6 +124,9 @@ export const Chapter: React.FC<Props> = (props) => {
                   root: props.root,
                   id: res.id,
                   imgs: res.imgs,
+                  title: res.title,
+                  pages: res.pages,
+                  info: res.info,
                 });
               });
               api.on("download:done", () => {
@@ -131,20 +136,29 @@ export const Chapter: React.FC<Props> = (props) => {
               setLoading(true);
               api.send("get:read:init", { id: id_ });
             }}
-            disabled={loading}
+            disabled={loading || props.downloaded}
           >
-            {loading ? (
-              <SpinnerCircular
-                size={22}
-                color={props.colors.secondary}
-                thickness={140}
-              />
+            {props.downloaded ? (
+              <BsFillCheckCircleFill color={props.colors.secondary} size={18} />
             ) : (
-              <RiDownloadCloudLine color={props.colors.secondary} size={22} />
+              <>
+                {loading ? (
+                  <SpinnerCircular
+                    size={22}
+                    color={props.colors.secondary}
+                    thickness={140}
+                  />
+                ) : (
+                  <RiDownloadCloudLine
+                    color={props.colors.secondary}
+                    size={22}
+                  />
+                )}
+              </>
             )}
           </Btn>
           <Btn onClick={() => props.handler(props.chapter.links[0].id)}>
-            <RiPlayFill color={props.colors.secondary} size={25} />
+            <RiPlayFill color={props.colors.secondary} size={26} />
           </Btn>
           <Btn onClick={() => setShow((c) => !c)}>
             {show ? (

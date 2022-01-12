@@ -38,26 +38,31 @@ export const downloadEncrypt = async (
   return res;
 };
 
-export const decryptChapter = async (base: string, prefix: string) => {
+export const decryptChapter = async (
+  base: string,
+  prefix: string,
+  total: number
+) => {
   const res = await worker<Buffer[]>(
     `
     const {workerData, parentPort} = require("worker_threads");
     const {decrypt} = require("workers");
 
-    const [base, prefix] = workerData;
+    const [base, prefix, total] = workerData;
 
     (async()=>{
-      const res_ = [];
-      for (let i = 0; i < a.total; i++) {
+      const res = [];
+      for (let i = 0; i < total; i++) {
         const file = base + prefix + (i+1);
         const res_ = await decrypt("some random password", file);
         res.push(res_);
       }
-      parentPort.postMessage({done: true, data: res_});
+      parentPort.postMessage({done: true, data: res});
     })();
   `,
     base,
-    prefix
+    prefix,
+    total
   );
 
   return res;

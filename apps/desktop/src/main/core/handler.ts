@@ -17,6 +17,10 @@ import {
   hasPinExt,
   setPinExt,
   removePinExt,
+  setDownload,
+  hasDownload,
+  getDownload,
+  getAllExtDownloads,
 } from "../store";
 
 export const handler = (win?: BrowserWindow) => {
@@ -72,30 +76,32 @@ export const handler = (win?: BrowserWindow) => {
     e.reply("res:toggle:theme", currentTheme);
   });
 
-  ipcMain.on("download", async (e, { rid, root, id, imgs }) => {
-    const _rid = (rid as string).includes("=") ? await getHash(rid) : rid;
-    const main =
-      resolve(app.getPath("desktop") + "/xreader") +
-      "/.dreader" +
-      `/${await getHash(root)}`;
-
-    const base = main + `/${_rid}`;
-    if (!fs.existsSync(main)) fs.mkdirSync(main, { recursive: true });
-    if (!fs.existsSync(base)) fs.mkdirSync(base, { recursive: true });
-    console.log("downloading");
-    const res = await downloadEncrypt(
-      base,
-      `./${id}_`,
-      imgs,
-      currentSource.opts?.refererRule
-        ? { Referer: currentSource.opts.refererRule(imgs[0].url) }
-        : currentSource.opts?.headers
-    );
-
-    console.log(res);
-
-    e.reply("download:done", rid);
-  });
+  ipcMain.on(
+    "download",
+    async (e, { rid, root, id, imgs, title, info, pages }) => {
+      const _rid = (rid as string).includes("=") ? await getHash(rid) : rid;
+      const main =
+        resolve(app.getPath("desktop") + "/xreader") +
+        "/.dreader" +
+        `/${await getHash(root)}`;
+      const base = main + `/${_rid}`;
+      if (!fs.existsSync(main)) fs.mkdirSync(main, { recursive: true });
+      if (!fs.existsSync(base)) fs.mkdirSync(base, { recursive: true });
+      console.log("downloading");
+      const res = await downloadEncrypt(
+        base,
+        `./${id}_`,
+        imgs,
+        currentSource.opts?.refererRule
+          ? { Referer: currentSource.opts.refererRule(imgs[0].url) }
+          : currentSource.opts?.headers
+      );
+      console.log(res);
+      setDownload(rid, currentSourceName, { title, info, pages, id });
+      e.reply("download:done", rid);
+      e.reply("res:downloaded", getAllExtDownloads(currentSourceName));
+    }
+  );
 
   ipcMain.on("get:settings", (e) => {
     const res = Object.keys(base);
@@ -127,7 +133,6 @@ export const handler = (win?: BrowserWindow) => {
       });
       return;
     }
-
     const key = "details" + route;
     if (hasFavorite(currentSourceName, route)) {
       e.reply("res:details", {
@@ -162,7 +167,9 @@ export const handler = (win?: BrowserWindow) => {
     const key = "read" + id;
     const source = ext || currentSourceName;
     currentSource = base[source];
-    if (hasCache(source, key)) {
+    if (hasDownload(id, source)) {
+      e.reply("res:read:init", getDownload(id, source));
+    } else if (hasCache(source, key)) {
       e.reply("res:read:init", getCache(source, key));
     } else {
       const res = await currentSource.read(id);
@@ -175,13 +182,13 @@ export const handler = (win?: BrowserWindow) => {
     e.reply("res:read:page", img);
   });
 
-  ipcMain.on("get:read:local", async (e, a) => {
-    const _rid = (a.rid as string).includes("=") ? await getHash(a.rid) : a.rid;
+  ipcMain.on("get:read:local", async (e, { rid, root, id, total }) => {
+    const _rid = (rid as string).includes("=") ? await getHash(rid) : rid;
     const main =
       app.getPath("desktop") +
       "/xreader" +
       "/.dreader" +
-      `/${await getHash(a.root)}`;
+      `/${await getHash(root)}`;
     if (!fs.existsSync(resolve(main))) {
       e.reply("res:read:local", false);
       return;
@@ -192,7 +199,7 @@ export const handler = (win?: BrowserWindow) => {
       return;
     }
     try {
-      const res = await decryptChapter(base, `/${a.id}_`);
+      const res = await decryptChapter(base, `/${id}_`, total);
       e.reply("res:read:local", res);
     } catch (error: any) {
       e.reply("res:read:local", false);
@@ -247,5 +254,10 @@ export const handler = (win?: BrowserWindow) => {
       };
     });
     e.reply("res:exts", res);
+  });
+
+  ipcMain.on("get:downloaded", (e) => {
+    const res = getAllExtDownloads(currentSourceName);
+    e.reply("res:downloaded", res);
   });
 };

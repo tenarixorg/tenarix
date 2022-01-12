@@ -32,8 +32,6 @@ export const getExtFavs = (ext: string) => {
     if (key.startsWith(`${ext}::`)) {
       const s = key.substring(`${ext}::`.length, key.length);
       res.push(s);
-    } else {
-      res.push("");
     }
   }
   return res;

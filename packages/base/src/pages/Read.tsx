@@ -74,6 +74,7 @@ export const Read: React.FC = () => {
 
   useEffect(() => {
     api.on("res:read:local", (_e, res) => {
+      console.log(res);
       if (typeof res === "boolean" && !res) {
         setRemote(true);
       } else {

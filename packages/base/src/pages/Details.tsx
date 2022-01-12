@@ -27,6 +27,7 @@ export const Details: React.FC = () => {
   const params = useParams();
   const { colors } = useTheme();
   const [data, setData] = useState<DetailsT>();
+  const [downs, setDowns] = useState<string[]>([]);
   const [order, setOrder] = useState(true);
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -40,12 +41,20 @@ export const Details: React.FC = () => {
       setFavorite2(fav);
       setLoading(false);
     });
+
+    api.on("res:downloaded", (_e, res) => {
+      setDowns(res);
+    });
+
     api.send("get:details", {
       route: params.route,
       ext: (URLstate as any)?.ext || "",
     });
+
+    api.send("get:downloaded");
     return () => {
       api.removeAllListeners("res:details");
+      api.removeAllListeners("res:downloaded");
     };
   }, [params.route, URLstate]);
 
@@ -191,6 +200,7 @@ export const Details: React.FC = () => {
               {data?.chapters.map((e, i) => (
                 <div key={i}>
                   <Chapter
+                    downloaded={!!downs.find((u) => u === e.links[0].id)}
                     colors={colors}
                     root={params.route || ""}
                     chapter={e}
