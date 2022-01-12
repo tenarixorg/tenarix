@@ -1,4 +1,4 @@
-export const tdetails = `import { parser, content } from "scraper";
+export const tdetails = `import { parser, content } from "workers";
 import { details_route } from "./helper";
 import { _details } from "../src/details";
 
@@ -19,6 +19,10 @@ describe("Details", () => {
     expect(res.subtitle).toBeDefined();
     expect(res.title).toBeDefined();
     expect(res.type).toBeDefined();
+    expect(res.description.length).toBeGreaterThan(0);
+    expect(res.img.length).toBeGreaterThan(0);
+    expect(res.status.length).toBeGreaterThan(0);
+    expect(res.title.length).toBeGreaterThan(0);
   });
 });
 `;

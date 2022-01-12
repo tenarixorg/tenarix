@@ -4,9 +4,5 @@ export const packagejson = (name) => `{
   "main": "src/index.ts",
   "types": "src/index.ts",
   "private": true,
-  "dependencies": {
-    "types": "*",
-    "config": "*"
-  }
 }
 `;
