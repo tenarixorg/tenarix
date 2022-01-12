@@ -97,6 +97,7 @@ export interface AppContent {
   read: (id: string) => Promise<Read>;
   opts?: {
     headers: Record<string, string>;
+    refererRule?: (r: string) => string;
   };
 }
 
@@ -108,6 +109,7 @@ export interface Content {
 export interface Opts {
   action?: (page: BPage) => Promise<void>;
   scripts?: boolean;
+  headers?: Record<string, string>;
 }
 
 export type GetContent = (url: string, opts?: Opts) => Promise<Content>;

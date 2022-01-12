@@ -1,6 +1,8 @@
-import fs from "fs";
-import { decrypt, encrypt, getHash } from "../src/main/crypto";
-import { resolve } from "path";
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable no-undef */
+const fs = require("fs");
+const { decrypt, encrypt } = require("../src/crypto");
+const { resolve } = require("path");
 
 describe("Encryption", () => {
   test("should encrypt file", async () => {
@@ -18,7 +20,7 @@ describe("Encryption", () => {
       await encrypt(
         "some random password",
         resolve(__dirname, "./out_/crypto.txt.fail"),
-        null as any
+        null
       );
     } catch (error) {
       expect(error).toBeDefined();
@@ -52,20 +54,6 @@ describe("Decryption", () => {
         "some random password",
         resolve(__dirname, "./out_/crypto.txt.fail")
       );
-    } catch (error) {
-      expect(error).toBeDefined();
-    }
-  });
-});
-
-describe("Hash", () => {
-  test("should be able to hash", async () => {
-    const hash = await getHash("some string to hash");
-    expect(hash).toBeDefined();
-  });
-  test("should fail the hash", async () => {
-    try {
-      await getHash(null as any);
     } catch (error) {
       expect(error).toBeDefined();
     }

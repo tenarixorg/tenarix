@@ -10,10 +10,24 @@ export default (getContent: GetContent, parser: Parser): AppContent => {
   const home = _home(getContent, parser);
   const read = _read(getContent, parser);
   return {
-    name: "inmanga",
+    name: "lector_manga",
     details,
     home,
     library,
     read,
+    opts: {
+      headers: {
+        Referer: "",
+      },
+      refererRule: (url) => {
+        if (url.includes("img1"))
+          return (
+            url.split("img1.")[0] +
+            url.split("img1.")[1].split(".com")[0] +
+            ".com"
+          );
+        return url;
+      },
+    },
   };
 };

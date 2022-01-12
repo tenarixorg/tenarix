@@ -4,15 +4,9 @@ import { encodeRoute } from "utils";
 const libraryParams = (page: string, filters?: Filters) => {
   return `https://lectortmo.com/library?order_item=likes_count&order_dir=desc&title=${
     filters?.title || ""
-  }&_pg=1&filter_by=${filters?.filterBy || "title"}&type=${
-    filters?.type || ""
-  }&demography=${filters?.demography || ""}&status=${
-    filters?.status || ""
-  }&translation_status=${filters?.translationStatus || ""}&webcomic=${
-    filters?.webcomic || ""
-  }&yonkoma=${filters?.yonkoma || ""}&amateur=${
-    filters?.amateur || ""
-  }&erotic=${filters?.erotic || ""}&_pg=1&page=${page || 1}`;
+  }&_pg=1&filter_by=${"title"}&type=${""}&demography=${""}&status=${""}&translation_status=${""}&webcomic=${""}&yonkoma=${""}&amateur=${""}&erotic=${""}&_pg=1&page=${
+    page || 1
+  }`;
 };
 
 export const _library = (content: GetContent, parser: Parser) => {

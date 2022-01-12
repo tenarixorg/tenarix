@@ -7,7 +7,6 @@ node_modules
 
 # testing
 coverage
-out_/**
 
 # build
 dist/
@@ -38,3 +37,5 @@ yarn-error.log*
 
 # turbo
 .turbo
+packages/workers/test/out_/crypto.txt.enc
+packages/workers/test/out_/crypto.txt.fail

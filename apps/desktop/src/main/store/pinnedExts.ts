@@ -1,8 +1,9 @@
 import Store from "electron-store";
 import { app } from "electron";
+import { resolve } from "path";
 
 const store = new Store({
-  cwd: app.getPath("desktop"),
+  cwd: resolve(app.getPath("desktop") + "/xreader"),
   name: "pinned_ext",
 });
 

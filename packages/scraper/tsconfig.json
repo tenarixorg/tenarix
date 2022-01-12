@@ -1,8 +1,0 @@
-{
-  "extends": "config/base.config.json",
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "skipDefaultLibCheck": true
-  }
-}
