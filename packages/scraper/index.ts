@@ -36,7 +36,6 @@ export const content = async (url: string, opts?: Opts): Promise<Content> => {
     }
   });
   await page.setUserAgent(UA);
-  console.log(opts?.headers);
 
   await page.setExtraHTTPHeaders(opts?.headers || {});
   await page.goto(url);

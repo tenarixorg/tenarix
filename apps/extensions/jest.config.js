@@ -5,7 +5,7 @@ module.exports = {
   testEnvironment: "node",
   rootDir: "./",
   verbose: true,
-  silent: true,
+  silent: false,
   detectOpenHandles: false,
   collectCoverage: true,
   coverageDirectory: "./coverage",
