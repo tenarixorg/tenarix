@@ -1,4 +1,4 @@
-import { content, parser } from "scraper";
+import { content, parser } from "workers";
 import { libraryFilters } from "./helper";
 import { _library } from "../src/library";
 

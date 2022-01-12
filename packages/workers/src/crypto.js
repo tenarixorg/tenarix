@@ -19,11 +19,11 @@ const encrypt = (password, outputPath, input) => {
   });
 };
 
-const decrypt = (password, inputP) => {
+const decrypt = (password, inputPath) => {
   return new Promise((resolve, reject) => {
     const key = scryptSync(password, "salt", 24);
     const decipher = createDecipheriv(algorithm, key, iv);
-    const input = createReadStream(inputP);
+    const input = createReadStream(inputPath);
     try {
       const data = input.pipe(decipher);
       stream2buffer(data)
@@ -45,7 +45,20 @@ function stream2buffer(stream) {
   });
 }
 
+const getHash = (data) => {
+  return new Promise((resolve, reject) => {
+    const h = createHash("md5");
+    try {
+      const res = h.update(data).digest("hex");
+      resolve(res);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 module.exports = {
   encrypt,
   decrypt,
+  getHash,
 };

@@ -1,9 +1,9 @@
-import { worker } from "../worker";
 import { Content, Opts, Read } from "types";
+import { worker } from "../worker";
 
 export const downloadEncrypt = async (
   base: string,
-  sufix: string,
+  prefix: string,
   imgs: Read["imgs"],
   headers?: Record<string, string>
 ) => {
@@ -14,7 +14,7 @@ export const downloadEncrypt = async (
     const {Readable} = require("stream");
     const {resolve} = require("path");
 
-    const [base, sufix, imgs, headers] = workerData;
+    const [base, prefix, imgs, headers] = workerData;
 
     (async()=>{
       for (const img of imgs) {
@@ -22,7 +22,7 @@ export const downloadEncrypt = async (
         const stream = Readable.from(data);
         await encrypt(
           "some random password",
-          resolve(base, sufix + img.page),
+          resolve(base, prefix + img.page),
           stream
         );
         parentPort.postMessage({done: false,data: "downloaded " + img.page});
@@ -31,25 +31,25 @@ export const downloadEncrypt = async (
     })();
   `,
     base,
-    sufix,
+    prefix,
     imgs,
     headers
   );
   return res;
 };
 
-export const decryptChapter = async (base: string, sufix: string) => {
+export const decryptChapter = async (base: string, prefix: string) => {
   const res = await worker<Buffer[]>(
     `
     const {workerData, parentPort} = require("worker_threads");
     const {decrypt} = require("workers");
 
-    const [base, sufix] = workerData;
+    const [base, prefix] = workerData;
 
     (async()=>{
       const res_ = [];
       for (let i = 0; i < a.total; i++) {
-        const file = base + sufix + (i+1);
+        const file = base + prefix + (i+1);
         const res_ = await decrypt("some random password", file);
         res.push(res_);
       }
@@ -57,27 +57,43 @@ export const decryptChapter = async (base: string, sufix: string) => {
     })();
   `,
     base,
-    sufix
+    prefix
   );
 
   return res;
 };
 
 export const getContent = async (url: string, opts?: Opts) => {
+  let s = "";
+  if (opts?.action) {
+    s = opts.action.toString();
+  }
+
+  const opts_ = {
+    headers: opts?.headers || {},
+    scripts: opts?.scripts || false,
+    action: s,
+  };
+
   const res = await worker<Content>(
     `
     const {workerData, parentPort} = require("worker_threads");
     const {content} = require("workers");
 
     const [url, opts] = workerData;
+    const {headers, scripts, action} = opts;
+    let act;
+    if(action !== ""){
+      act = eval(action);
+    }
 
     (async()=>{
-      const res_ = await content(url, opts);
+      const res_ = await content(url, {headers, scripts, action: act});
       parentPort.postMessage({done: true, data: res_});
     })();
   `,
     url,
-    opts
+    opts_
   );
   return res;
 };

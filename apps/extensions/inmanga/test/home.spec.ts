@@ -1,4 +1,4 @@
-import { parser, content } from "scraper";
+import { parser, content } from "workers";
 import { _home } from "../src/home";
 
 const home = _home(content, parser);
@@ -6,7 +6,7 @@ const home = _home(content, parser);
 jest.setTimeout(40000);
 
 describe("Home", () => {
-  test("should get Home page", async () => {
+  test.skip("should get Home page", async () => {
     const res = await home();
     expect(res.popular).toBeInstanceOf(Array);
     expect(res.popular.length).toBeGreaterThan(1);

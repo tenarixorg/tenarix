@@ -1,4 +1,3 @@
-import cheerio from "cheerio";
 import { GetContent, Parser, Read } from "types";
 import { decodeRoute } from "utils";
 
@@ -8,7 +7,7 @@ export const _read = (content: GetContent, parser: Parser) => {
 
     const { innerHTML: baseHTML } = await content(url);
 
-    const $ = cheerio.load(baseHTML);
+    const $ = parser(baseHTML);
 
     const newUrl = $("#leer").attr("href");
 

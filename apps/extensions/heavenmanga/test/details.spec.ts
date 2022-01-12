@@ -1,4 +1,4 @@
-import { parser, content } from "scraper";
+import { parser, content } from "workers";
 import { details_route } from "./helper";
 import { _details } from "../src/details";
 

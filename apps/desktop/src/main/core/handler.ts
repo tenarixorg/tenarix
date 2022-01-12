@@ -2,8 +2,8 @@ import fs from "fs";
 import base from "./extension";
 import { ipcMain, BrowserWindow, app, nativeTheme, session } from "electron";
 import { decryptChapter, downloadEncrypt } from "./helper";
-import { createHash } from "crypto";
 import { resolve } from "path";
+import { getHash } from "workers";
 import { theme } from "utils";
 import {
   getCache,
@@ -18,18 +18,6 @@ import {
   setPinExt,
   removePinExt,
 } from "../store";
-
-const getHash = (data: string) => {
-  return new Promise<string>((resolve, reject) => {
-    const h = createHash("md5");
-    try {
-      const res = h.update(data).digest("hex");
-      resolve(res);
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
 
 export const handler = (win?: BrowserWindow) => {
   let currentSourceName = "inmanga";

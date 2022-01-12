@@ -1,4 +1,4 @@
-import { parser, content } from "scraper";
+import { parser, content } from "workers";
 import { _home } from "../src/home";
 
 const home = _home(content, parser);

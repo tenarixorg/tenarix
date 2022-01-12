@@ -1,5 +1,5 @@
 import extension from "../src";
-import { parser, content } from "scraper";
+import { parser, content } from "workers";
 
 const base = extension(content, parser);
 

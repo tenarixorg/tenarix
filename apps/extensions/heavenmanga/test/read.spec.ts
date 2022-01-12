@@ -1,4 +1,4 @@
-import { content, parser } from "scraper";
+import { content, parser } from "workers";
 import { readId } from "./helper";
 import { _read } from "../src/read";
 
