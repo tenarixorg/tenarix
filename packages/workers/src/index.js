@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-undef */
 const { getImg, content, parser } = require("./scrap");
-const { decrypt, encrypt } = require("./crypto");
+const { decrypt, encrypt, getHash } = require("./crypto");
 
 module.exports = {
   getImg,
@@ -9,4 +9,5 @@ module.exports = {
   parser,
   decrypt,
   encrypt,
+  getHash,
 };

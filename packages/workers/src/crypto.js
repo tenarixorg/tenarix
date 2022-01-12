@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-undef */
-const { scryptSync, createCipheriv, createDecipheriv } = require("crypto");
+const {
+  scryptSync,
+  createCipheriv,
+  createDecipheriv,
+  createHash,
+} = require("crypto");
 const { createWriteStream, createReadStream } = require("fs");
 const { pipeline } = require("stream");
 
