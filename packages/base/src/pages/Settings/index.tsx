@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Advanced, Appearance, Language } from "./App";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { useLang, useTheme } from "context-providers";
@@ -18,6 +18,7 @@ import {
 const { api } = window.bridge;
 
 export const Settings: React.FC = () => {
+  const mounted = useRef(false);
   const navigation = useNavigate();
   const { colors } = useTheme();
   const { lang } = useLang();
@@ -25,10 +26,15 @@ export const Settings: React.FC = () => {
   const [chsource, setChsource] = useState({ c: "", n: "" });
 
   useEffect(() => {
+    mounted.current = true;
     api.on("res:change:source", (_e, res) => {
-      setChsource(res);
+      if (mounted.current) setChsource(res);
     });
     setPrevUrl(window.history.state.prev);
+    return () => {
+      api.removeAllListeners("res:change:source");
+      mounted.current = false;
+    };
   }, []);
 
   return (

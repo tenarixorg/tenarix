@@ -1,30 +1,32 @@
-import React, { useState, useEffect } from "react";
+import React, { useReducer, useEffect, useRef } from "react";
 import { Container, Grid, Head, Loading, Txt } from "components/src/Elements";
+import { initialState, reducer } from "./helper";
 import { useLang, useTheme } from "context-providers";
 import { SpinnerDotted } from "spinners-react";
 import { useNavigate } from "react-router-dom";
-import { FavHome } from "types";
 import { Card } from "components";
 
 const { api } = window.bridge;
 
 export const Favorites: React.FC = () => {
+  const mounted = useRef(false);
   const navigation = useNavigate();
   const { colors } = useTheme();
   const { lang } = useLang();
-  const [favs, setFavs] = useState<FavHome[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [{ favs, loading }, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
+    mounted.current = true;
     api.on("res:favorites", (_e, res) => {
-      setFavs(res);
-      setLoading(false);
+      if (mounted.current) {
+        dispatch({ type: "setFavs", payload: res });
+        dispatch({ type: "setLoading", payload: false });
+      }
     });
-
     api.send("get:favorites");
-
     return () => {
       api.removeAllListeners("res:favorites");
+      mounted.current = false;
     };
   }, []);
 

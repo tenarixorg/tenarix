@@ -1,27 +1,30 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLang, useTheme } from "context-providers";
 import { Container } from "components/src/Elements";
 
 const { api } = window.bridge;
 
 export const Language: React.FC = () => {
+  const mounted = useRef(false);
   const [current, setCurrent] = useState("");
   const [langs, setLangs] = useState<{ name: string; id: string }[]>([]);
   const { colors } = useTheme();
   const { lang } = useLang();
 
   useEffect(() => {
+    mounted.current = true;
     api.on("res:lang:id", (_e, res) => {
-      setCurrent(res);
+      if (mounted.current) setCurrent(res);
     });
     api.on("res:all:lang", (_e, res) => {
-      setLangs(res);
+      if (mounted.current) setLangs(res);
     });
     api.send("get:lang");
     api.send("get:all:lang");
     return () => {
       api.removeAllListeners("res:lang:id");
       api.removeAllListeners("res:all:lang");
+      mounted.current = false;
     };
   }, []);
 

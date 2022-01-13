@@ -1,37 +1,40 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useReducer } from "react";
 import { BsChevronDoubleLeft, BsChevronDoubleRight } from "react-icons/bs";
 import { useNavigate, useParams } from "react-router-dom";
-import { Library as LibraryT } from "types";
+import { initialState, reducer } from "./helper";
 import { useTheme, useLang } from "context-providers";
 import { SpinnerDotted } from "spinners-react";
 import { Card } from "components";
 import {
-  BtnAni,
-  Container,
+  Txt,
   Grid,
   Head,
+  BtnAni,
   Loading,
+  Container,
   Pagination,
-  Txt,
 } from "components/src/Elements";
 
 const { api } = window.bridge;
 
 export const Library: React.FC = () => {
+  const mounted = useRef(false);
   const params = useParams();
   const navigation = useNavigate();
   const { colors } = useTheme();
   const { lang } = useLang();
-  const [data, setData] = useState<LibraryT["items"]>([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
+
+  const [{ page, loading, data }, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
+    mounted.current = true;
     api.on("res:library", (_e, res) => {
-      setData(res);
-      setLoading(false);
+      if (mounted.current) {
+        dispatch({ type: "setData", payload: res });
+        dispatch({ type: "setLoading", payload: false });
+      }
     });
-    setLoading(true);
+    dispatch({ type: "setLoading", payload: true });
     api.send("get:library", {
       page: 1,
       filters: {
@@ -41,13 +44,14 @@ export const Library: React.FC = () => {
     });
     return () => {
       api.removeAllListeners("res:library");
+      mounted.current = false;
     };
   }, [params.query]);
 
   useEffect(() => {
-    if (page < 1) setPage(1);
-    if (page > 1) {
-      setLoading(true);
+    if (page < 0) dispatch({ type: "setPage", payload: 1 });
+    else {
+      dispatch({ type: "setLoading", payload: true });
       api.send("get:library", {
         page,
         filters: {
@@ -92,7 +96,9 @@ export const Library: React.FC = () => {
           </Grid>
 
           <Pagination>
-            <BtnAni onClick={() => setPage((c) => c - 1)}>
+            <BtnAni
+              onClick={() => dispatch({ type: "decrementPage", payload: 1 })}
+            >
               <BsChevronDoubleLeft size={24} color={colors.buttons.color} />
             </BtnAni>
             <Txt
@@ -103,7 +109,10 @@ export const Library: React.FC = () => {
             >
               {page}
             </Txt>
-            <BtnAni right onClick={() => setPage((c) => c + 1)}>
+            <BtnAni
+              right
+              onClick={() => dispatch({ type: "incrementPage", payload: 1 })}
+            >
               <BsChevronDoubleRight size={24} color={colors.buttons.color} />
             </BtnAni>
           </Pagination>

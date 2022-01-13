@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useEffect, useRef, useCallback, useReducer } from "react";
 import { RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
 import { SpinnerDotted, SpinnerInfinity } from "spinners-react";
 import { useParams, useLocation } from "react-router-dom";
+import { initialState, reducer } from "./helper";
 import { BsChevronBarExpand } from "react-icons/bs";
-import { Read as ReadT } from "types";
 import { useTheme } from "context-providers";
 import {
   BtnAni,
@@ -22,30 +22,27 @@ export const Read: React.FC = () => {
   const params = useParams();
   const mounted = useRef(false);
   const { colors } = useTheme();
-  const [data, setData] = useState<ReadT>();
-  const [img, setImg] = useState<any>();
-  const [current, setCurrent] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [loading2, setLoading2] = useState(true);
-  const [remote, setRemote] = useState(false);
-  const [cascade, setCascade] = useState(false);
-  const [localImgs, setLocalImgs] = useState<string[]>([]);
   const { state: URLstate } = useLocation();
+  const [
+    { remote, loading2, loading, img, cascade, current, data, localImgs },
+    dispatch,
+  ] = useReducer(reducer, initialState);
 
   const getNext = useCallback(() => {
-    if (current <= 1) setCurrent(1);
-    if (current >= (data?.pages || 1)) setCurrent(data?.pages || 1);
-    if (data?.id)
+    if (current <= 1) dispatch({ type: "setCurrent", payload: 1 });
+    if (current >= data.pages)
+      dispatch({ type: "setCurrent", payload: data.pages });
+    if (data.id)
       if (remote) {
         if (data.imgs.length > 0) {
-          setLoading(true);
+          dispatch({ type: "setLoading", payload: true });
           const im = data.imgs[current - 1];
           if (im) {
             api.send("get:read:page", { img: im.url });
           }
         }
       } else {
-        setLoading(true);
+        dispatch({ type: "setLoading", payload: true });
         if (localImgs.length > 0) {
           const im = localImgs[current - 1];
           if (im) {
@@ -62,21 +59,20 @@ export const Read: React.FC = () => {
         }
       }
   }, [
-    current,
-    data?.pages,
-    data?.id,
-    remote,
-    data?.imgs,
     params.id,
     params.route,
+    data.pages,
+    current,
+    data.id,
+    data.imgs,
+    remote,
     localImgs,
   ]);
 
   useEffect(() => {
     api.on("res:read:local", (_e, res) => {
-      console.log(res);
       if (typeof res === "boolean" && !res) {
-        setRemote(true);
+        dispatch({ type: "setRemote", payload: true });
       } else {
         const imgs_: string[] = [];
         for (const buff of res) {
@@ -85,22 +81,22 @@ export const Read: React.FC = () => {
           imgs_.push(im);
         }
         if (mounted.current) {
-          setLocalImgs(imgs_);
+          dispatch({ type: "setLocalImgs", payload: imgs_ });
         }
       }
     });
 
     api.on("res:read:page", (_e, res) => {
       if (mounted.current) {
-        setImg(res);
-        setLoading(false);
+        dispatch({ type: "setImg", payload: res });
+        dispatch({ type: "setLoading", payload: false });
       }
     });
 
     api.on("res:read:init", (_e, res) => {
       if (mounted.current) {
-        setData(res);
-        setLoading2(false);
+        dispatch({ type: "setData", payload: res });
+        dispatch({ type: "setLoading2", payload: false });
       }
     });
 
@@ -132,7 +128,7 @@ export const Read: React.FC = () => {
         <ReadNav>
           <BtnAni
             onClick={() => {
-              setCurrent((c) => c - 1);
+              dispatch({ type: "decrementCurrent", payload: 1 });
             }}
             disabled={loading || current <= 1}
           >
@@ -141,9 +137,9 @@ export const Read: React.FC = () => {
           <BtnAni
             right
             onClick={() => {
-              setCurrent((c) => c + 1);
+              dispatch({ type: "incrementCurrent", payload: 1 });
             }}
-            disabled={loading || current >= (data?.pages || 1)}
+            disabled={loading || current >= data.pages}
           >
             <RiArrowRightSLine size={60} color={colors.primary} />
           </BtnAni>
@@ -163,20 +159,20 @@ export const Read: React.FC = () => {
       ) : (
         <>
           <Txt margin="0px 0px 4px 0px" fs="30px" color={colors.fontPrimary}>
-            {data?.title.substring(0, 50) +
+            {data.title.substring(0, 50) +
               `${
-                (data?.title || "").length >
-                (data?.title || "").substring(0, 50).length
+                (data.title || "").length >
+                (data.title || "").substring(0, 50).length
                   ? "..."
                   : ""
               }` || "Title"}
           </Txt>
           <Txt margin="0px 0px 4px 0px" fs="20px" color={colors.fontPrimary}>
-            {data?.info.substring(0, data?.info.indexOf("S")) || data?.info}
-            {cascade ? "" : " - " + current + "/" + data?.pages}
+            {data.info.substring(0, data.info.indexOf("S")) || data.info}
+            {cascade ? "" : " - " + current + "/" + data.pages}
           </Txt>
 
-          <Btn onClick={() => setCascade((c) => !c)}>
+          <Btn onClick={() => dispatch({ type: "setCascade" })}>
             <CP rot={cascade}>
               <BsChevronBarExpand color={colors.primary} size={30} />
             </CP>
@@ -196,8 +192,8 @@ export const Read: React.FC = () => {
         <>
           {remote ? (
             <>
-              {cascade && data?.imgs && data.imgs.length > 0 ? (
-                data?.imgs.map((im, ix) => (
+              {cascade && data.imgs && data.imgs.length > 0 ? (
+                data.imgs.map((im, ix) => (
                   <ReadImg src={im.url} key={ix} alt="img" draggable={false} />
                 ))
               ) : (

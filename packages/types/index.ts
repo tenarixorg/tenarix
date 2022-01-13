@@ -172,3 +172,98 @@ export interface Language {
     };
   };
 }
+
+export interface DetailsState {
+  data: Details;
+  downs: string[];
+  order: boolean;
+  show: boolean;
+  loading: boolean;
+  fav: boolean;
+}
+
+export interface DetailsAction {
+  type:
+    | "setData"
+    | "reverseChapter"
+    | "setDowns"
+    | "toggleOrder"
+    | "toggleShow"
+    | "setLoading"
+    | "setFav";
+  payload?: any;
+}
+
+export interface ExtensionsState {
+  sources: Source[];
+  pinnedOnly: boolean;
+  loading: boolean;
+  query: string;
+}
+
+export interface ExtensionsAction {
+  type: "setSources" | "setLoading" | "setPinnedOnly" | "setQuery";
+  payload?: any;
+}
+
+export interface FavoritesState {
+  favs: FavHome[];
+  loading: boolean;
+}
+
+export interface FavoritesAction {
+  type: "setFavs" | "setLoading";
+  payload?: any;
+}
+
+export interface HomeState {
+  loading: boolean;
+  data: Home;
+}
+
+export interface HomeAction {
+  type: "setData" | "setLoading";
+  payload?: any;
+}
+
+export interface LibraryState {
+  loading: boolean;
+  data: Library["items"];
+  page: number;
+}
+
+export interface LibraryAction {
+  type:
+    | "setData"
+    | "setLoading"
+    | "setPage"
+    | "incrementPage"
+    | "decrementPage";
+  payload?: any;
+}
+
+export interface ReadAction {
+  type:
+    | "setData"
+    | "setImg"
+    | "setCurrent"
+    | "incrementCurrent"
+    | "decrementCurrent"
+    | "setLoading"
+    | "setLoading2"
+    | "setRemote"
+    | "setCascade"
+    | "setLocalImgs";
+  payload?: any;
+}
+
+export interface ReadState {
+  data: Read;
+  img: string;
+  current: number;
+  loading: boolean;
+  loading2: boolean;
+  remote: boolean;
+  cascade: boolean;
+  localImgs: string[];
+}

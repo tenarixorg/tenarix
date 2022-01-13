@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef, useReducer } from "react";
 import { Container, Grid, Loading, Head, Txt } from "components/src/Elements";
+import { initialState, reducer } from "./helper";
 import { useLang, useTheme } from "context-providers";
-import { Home as HomeT } from "types";
 import { SpinnerDotted } from "spinners-react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "components";
@@ -9,22 +9,24 @@ import { Card } from "components";
 const { api } = window.bridge;
 
 export const Home: React.FC = () => {
+  const mounted = useRef(false);
   const navigation = useNavigate();
   const { colors } = useTheme();
   const { lang } = useLang();
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<HomeT>({
-    popular: [],
-  });
+  const [{ loading, data }, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
+    mounted.current = true;
     api.on("res:home", (_e, res) => {
-      setLoading(false);
-      setData(res);
+      if (mounted.current) {
+        dispatch({ type: "setData", payload: res });
+        dispatch({ type: "setLoading", payload: false });
+      }
     });
     api.send("get:home");
     return () => {
       api.removeAllListeners("res:home");
+      mounted.current = false;
     };
   }, []);
 

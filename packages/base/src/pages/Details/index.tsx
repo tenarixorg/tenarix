@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer, useRef } from "react";
 import { BsSortNumericDown, BsSortNumericUpAlt } from "react-icons/bs";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Chapter, Status, GenderBadge, Card } from "components";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
-import { Details as DetailsT } from "types";
 import { useLang, useTheme } from "context-providers";
 import { SpinnerDotted } from "spinners-react";
 import {
@@ -19,32 +18,36 @@ import {
   GenderContainer,
   ChaptersContainer,
 } from "components/src/Elements";
+import { initialState, reducer } from "./helper";
 
 const { api } = window.bridge;
 
 export const Details: React.FC = () => {
+  const mounted = useRef(false);
   const navigation = useNavigate();
   const params = useParams();
   const { colors } = useTheme();
   const { lang } = useLang();
-  const [data, setData] = useState<DetailsT>();
-  const [downs, setDowns] = useState<string[]>([]);
-  const [order, setOrder] = useState(true);
-  const [show, setShow] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [favorite2, setFavorite2] = useState(false);
 
   const { state: URLstate } = useLocation();
 
+  const [{ show, order, data, loading, fav, downs }, dispatch] = useReducer(
+    reducer,
+    initialState
+  );
+
   useEffect(() => {
+    mounted.current = true;
     api.on("res:details", (_e, { res, fav }) => {
-      setData(res);
-      setFavorite2(fav);
-      setLoading(false);
+      if (mounted.current) {
+        dispatch({ type: "setData", payload: res });
+        dispatch({ type: "setFav", payload: fav });
+        dispatch({ type: "setLoading", payload: false });
+      }
     });
 
     api.on("res:downloaded", (_e, res) => {
-      setDowns(res);
+      if (mounted.current) dispatch({ type: "setDowns", payload: res });
     });
 
     api.send("get:details", {
@@ -55,9 +58,11 @@ export const Details: React.FC = () => {
     api.send("get:downloaded", {
       ext: (URLstate as any)?.ext || "",
     });
+
     return () => {
       api.removeAllListeners("res:details");
       api.removeAllListeners("res:downloaded");
+      mounted.current = false;
     };
   }, [params.route, URLstate]);
 
@@ -89,9 +94,9 @@ export const Details: React.FC = () => {
                   score={data.score}
                   demography={data.demography}
                   showFav
-                  favorite={favorite2}
+                  favorite={fav}
                   setFavorite={(f) => {
-                    setFavorite2(f);
+                    dispatch({ type: "setFav", payload: f });
                     if (f) {
                       api.send("set:favorite", { route: params.route, data });
                     } else {
@@ -162,17 +167,15 @@ export const Details: React.FC = () => {
               fs="25px"
               margin="0px 0px 4px 0px"
               bold
-              onClick={() => setShow((c) => !c)}
+              onClick={() => dispatch({ type: "toggleShow" })}
             >
               {lang.details.chapters}
             </Txt>
             <Main width="70px">
               <Btn
                 onClick={() => {
-                  setOrder((c) => !c);
-                  setData((c) => {
-                    if (c) return { ...c, chapters: [...c.chapters].reverse() };
-                  });
+                  dispatch({ type: "toggleOrder" });
+                  dispatch({ type: "reverseChapter" });
                 }}
               >
                 {!order ? (
@@ -181,7 +184,7 @@ export const Details: React.FC = () => {
                   <BsSortNumericUpAlt color={colors.secondary} size={25} />
                 )}
               </Btn>
-              <Btn onClick={() => setShow((c) => !c)}>
+              <Btn onClick={() => dispatch({ type: "toggleShow" })}>
                 {show ? (
                   <RiArrowUpSLine color={colors.secondary} size={30} />
                 ) : (

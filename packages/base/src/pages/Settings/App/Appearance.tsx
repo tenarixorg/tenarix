@@ -1,20 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLang, useTheme } from "context-providers";
 import { Container } from "components/src/Elements";
 
 const { api } = window.bridge;
 
 export const Appearance: React.FC = () => {
+  const mounted = useRef(false);
   const [current, setCurrent] = useState("dark");
   const { colors } = useTheme();
   const { lang } = useLang();
 
   useEffect(() => {
+    mounted.current = true;
     api.on("res:toggle:theme", (_e, res) => {
-      setCurrent(res);
+      if (mounted.current) setCurrent(res);
     });
     return () => {
       api.removeAllListeners("res:toggle:theme");
+      mounted.current = false;
     };
   }, []);
   return (

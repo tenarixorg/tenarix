@@ -8,28 +8,28 @@ const { api } = window.bridge;
 export const Main: React.FC = () => {
   const { colors } = useTheme();
   const [closed, setClosed] = useState(true);
+  const mounted = useRef(false);
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const sidebarExcludeRef = useRef<HTMLButtonElement | null>(null);
 
-  const handleSidebar = useCallback(
-    (e: MouseEvent) => {
-      if (
-        !sidebarRef.current?.contains(e.target as Node) &&
-        !sidebarExcludeRef.current?.contains(e.target as Node)
-      ) {
-        setClosed(true);
-      }
-    },
-    [sidebarRef]
-  );
+  const handleSidebar = useCallback((e: MouseEvent) => {
+    if (
+      !sidebarRef.current?.contains(e.target as Node) &&
+      !sidebarExcludeRef.current?.contains(e.target as Node)
+    ) {
+      if (mounted.current) setClosed(true);
+    }
+  }, []);
 
   useEffect(() => {
+    mounted.current = true;
     api.on("close:sidebar", (_e, res) => {
-      setClosed(res);
+      if (mounted.current) setClosed(res);
     });
     document.addEventListener("mousedown", handleSidebar);
     return () => {
       document.removeEventListener("mousedown", handleSidebar);
+      mounted.current = false;
     };
   }, [handleSidebar]);
 

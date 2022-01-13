@@ -1,31 +1,36 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer, useRef } from "react";
 import { Check, Container, Loading, Opts, Txt } from "components/src/Elements";
 import { SearchBox, ExtensionCard } from "components";
+import { initialState, reducer } from "./helper";
 import { useLang, useTheme } from "context-providers";
 import { SpinnerDotted } from "spinners-react";
 import { format_ext } from "utils";
-import { Source } from "types";
 
 const { api } = window.bridge;
 
 export const Extensions: React.FC = () => {
+  const mounted = useRef(false);
   const { colors } = useTheme();
   const { lang } = useLang();
-  const [sources, setSources] = useState<Source[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [query, setQuery] = useState("");
-  const [pinnedOnly, setPinnedOnly] = useState(false);
+  const [{ sources, pinnedOnly, loading, query }, dispatch] = useReducer(
+    reducer,
+    initialState
+  );
 
   useEffect(() => {
     api.on("res:exts", (_e, res) => {
-      setSources(res);
-      setLoading(false);
+      if (mounted.current) {
+        dispatch({ type: "setSources", payload: res });
+        dispatch({ type: "setLoading", payload: false });
+      }
     });
 
     api.send("get:exts");
+    mounted.current = true;
 
     return () => {
       api.removeAllListeners("res:exts");
+      mounted.current = false;
     };
   }, []);
   return (
@@ -48,7 +53,7 @@ export const Extensions: React.FC = () => {
           <div style={{ width: 350 }}>
             <SearchBox
               value={query}
-              onChange={setQuery}
+              onChange={(q) => dispatch({ type: "setQuery", payload: q })}
               colors={colors}
               placeholder={lang.extensions.search_placeholder}
             />
@@ -60,7 +65,7 @@ export const Extensions: React.FC = () => {
             <Check
               value={pinnedOnly as any}
               onChange={(e) => {
-                setPinnedOnly(e.target.checked);
+                dispatch({ type: "setPinnedOnly", payload: e.target.checked });
               }}
               type="checkbox"
               bg={colors.navbar.background}
