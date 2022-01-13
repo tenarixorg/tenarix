@@ -1,5 +1,6 @@
 import fs from "fs";
 import base from "./extension";
+import lang from "./language";
 import { ipcMain, BrowserWindow, app, nativeTheme, session } from "electron";
 import { decryptChapter, downloadEncrypt } from "./helper";
 import { resolve } from "path";
@@ -25,7 +26,9 @@ import {
 
 export const handler = (win?: BrowserWindow) => {
   let currentSourceName = "inmanga";
+  let currentLangId = "en-EN";
   let currentSource = base[currentSourceName];
+  let currentLang = lang[currentLangId];
   let currentTheme: "dark" | "light" = nativeTheme.shouldUseDarkColors
     ? "dark"
     : "light";
@@ -74,6 +77,35 @@ export const handler = (win?: BrowserWindow) => {
     currentTheme = currentTheme === "dark" ? "light" : "dark";
     e.reply("change:theme", theme[currentTheme]);
     e.reply("res:toggle:theme", currentTheme);
+  });
+
+  ipcMain.on("get:lang", (e) => {
+    e.reply("res:lang:id", currentLangId);
+    e.reply("res:lang", currentLang);
+  });
+
+  ipcMain.on("change:lang", (e, { id }) => {
+    currentLangId = id;
+    currentLang = lang[id];
+    e.reply("res:lang", currentLang);
+  });
+
+  ipcMain.on("get:all:lang", (e) => {
+    const keys = Object.keys(lang);
+
+    const names: string[] = [];
+
+    for (const key of keys) {
+      names.push(lang[key].name);
+    }
+
+    const res: { name: string; id: string }[] = [];
+
+    for (let i = 0; i < keys.length; i++) {
+      res.push({ id: keys[i], name: names[i] });
+    }
+
+    e.reply("res:all:lang", res);
   });
 
   ipcMain.on(

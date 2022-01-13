@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Container, Grid, Loading, Head, Txt } from "components/src/Elements";
+import { useLang, useTheme } from "context-providers";
 import { Home as HomeT } from "types";
 import { SpinnerDotted } from "spinners-react";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "context-providers";
 import { Card } from "components";
 
 const { api } = window.bridge;
@@ -11,6 +11,7 @@ const { api } = window.bridge;
 export const Home: React.FC = () => {
   const navigation = useNavigate();
   const { colors } = useTheme();
+  const { lang } = useLang();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<HomeT>({
     popular: [],
@@ -46,7 +47,7 @@ export const Home: React.FC = () => {
         <>
           <Head>
             <Txt fs="16px" bold color={colors.fontPrimary}>
-              Popular
+              {lang.home.head}
             </Txt>
           </Head>
 

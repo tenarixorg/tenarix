@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { Advanced, Appearance, Language } from "./App";
 import { Routes, Route, useNavigate } from "react-router-dom";
-import { Advanced, Appearance } from "./App";
+import { useLang, useTheme } from "context-providers";
 import { RiCloseLine } from "react-icons/ri";
-import { useTheme } from "context-providers";
 import {
   Container,
   Header2,
@@ -20,6 +20,7 @@ const { api } = window.bridge;
 export const Settings: React.FC = () => {
   const navigation = useNavigate();
   const { colors } = useTheme();
+  const { lang } = useLang();
   const [prevUrl, setPrevUrl] = useState("");
   const [chsource, setChsource] = useState({ c: "", n: "" });
 
@@ -37,7 +38,7 @@ export const Settings: React.FC = () => {
           <Setting noBorder>
             <Header2>
               <p style={{ color: colors.fontPrimary }}>
-                Ajustes de la Aplicación
+                {lang.settings.options_1.head}
               </p>
             </Header2>
             <SettingOpt
@@ -47,7 +48,20 @@ export const Settings: React.FC = () => {
                 navigation("/settings/appearance");
               }}
             >
-              <p style={{ color: colors.fontSecondary }}>Apariencia</p>
+              <p style={{ color: colors.fontSecondary }}>
+                {lang.settings.options_1.appearance.option_text}
+              </p>
+            </SettingOpt>
+            <SettingOpt
+              selected={window.location.href.endsWith("language")}
+              hc={colors.buttons.hover}
+              onClick={() => {
+                navigation("/settings/language");
+              }}
+            >
+              <p style={{ color: colors.fontSecondary }}>
+                {lang.settings.options_1.language.option_text}
+              </p>
             </SettingOpt>
             <SettingOpt
               selected={window.location.href.endsWith("advanced")}
@@ -56,7 +70,9 @@ export const Settings: React.FC = () => {
                 navigation("/settings/advanced");
               }}
             >
-              <p style={{ color: colors.fontSecondary }}>Avanzado</p>
+              <p style={{ color: colors.fontSecondary }}>
+                {lang.settings.options_1.advanced.option_text}
+              </p>
             </SettingOpt>
           </Setting>
         </SPanel>
@@ -64,6 +80,7 @@ export const Settings: React.FC = () => {
           <div style={{ width: "100%" }}>
             <Routes>
               <Route path="/appearance" element={<Appearance />} />
+              <Route path="/language" element={<Language />} />
               <Route path="/advanced" element={<Advanced />} />
             </Routes>
           </div>

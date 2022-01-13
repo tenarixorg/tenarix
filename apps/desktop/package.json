@@ -29,6 +29,7 @@
     "config": "*",
     "electron-store": "^8.0.1",
     "extensions": "*",
+    "languages": "*",
     "puppeteer": "^13.0.1",
     "puppeteer-extra": "^3.2.3",
     "puppeteer-extra-plugin-stealth": "^2.9.0",

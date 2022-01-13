@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Check, Container, Loading, Opts, Txt } from "components/src/Elements";
 import { SearchBox, ExtensionCard } from "components";
+import { useLang, useTheme } from "context-providers";
 import { SpinnerDotted } from "spinners-react";
 import { format_ext } from "utils";
-import { useTheme } from "context-providers";
 import { Source } from "types";
 
 const { api } = window.bridge;
 
 export const Extensions: React.FC = () => {
   const { colors } = useTheme();
+  const { lang } = useLang();
   const [sources, setSources] = useState<Source[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
@@ -45,11 +46,16 @@ export const Extensions: React.FC = () => {
       ) : (
         <>
           <div style={{ width: 350 }}>
-            <SearchBox value={query} onChange={setQuery} colors={colors} />
+            <SearchBox
+              value={query}
+              onChange={setQuery}
+              colors={colors}
+              placeholder={lang.extensions.search_placeholder}
+            />
           </div>
           <Opts>
             <Txt color={colors.fontPrimary} fs="12px">
-              Pinned Only
+              {lang.extensions.pin_option_text}
             </Txt>
             <Check
               value={pinnedOnly as any}

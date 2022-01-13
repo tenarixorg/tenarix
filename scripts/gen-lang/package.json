@@ -1,0 +1,13 @@
+{
+  "name": "gen-lang",
+  "version": "0.0.0",
+  "main": "index.js",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node ."
+  },
+  "dependencies": {
+    "yargs": "^17.3.1"
+  }
+}

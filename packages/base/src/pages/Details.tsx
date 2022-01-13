@@ -4,8 +4,8 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Chapter, Status, GenderBadge, Card } from "components";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 import { Details as DetailsT } from "types";
+import { useLang, useTheme } from "context-providers";
 import { SpinnerDotted } from "spinners-react";
-import { useTheme } from "context-providers";
 import {
   Btn,
   CardInfo,
@@ -26,6 +26,7 @@ export const Details: React.FC = () => {
   const navigation = useNavigate();
   const params = useParams();
   const { colors } = useTheme();
+  const { lang } = useLang();
   const [data, setData] = useState<DetailsT>();
   const [downs, setDowns] = useState<string[]>([]);
   const [order, setOrder] = useState(true);
@@ -139,7 +140,7 @@ export const Details: React.FC = () => {
                     color={colors.fontSecondary}
                     style={{ margin: "20px 0px 10px 0px" }}
                   >
-                    Géneros
+                    {lang.details.genders}
                   </Txt>
                 )}
                 <GenderContainer>
@@ -154,7 +155,7 @@ export const Details: React.FC = () => {
                   color={colors.fontSecondary}
                   style={{ margin: "20px 0px 10px 0px" }}
                 >
-                  Estado
+                  {lang.details.status}
                 </Txt>
                 <Status colors={colors} state={data.status} />
               </Info>
@@ -169,7 +170,7 @@ export const Details: React.FC = () => {
               bold
               onClick={() => setShow((c) => !c)}
             >
-              Capítulos
+              {lang.details.chapters}
             </Txt>
             <Main width="70px">
               <Btn

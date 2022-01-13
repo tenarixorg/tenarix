@@ -4,7 +4,6 @@ import fs from "fs";
 import { index, read, home, library, details } from "./template/src/index.js";
 import { fileURLToPath } from "url";
 import { packagejson } from "./template/packagejson.js";
-import { tsconfig } from "./template/tsconfig.js";
 import { hideBin } from "yargs/helpers";
 import { join } from "path";
 
@@ -44,7 +43,6 @@ async function main(n, d, Help) {
     const readF = fs.createWriteStream(join(__root, "src/", "read.ts"));
     const detailsF = fs.createWriteStream(join(__root, "src/", "details.ts"));
     const homeF = fs.createWriteStream(join(__root, "src/", "home.ts"));
-    const tsconfigF = fs.createWriteStream(join(__root, "tsconfig.json"));
     const packageF = fs.createWriteStream(join(__root, "package.json"));
     fs.mkdirSync(join(__root, "test/helper/"), { recursive: true });
     const tindexF = fs.createWriteStream(
@@ -115,11 +113,6 @@ async function main(n, d, Help) {
     thelperF.write(thelper, (err) => {
       if (err) throw err;
       thelperF.close();
-    });
-
-    tsconfigF.write(tsconfig, (err) => {
-      if (err) throw err;
-      tsconfigF.close();
     });
 
     packageF.write(packagejson(d), (err) => {
