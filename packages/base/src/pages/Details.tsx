@@ -8,16 +8,16 @@ import { useLang, useTheme } from "context-providers";
 import { SpinnerDotted } from "spinners-react";
 import {
   Btn,
-  CardInfo,
-  ChaptersContainer,
-  ChaptersHeader,
-  Container,
-  GenderContainer,
-  Info,
-  InfoContainer,
-  Loading,
-  Main,
   Txt,
+  Main,
+  Info,
+  Loading,
+  CardInfo,
+  Container,
+  InfoContainer,
+  ChaptersHeader,
+  GenderContainer,
+  ChaptersContainer,
 } from "components/src/Elements";
 
 const { api } = window.bridge;
@@ -52,7 +52,9 @@ export const Details: React.FC = () => {
       ext: (URLstate as any)?.ext || "",
     });
 
-    api.send("get:downloaded");
+    api.send("get:downloaded", {
+      ext: (URLstate as any)?.ext || "",
+    });
     return () => {
       api.removeAllListeners("res:details");
       api.removeAllListeners("res:downloaded");
@@ -110,14 +112,6 @@ export const Details: React.FC = () => {
                   style={{ width: "95%" }}
                 >
                   {data.title}
-                </Txt>
-                <Txt
-                  fs="26px"
-                  margin="0px 0px 4px 0px"
-                  bold
-                  color={colors.fontSecondary}
-                >
-                  {data.subtitle}
                 </Txt>
                 <Txt
                   fs="16px"

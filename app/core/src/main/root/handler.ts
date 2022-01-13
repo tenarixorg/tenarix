@@ -1,5 +1,5 @@
 import fs from "fs";
-import base from "./extension";
+import baseExt from "./extension";
 import lang from "./language";
 import { ipcMain, BrowserWindow, app, nativeTheme, session } from "electron";
 import { decryptChapter, downloadEncrypt } from "./helper";
@@ -27,7 +27,7 @@ import {
 export const handler = (win?: BrowserWindow) => {
   let currentSourceName = "inmanga";
   let currentLangId = "en-EN";
-  let currentSource = base[currentSourceName];
+  let currentSource = baseExt[currentSourceName];
   let currentLang = lang[currentLangId];
   let currentTheme: "dark" | "light" = nativeTheme.shouldUseDarkColors
     ? "dark"
@@ -136,13 +136,13 @@ export const handler = (win?: BrowserWindow) => {
   );
 
   ipcMain.on("get:settings", (e) => {
-    const res = Object.keys(base);
+    const res = Object.keys(baseExt);
     e.reply("res:settings", { current: currentSourceName, data: res });
   });
 
   ipcMain.on("change:source", (e, { source }) => {
     const c = currentSourceName;
-    currentSource = base[source];
+    currentSource = baseExt[source];
     currentSourceName = source;
     e.reply("res:change:source", { c, n: source });
   });
@@ -198,7 +198,7 @@ export const handler = (win?: BrowserWindow) => {
   ipcMain.on("get:read:init", async (e, { id, ext }) => {
     const key = "read" + id;
     const source = ext || currentSourceName;
-    currentSource = base[source];
+    currentSource = baseExt[source];
     if (hasDownload(id, source)) {
       e.reply("res:read:init", getDownload(id, source));
     } else if (hasCache(source, key)) {
@@ -254,7 +254,7 @@ export const handler = (win?: BrowserWindow) => {
   });
 
   ipcMain.on("get:exts", (e) => {
-    const exts = Object.keys(base);
+    const exts = Object.keys(baseExt);
     const res = exts.map((ext) => {
       return {
         ext,
@@ -266,7 +266,7 @@ export const handler = (win?: BrowserWindow) => {
 
   ipcMain.on("add:pin:ext", (e, { ext }) => {
     setPinExt(ext);
-    const exts = Object.keys(base);
+    const exts = Object.keys(baseExt);
     const res = exts.map((ext_) => {
       return {
         ext: ext_,
@@ -278,7 +278,7 @@ export const handler = (win?: BrowserWindow) => {
 
   ipcMain.on("remove:pin:ext", (e, { ext }) => {
     removePinExt(ext);
-    const exts = Object.keys(base);
+    const exts = Object.keys(baseExt);
     const res = exts.map((ext_) => {
       return {
         ext: ext_,
@@ -288,8 +288,8 @@ export const handler = (win?: BrowserWindow) => {
     e.reply("res:exts", res);
   });
 
-  ipcMain.on("get:downloaded", (e) => {
-    const res = getAllExtDownloads(currentSourceName);
+  ipcMain.on("get:downloaded", (e, { ext }) => {
+    const res = getAllExtDownloads(ext || currentSourceName);
     e.reply("res:downloaded", res);
   });
 };
