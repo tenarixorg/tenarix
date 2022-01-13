@@ -128,3 +128,40 @@ export interface FavHome {
   ext: string;
   data: Details;
 }
+
+export interface Language {
+  id: string;
+  home: {
+    head: string;
+  };
+  library: {
+    head: string;
+  };
+  favorites: {
+    head: string;
+  };
+  extensions: {
+    pin_option_text: string;
+    search_placeholder: string;
+  };
+  details: {
+    genders: string;
+    status: string;
+    chapters: string;
+  };
+  settings: {
+    options_1: {
+      head: string;
+      appearance: {
+        option_text: string;
+        content: {
+          btn_text: string;
+          head_text: string;
+        };
+      };
+      advanced: {
+        option_text: string;
+      };
+    };
+  };
+}

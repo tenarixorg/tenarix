@@ -15,6 +15,7 @@
     "lint": "eslint . --ext .js,.ts,.tsx --fix",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "new:ext": "cd scripts/gen-ext && yarn start",
+    "new:lang": "cd scripts/gen-lang && yarn start",
     "clean": "cd scripts/clean && yarn start"
   },
   "devDependencies": {
