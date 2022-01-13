@@ -16,7 +16,9 @@ main(n, u, d, Help);
 async function main(n, u, d, Help) {
   if (Help) {
     console.log("\nUsage:\n");
-    console.log("yarn new:lang -d <lang_directory> -u <land_id>\n");
+    console.log(
+      "yarn new:lang -d <lang_directory> -u <land_id> -n <lang_name>\n"
+    );
     return;
   }
 

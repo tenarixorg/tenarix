@@ -13,7 +13,7 @@ declare function encrypt(
   password: string,
   outputPath: string,
   input: Readable
-): boolean;
+): Promise<boolean>;
 
 declare function getImg(
   url: string,
