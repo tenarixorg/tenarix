@@ -8,19 +8,19 @@ import { tindex } from "./template/test/index.js";
 import { index } from "./template/src/index.js";
 import { join } from "path";
 
-const { u, d, Help } = yargs(hideBin(process.argv)).argv;
+const { n, u, d, Help } = yargs(hideBin(process.argv)).argv;
 const __lang = join(fileURLToPath(import.meta.url), "../../../apps/languages/");
 
-main(u, d, Help);
+main(n, u, d, Help);
 
-async function main(u, d, Help) {
+async function main(n, u, d, Help) {
   if (Help) {
     console.log("\nUsage:\n");
     console.log("yarn new:lang -d <lang_directory> -u <land_id>\n");
     return;
   }
 
-  if (u && d) {
+  if (u && d && n) {
     const __root = join(__lang, `${d}/`);
 
     if (fs.existsSync(__root)) {
@@ -37,7 +37,7 @@ async function main(u, d, Help) {
       join(__root, "test/", "index.spec.ts")
     );
 
-    indexF.write(index(u), (err) => {
+    indexF.write(index(u, n), (err) => {
       if (err) throw err;
       indexF.close();
     });

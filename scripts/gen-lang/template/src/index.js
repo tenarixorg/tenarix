@@ -1,7 +1,8 @@
-export const index = (id) => `import { Language } from "types";
+export const index = (id, name) => `import { Language } from "types";
 
 const lang: Language = {
   id: "${id}",
+  name: "${name}",
   home: {
     head: "",
   },
@@ -24,6 +25,12 @@ const lang: Language = {
     options_1: {
       advanced: {
         option_text: "",
+      },
+      language: {
+        option_text: "",
+        content: {
+          head_text: "",
+        },
       },
       appearance: {
         option_text: "",
