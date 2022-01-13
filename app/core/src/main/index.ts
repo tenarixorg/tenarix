@@ -1,6 +1,6 @@
 import os from "os";
 import { app, BrowserWindow } from "electron";
-import { handler } from "./core";
+import { handler } from "./root";
 import { join } from "path";
 
 const isWin7 = os.release().startsWith("6.1");
