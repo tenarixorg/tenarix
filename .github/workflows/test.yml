@@ -1,4 +1,4 @@
-name: Test CI
+name: Test
 
 on:
   pull_request:
@@ -14,6 +14,8 @@ jobs:
       matrix:
         node: [16.x]
         os: [ubuntu-latest, windows-latest, macos-latest]
+
+    name: Test - ${{ runner.os }}
 
     steps:
       - uses: actions/checkout@v2
