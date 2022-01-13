@@ -22,7 +22,3 @@ rimraf(__root + "./**/.turbo", { glob: true }, (e) => {
 rimraf(__root + "./**/coverage", { glob: true }, (e) => {
   if (e) console.log(e);
 });
-
-rimraf(__root + "./**/.turbo", { glob: true }, (e) => {
-  if (e) console.log(e);
-});
