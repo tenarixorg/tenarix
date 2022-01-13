@@ -24,6 +24,9 @@ export const Main: React.FC = () => {
   );
 
   useEffect(() => {
+    api.on("close:sidebar", (_e, res) => {
+      setClosed(res);
+    });
     document.addEventListener("mousedown", handleSidebar);
     return () => {
       document.removeEventListener("mousedown", handleSidebar);

@@ -33,9 +33,15 @@ async function mainWin() {
   win?.on("resize", () => {
     if (win?.isNormal()) {
       win.webContents.send("resize", false);
+      win.webContents.send("close:sidebar", true);
     } else {
+      win?.webContents.send("close:sidebar", true);
       win?.webContents.send("resize", true);
     }
+  });
+
+  win?.on("move", () => {
+    win?.webContents.send("close:sidebar", true);
   });
 
   win?.on("ready-to-show", () => {
