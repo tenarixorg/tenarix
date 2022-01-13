@@ -2,6 +2,7 @@ import { Language } from "types";
 
 const lang: Language = {
   id: "en-EN",
+  name: "English",
   home: {
     head: "Populars",
   },
@@ -24,6 +25,12 @@ const lang: Language = {
     options_1: {
       advanced: {
         option_text: "Advanced",
+      },
+      language: {
+        option_text: "Language",
+        content: {
+          head_text: "Language",
+        },
       },
       appearance: {
         option_text: "Appearance",

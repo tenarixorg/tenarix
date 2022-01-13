@@ -20,9 +20,16 @@ describe("Language: en-EN", () => {
     expect(
       lang.settings.options_1.appearance.option_text.length
     ).toBeGreaterThan(1);
+    expect(
+      lang.settings.options_1.language.content.head_text.length
+    ).toBeGreaterThan(1);
+    expect(lang.settings.options_1.language.option_text.length).toBeGreaterThan(
+      1
+    );
     expect(lang.settings.options_1.advanced.option_text.length).toBeGreaterThan(
       1
     );
     expect(lang.id.length).toBeGreaterThan(1);
+    expect(lang.name.length).toBeGreaterThan(1);
   });
 });
