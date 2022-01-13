@@ -1,3 +1,4 @@
 /.idea/* text eol=crlf
 * text=auto
 *.* text eol=lf
+*.* conflict-marker-size=10
