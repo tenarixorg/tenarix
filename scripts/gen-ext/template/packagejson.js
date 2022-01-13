@@ -3,6 +3,6 @@ export const packagejson = (name) => `{
   "version": "1.0.0",
   "main": "src/index.ts",
   "types": "src/index.ts",
-  "private": true,
+  "private": true
 }
 `;
