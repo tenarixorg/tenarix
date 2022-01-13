@@ -51,6 +51,7 @@ interface Props {
   onChange: (v: string) => void;
   value: string;
   colors: Theme["dark"];
+  placeholder: string;
 }
 
 export const SearchBox: React.FC<Props> = (props) => {
@@ -63,7 +64,7 @@ export const SearchBox: React.FC<Props> = (props) => {
             //@ts-ignore
             e.target.setCustomValidity(" ");
           }}
-          placeholder="Search..."
+          placeholder={props.placeholder}
           required
           type="text"
           color1={props.colors.fontPrimary}

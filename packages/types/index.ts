@@ -131,6 +131,7 @@ export interface FavHome {
 
 export interface Language {
   id: string;
+  name: string;
   home: {
     head: string;
   };
@@ -161,6 +162,12 @@ export interface Language {
       };
       advanced: {
         option_text: string;
+      };
+      language: {
+        option_text: string;
+        content: {
+          head_text: string;
+        };
       };
     };
   };

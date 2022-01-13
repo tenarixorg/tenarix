@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Container, Grid, Head, Loading, Txt } from "components/src/Elements";
+import { useLang, useTheme } from "context-providers";
 import { SpinnerDotted } from "spinners-react";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "context-providers";
 import { FavHome } from "types";
 import { Card } from "components";
 
@@ -11,6 +11,7 @@ const { api } = window.bridge;
 export const Favorites: React.FC = () => {
   const navigation = useNavigate();
   const { colors } = useTheme();
+  const { lang } = useLang();
   const [favs, setFavs] = useState<FavHome[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -46,7 +47,7 @@ export const Favorites: React.FC = () => {
         <>
           <Head>
             <Txt fs="16px" bold color={colors.fontPrimary}>
-              Favoritos
+              {lang.favorites.head}
             </Txt>
           </Head>
 

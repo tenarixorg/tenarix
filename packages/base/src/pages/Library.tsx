@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { BsChevronDoubleLeft, BsChevronDoubleRight } from "react-icons/bs";
 import { useNavigate, useParams } from "react-router-dom";
 import { Library as LibraryT } from "types";
+import { useTheme, useLang } from "context-providers";
 import { SpinnerDotted } from "spinners-react";
-import { useTheme } from "context-providers";
 import { Card } from "components";
 import {
   BtnAni,
@@ -21,6 +21,7 @@ export const Library: React.FC = () => {
   const params = useParams();
   const navigation = useNavigate();
   const { colors } = useTheme();
+  const { lang } = useLang();
   const [data, setData] = useState<LibraryT["items"]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -67,7 +68,7 @@ export const Library: React.FC = () => {
         <>
           <Head>
             <Txt margin="0px 0px 4px 0px" fs="16px" color={colors.fontPrimary}>
-              Resultados
+              {lang.library.head}
             </Txt>
           </Head>
           <Grid bg={colors.background1} margin="10px 0px 0px 5px">
