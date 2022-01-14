@@ -1,10 +1,14 @@
-import React, { useEffect, useReducer, useRef } from "react";
+import React, { useCallback, useEffect, useReducer, useRef } from "react";
+import AutoSizer from "react-virtualized-auto-sizer";
 import { BsSortNumericDown, BsSortNumericUpAlt } from "react-icons/bs";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Chapter, Status, GenderBadge, Card } from "components";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
+import { initialState, reducer } from "./helper";
 import { useLang, useTheme } from "context-providers";
 import { SpinnerDotted } from "spinners-react";
+import { FixedSizeList } from "react-window";
+import { Scrollbars } from "react-custom-scrollbars-2";
 import {
   Btn,
   Txt,
@@ -13,14 +17,53 @@ import {
   Loading,
   CardInfo,
   Container,
+  CustomThumb,
   InfoContainer,
   ChaptersHeader,
   GenderContainer,
   ChaptersContainer,
 } from "components/src/Elements";
-import { initialState, reducer } from "./helper";
 
 const { api } = window.bridge;
+
+const CustomScrollbars: React.FC<{
+  onScroll?: any;
+  forwardedRef?: any;
+  style?: any;
+}> = ({ onScroll, forwardedRef, style, children }) => {
+  const refSetter = useCallback(
+    (scrollbarsRef) => {
+      if (scrollbarsRef) {
+        forwardedRef(scrollbarsRef.view);
+      } else {
+        forwardedRef(null);
+      }
+    },
+    [forwardedRef]
+  );
+
+  return (
+    <Scrollbars
+      ref={refSetter}
+      renderThumbVertical={(props) => {
+        return <CustomThumb {...props} />;
+      }}
+      style={{
+        ...style,
+        overflow: "hidden",
+        padding: 0,
+        margin: 0,
+      }}
+      onScroll={onScroll}
+    >
+      {children}
+    </Scrollbars>
+  );
+};
+
+const CustomScrollbarsVirtualList = React.forwardRef((props, ref) => (
+  <CustomScrollbars {...props} forwardedRef={ref} />
+));
 
 export const Details: React.FC = () => {
   const mounted = useRef(false);
@@ -28,9 +71,7 @@ export const Details: React.FC = () => {
   const params = useParams();
   const { colors } = useTheme();
   const { lang } = useLang();
-
   const { state: URLstate } = useLocation();
-
   const [{ show, order, data, loading, fav, downs }, dispatch] = useReducer(
     reducer,
     initialState
@@ -45,20 +86,16 @@ export const Details: React.FC = () => {
         dispatch({ type: "setLoading", payload: false });
       }
     });
-
     api.on("res:downloaded", (_e, res) => {
       if (mounted.current) dispatch({ type: "setDowns", payload: res });
     });
-
     api.send("get:details", {
       route: params.route,
       ext: (URLstate as any)?.ext || "",
     });
-
     api.send("get:downloaded", {
       ext: (URLstate as any)?.ext || "",
     });
-
     return () => {
       api.removeAllListeners("res:details");
       api.removeAllListeners("res:downloaded");
@@ -194,22 +231,38 @@ export const Details: React.FC = () => {
             </Main>
           </ChaptersHeader>
           {show && (
-            <ChaptersContainer bg={colors.background2}>
-              {data?.chapters.map((e, i) => (
-                <div key={i}>
-                  <Chapter
-                    downloaded={!!downs.find((u) => u === e.links[0].id)}
-                    colors={colors}
-                    root={params.route || ""}
-                    chapter={e}
-                    handler={(id) => {
-                      navigation(`/read/${params.route}/${id}`, {
-                        state: { ext: (URLstate as any)?.ext || "" },
-                      });
-                    }}
-                  />
-                </div>
-              ))}
+            <ChaptersContainer bg={colors.background1}>
+              <AutoSizer disableHeight>
+                {({ width }) => (
+                  <FixedSizeList
+                    itemCount={data.chapters.length}
+                    width={width}
+                    height={400}
+                    itemSize={40}
+                    outerElementType={CustomScrollbarsVirtualList}
+                  >
+                    {({ index, style }) => (
+                      <div style={style}>
+                        <Chapter
+                          downloaded={
+                            !!downs.find(
+                              (u) => u === data.chapters[index].links[0].id
+                            )
+                          }
+                          colors={colors}
+                          root={params.route || ""}
+                          chapter={data.chapters[index]}
+                          handler={(id) => {
+                            navigation(`/read/${params.route}/${id}`, {
+                              state: { ext: (URLstate as any)?.ext || "" },
+                            });
+                          }}
+                        />
+                      </div>
+                    )}
+                  </FixedSizeList>
+                )}
+              </AutoSizer>
             </ChaptersContainer>
           )}
         </>

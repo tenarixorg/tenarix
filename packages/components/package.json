@@ -5,11 +5,12 @@
   "types": "src/index.tsx",
   "private": true,
   "dependencies": {
-    "react": "^17.0.2",
-    "styled-components": "^5.3.3",
-    "types": "*",
+    "assets": "*",
     "config": "*",
-    "assets": "*"
+    "react": "^17.0.2",
+    "react-icons": "^4.3.1",
+    "styled-components": "^5.3.3",
+    "types": "*"
   },
   "devDependencies": {
     "@types/react": "^17.0.38",

@@ -7,8 +7,8 @@ import { Theme } from "utils";
 import {
   RiPlayCircleFill,
   RiPlayFill,
-  RiArrowDownSLine,
-  RiArrowUpSLine,
+  // RiArrowDownSLine,
+  // RiArrowUpSLine,
   RiDownloadCloudLine,
 } from "react-icons/ri";
 
@@ -108,13 +108,13 @@ export const Chapter: React.FC<Props> = (props) => {
           color={props.colors.fontPrimary}
           wrap="true"
           fs="18px"
-          pointer
+          // pointer
           bold
-          onClick={() => setShow((c) => !c)}
+          onClick={() => setShow(false)}
         >
           {props.chapter.title}
         </Txt>
-        <Main width="110px">
+        <Main width="60px" style={{ marginRight: 15 }}>
           <Btn
             onClick={() => {
               api.on("res:read:init", (_e, res) => {
@@ -160,13 +160,13 @@ export const Chapter: React.FC<Props> = (props) => {
           <Btn onClick={() => props.handler(props.chapter.links[0].id)}>
             <RiPlayFill color={props.colors.secondary} size={26} />
           </Btn>
-          <Btn onClick={() => setShow((c) => !c)}>
+          {/* <Btn onClick={() => setShow((c) => !c)}>
             {show ? (
               <RiArrowUpSLine color={props.colors.secondary} size={30} />
             ) : (
               <RiArrowDownSLine color={props.colors.secondary} size={30} />
             )}
-          </Btn>
+          </Btn> */}
         </Main>
       </Main>
       {show && (

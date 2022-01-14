@@ -8,15 +8,20 @@
     "assets": "*",
     "components": "*",
     "config": "*",
+    "context-providers": "*",
     "react": "^17.0.2",
+    "react-custom-scrollbars-2": "^4.4.0",
     "react-router-dom": "^6.2.1",
+    "react-virtualized-auto-sizer": "^1.0.6",
+    "react-window": "^1.8.6",
     "styled-components": "^5.3.3",
     "types": "*",
-    "utils": "*",
-    "context-providers": "*"
+    "utils": "*"
   },
   "devDependencies": {
     "@types/react": "^17.0.38",
+    "@types/react-virtualized-auto-sizer": "^1.0.1",
+    "@types/react-window": "^1.8.5",
     "@types/styled-components": "^5.1.19"
   }
 }

@@ -138,7 +138,7 @@ export const ChaptersContainer = styled.div<{ bg: string }>`
   flex-direction: column;
   align-items: space-between;
   width: 100%;
-  padding: 10px 10px 20px 10px;
+  padding: 0px 0px 0px 10px;
   background-color: ${(p) => p.bg};
 `;
 
@@ -362,4 +362,11 @@ export const CP = styled.div<{ rot?: boolean }>`
   transition: transform 400ms ease-in-out;
 
   transform: rotate(${(p) => (p.rot ? "0" : "90")}deg);
+`;
+
+export const CustomThumb = styled.div`
+  width: 6px;
+  height: 50px;
+  border-radius: 30px;
+  background-color: red;
 `;
