@@ -10,5 +10,6 @@ describe("Extension", () => {
     expect(base.details).toBeInstanceOf(Function);
     expect(base.library).toBeInstanceOf(Function);
     expect(base.name).toBeDefined();
+    expect(base.lang).toBeDefined();
   });
 });

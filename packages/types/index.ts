@@ -91,6 +91,7 @@ export interface Home {
 
 export interface AppContent {
   name: string;
+  lang: string;
   home: () => Promise<Home>;
   details: (route: string) => Promise<Details>;
   library: (page: string, filters: Filters) => Promise<Library>;

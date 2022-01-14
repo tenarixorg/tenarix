@@ -13,6 +13,7 @@ export default (getContent: GetContent, parser: Parser): AppContent => {
   const read = _read(getContent, parser);
   return {
     name: "${name}",
+    lang: "",
     details,
     home,
     library,

@@ -11,9 +11,10 @@ export default (getContent: GetContent, parser: Parser): AppContent => {
   const read = _read(getContent, parser);
   return {
     name: "leer_manga",
+    lang: "es-ES",
     details,
     home,
     library,
-    read
+    read,
   };
 };
