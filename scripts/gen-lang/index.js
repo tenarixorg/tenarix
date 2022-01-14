@@ -9,7 +9,7 @@ import { index } from "./template/src/index.js";
 import { join } from "path";
 
 const { n, u, d, Help } = yargs(hideBin(process.argv)).argv;
-const __lang = join(fileURLToPath(import.meta.url), "../../../apps/languages/");
+const __lang = join(fileURLToPath(import.meta.url), "../../../app/languages/");
 
 main(n, u, d, Help);
 

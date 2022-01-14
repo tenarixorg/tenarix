@@ -17,7 +17,7 @@ import {
 } from "./template/test/index.js";
 
 const { n, d, Help } = yargs(hideBin(process.argv)).argv;
-const __ext = join(fileURLToPath(import.meta.url), "../../../apps/extensions/");
+const __ext = join(fileURLToPath(import.meta.url), "../../../app/extensions/");
 
 main(n, d, Help);
 
