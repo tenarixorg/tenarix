@@ -31,6 +31,8 @@ const CustomScrollbars: React.FC<{
   forwardedRef?: any;
   style?: any;
 }> = ({ onScroll, forwardedRef, style, children }) => {
+  const { colors } = useTheme();
+
   const refSetter = useCallback(
     (scrollbarsRef) => {
       if (scrollbarsRef) {
@@ -46,7 +48,7 @@ const CustomScrollbars: React.FC<{
     <Scrollbars
       ref={refSetter}
       renderThumbVertical={(props) => {
-        return <CustomThumb {...props} />;
+        return <CustomThumb {...props} color={colors.primary} />;
       }}
       style={{
         ...style,

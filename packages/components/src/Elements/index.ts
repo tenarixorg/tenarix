@@ -364,9 +364,9 @@ export const CP = styled.div<{ rot?: boolean }>`
   transform: rotate(${(p) => (p.rot ? "0" : "90")}deg);
 `;
 
-export const CustomThumb = styled.div`
+export const CustomThumb = styled.div<{ color: string }>`
   width: 6px;
   height: 50px;
   border-radius: 30px;
-  background-color: red;
+  background-color: ${(p) => p.color};
 `;

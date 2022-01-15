@@ -5,7 +5,7 @@ import { ipcMain, BrowserWindow, app, nativeTheme, session } from "electron";
 import { decryptChapter, downloadEncrypt } from "./helper";
 import { resolve } from "path";
 import { getHash } from "workers";
-import { theme } from "utils";
+import { matchSystemLang, theme, getAllExt } from "utils";
 import {
   getCache,
   setCache,
@@ -26,18 +26,7 @@ import {
 
 export const handler = (win?: BrowserWindow) => {
   let currentSourceName = "inmanga";
-  const slang = Object.keys(lang).find((lg) =>
-    lg.includes(
-      app
-        .getLocale()
-        .substring(
-          0,
-          app.getLocale().indexOf("-") === -1
-            ? app.getLocale().length
-            : app.getLocale().indexOf("-")
-        )
-    )
-  );
+  const slang = matchSystemLang(Object.keys(lang), app.getLocale(), "en-EN");
   let currentLangId = slang || "en-EN";
   let currentSource = baseExt[currentSourceName];
   let currentLang = lang[currentLangId];
@@ -67,12 +56,16 @@ export const handler = (win?: BrowserWindow) => {
     cb({ cancel: false, requestHeaders: det.requestHeaders });
   });
 
+  /** App windowing */
+
   ipcMain.on("closeApp", () => {
     win?.close();
   });
+
   ipcMain.on("minimizeApp", () => {
     win?.minimize();
   });
+
   ipcMain.on("maximizeApp", () => {
     if (win?.isMaximized()) {
       win.restore();
@@ -80,6 +73,8 @@ export const handler = (win?: BrowserWindow) => {
       win?.maximize();
     }
   });
+
+  /** App theme */
 
   ipcMain.on("get:theme", (e) => {
     e.reply("change:theme", theme[currentTheme]);
@@ -90,6 +85,8 @@ export const handler = (win?: BrowserWindow) => {
     e.reply("change:theme", theme[currentTheme]);
     e.reply("res:toggle:theme", currentTheme);
   });
+
+  /** App language */
 
   ipcMain.on("get:lang", (e) => {
     e.reply("res:lang:id", currentLangId);
@@ -104,21 +101,20 @@ export const handler = (win?: BrowserWindow) => {
 
   ipcMain.on("get:all:lang", (e) => {
     const keys = Object.keys(lang);
-
-    const names: string[] = [];
-
-    for (const key of keys) {
-      names.push(lang[key].name);
-    }
-
-    const res: { name: string; id: string }[] = [];
-
-    for (let i = 0; i < keys.length; i++) {
-      res.push({ id: keys[i], name: names[i] });
-    }
-
+    const res = keys.map((curr) => ({ id: curr, name: lang[curr].name }));
     e.reply("res:all:lang", res);
   });
+
+  /** App extension source */
+
+  ipcMain.on("change:source", (e, { source }) => {
+    const c = currentSourceName;
+    currentSource = baseExt[source];
+    currentSourceName = source;
+    e.reply("res:change:source", { c, n: source });
+  });
+
+  /** App downloads */
 
   ipcMain.on(
     "download",
@@ -147,17 +143,12 @@ export const handler = (win?: BrowserWindow) => {
     }
   );
 
-  ipcMain.on("get:settings", (e) => {
-    const res = Object.keys(baseExt);
-    e.reply("res:settings", { current: currentSourceName, data: res });
+  ipcMain.on("get:downloaded", (e, { ext }) => {
+    const res = getAllExtDownloads(ext || currentSourceName);
+    e.reply("res:downloaded", res);
   });
 
-  ipcMain.on("change:source", (e, { source }) => {
-    const c = currentSourceName;
-    currentSource = baseExt[source];
-    currentSourceName = source;
-    e.reply("res:change:source", { c, n: source });
-  });
+  /** App home */
 
   ipcMain.on("get:home", async (e) => {
     if (hasCache(currentSourceName, "home")) {
@@ -168,6 +159,8 @@ export const handler = (win?: BrowserWindow) => {
       e.reply("res:home", res);
     }
   });
+
+  /** App details */
 
   ipcMain.on("get:details", async (e, { route, ext }) => {
     if (ext) {
@@ -195,6 +188,8 @@ export const handler = (win?: BrowserWindow) => {
     }
   });
 
+  /** App library */
+
   ipcMain.on("get:library", async (e, { page, filters }) => {
     const key =
       "library" + page + JSON.stringify(filters).replace(/({|}|,|"|:)/g, "");
@@ -206,6 +201,8 @@ export const handler = (win?: BrowserWindow) => {
       e.reply("res:library", res.items);
     }
   });
+
+  /** App read */
 
   ipcMain.on("get:read:init", async (e, { id, ext }) => {
     const key = "read" + id;
@@ -250,6 +247,8 @@ export const handler = (win?: BrowserWindow) => {
     }
   });
 
+  /** App favorites */
+
   ipcMain.on("set:favorite", (_e, { route, data }) => {
     if (hasFavorite(currentSourceName, route)) return;
     setFavorite(currentSourceName, route, data);
@@ -265,43 +264,22 @@ export const handler = (win?: BrowserWindow) => {
     e.reply("res:favorites", res);
   });
 
+  /** App extensions - pinned extensions */
+
   ipcMain.on("get:exts", (e) => {
-    const exts = Object.keys(baseExt);
-    const res = exts.map((ext) => {
-      return {
-        ext,
-        pinned: hasPinExt(ext),
-      };
-    });
+    const res = getAllExt(baseExt, hasPinExt);
     e.reply("res:exts", res);
   });
 
   ipcMain.on("add:pin:ext", (e, { ext }) => {
     setPinExt(ext);
-    const exts = Object.keys(baseExt);
-    const res = exts.map((ext_) => {
-      return {
-        ext: ext_,
-        pinned: hasPinExt(ext_),
-      };
-    });
+    const res = getAllExt(baseExt, hasPinExt);
     e.reply("res:exts", res);
   });
 
   ipcMain.on("remove:pin:ext", (e, { ext }) => {
     removePinExt(ext);
-    const exts = Object.keys(baseExt);
-    const res = exts.map((ext_) => {
-      return {
-        ext: ext_,
-        pinned: hasPinExt(ext_),
-      };
-    });
+    const res = getAllExt(baseExt, hasPinExt);
     e.reply("res:exts", res);
-  });
-
-  ipcMain.on("get:downloaded", (e, { ext }) => {
-    const res = getAllExtDownloads(ext || currentSourceName);
-    e.reply("res:downloaded", res);
   });
 };

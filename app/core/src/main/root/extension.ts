@@ -3,7 +3,7 @@ import { extensions } from "extensions";
 import { AppContent } from "types";
 import { load } from "cheerio";
 
-interface Base {
+export interface Base {
   [name: string]: Omit<AppContent, "name">;
 }
 
@@ -14,6 +14,7 @@ for (const ext of extensions) {
   Object.assign(base, {
     [res.name]: {
       home: res.home,
+      lang: res.lang,
       details: res.details,
       library: res.library,
       read: res.read,
