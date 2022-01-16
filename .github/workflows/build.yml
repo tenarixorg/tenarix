@@ -20,7 +20,7 @@ jobs:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
       USE_HARD_LINKS: false
     
-    name: Build - ${{ runner.os }}
+    name: Build - ${{ matrix.os }}
     
     steps:
       - uses: actions/checkout@v2
