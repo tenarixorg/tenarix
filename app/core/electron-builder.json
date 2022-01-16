@@ -1,5 +1,5 @@
 {
-  "appId": "x-reader.app",
+  "appId": "com.akuqt.tenarix",
   "asar": true,
   "asarUnpack": "node_modules/puppeteer/.local-chromium/**/*",
   "directories": {

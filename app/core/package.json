@@ -1,5 +1,5 @@
 {
-  "name": "x-reader-app",
+  "name": "tenarix",
   "version": "1.0.0",
   "description": "TODO",
   "main": "dist/main/index.cjs",
@@ -15,12 +15,12 @@
   "author": "Akuqt",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Akuqt/x-reader.git"
+    "url": "git+https://github.com/Akuqt/tenarix.git"
   },
   "bugs": {
-    "url": "https://github.com/Akuqt/x-reader/issues"
+    "url": "https://github.com/Akuqt/tenarix/issues"
   },
-  "homepage": "https://github.com/Akuqt/x-reader#readme",
+  "homepage": "https://github.com/Akuqt/tenarix#readme",
   "dependencies": {
     "assets": "*",
     "base": "*",
