@@ -1,4 +1,4 @@
-![Test](https://github.com/Akuqt/x-reader/actions/workflows/test.yml/badge.svg) ![Build](https://github.com/Akuqt/x-reader/actions/workflows/build.yml/badge.svg)
+![Test](https://github.com/Akuqt/tenarix/actions/workflows/test.yml/badge.svg) ![Build](https://github.com/Akuqt/tenarix/actions/workflows/build.yml/badge.svg)
 
 TODO
 
