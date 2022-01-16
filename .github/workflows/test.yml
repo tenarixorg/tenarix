@@ -15,7 +15,7 @@ jobs:
         node: [16.x]
         os: [ubuntu-latest, windows-latest, macos-latest]
 
-    name: Test - ${{ runner.os }}
+    name: Test - ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v2
