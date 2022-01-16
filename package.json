@@ -32,12 +32,12 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Akuqt/x-reader.git"
+    "url": "git+https://github.com/Akuqt/tenarix.git"
   },
   "bugs": {
-    "url": "https://github.com/Akuqt/x-reader/issues"
+    "url": "https://github.com/Akuqt/tenarix/issues"
   },
-  "homepage": "https://github.com/Akuqt/x-reader#readme",
+  "homepage": "https://github.com/Akuqt/tenarix#readme",
   "turbo": {
     "pipeline": {
       "build": {
