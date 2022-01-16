@@ -8,7 +8,6 @@ import { initialState, reducer } from "./helper";
 import { useLang, useTheme } from "context-providers";
 import { SpinnerDotted } from "spinners-react";
 import { FixedSizeList } from "react-window";
-import { Scrollbars } from "react-custom-scrollbars-2";
 import {
   Btn,
   Txt,
@@ -17,7 +16,7 @@ import {
   Loading,
   CardInfo,
   Container,
-  CustomThumb,
+  CustomScroll,
   InfoContainer,
   ChaptersHeader,
   GenderContainer,
@@ -27,9 +26,9 @@ import {
 const { api } = window.bridge;
 
 const CustomScrollbars: React.FC<{
-  onScroll?: any;
+  onScroll?: React.UIEventHandler<HTMLDivElement>;
   forwardedRef?: any;
-  style?: any;
+  style?: React.CSSProperties;
 }> = ({ onScroll, forwardedRef, style, children }) => {
   const { colors } = useTheme();
 
@@ -45,21 +44,16 @@ const CustomScrollbars: React.FC<{
   );
 
   return (
-    <Scrollbars
+    <CustomScroll
       ref={refSetter}
-      renderThumbVertical={(props) => {
-        return <CustomThumb {...props} color={colors.primary} />;
-      }}
+      scrollColor={colors.secondary}
       style={{
         ...style,
-        overflow: "hidden",
-        padding: 0,
-        margin: 0,
       }}
       onScroll={onScroll}
     >
       {children}
-    </Scrollbars>
+    </CustomScroll>
   );
 };
 

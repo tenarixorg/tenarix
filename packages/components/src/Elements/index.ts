@@ -364,9 +364,26 @@ export const CP = styled.div<{ rot?: boolean }>`
   transform: rotate(${(p) => (p.rot ? "0" : "90")}deg);
 `;
 
-export const CustomThumb = styled.div<{ color: string }>`
-  width: 6px;
-  height: 50px;
-  border-radius: 30px;
-  background-color: ${(p) => p.color};
+export const CustomScroll = styled.div<{ scrollColor: string }>`
+  padding: 0;
+  margin: 0;
+  scroll-behavior: smooth;
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 0px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: ${(p) => p.scrollColor};
+    border-radius: 30px;
+    height: 40px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: ${(p) => p.scrollColor};
+  }
 `;

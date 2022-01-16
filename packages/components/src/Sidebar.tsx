@@ -1,5 +1,5 @@
 /* eslint-disable react/display-name */
-import React from "react";
+import React, { forwardRef } from "react";
 import styled from "styled-components";
 import { RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
 import { IoCogOutline, IoHeartOutline } from "react-icons/io5";
@@ -61,7 +61,7 @@ interface Props {
   closed?: boolean;
   colors: Theme["dark"];
 }
-export const Sidebar = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
+export const Sidebar = forwardRef<HTMLDivElement, Props>((props, ref) => {
   return (
     <Container
       closed={props.closed}
