@@ -4,6 +4,7 @@ import tumangaonline from "./tumangaonline";
 import inmanga from "./inmanga";
 import lectormanga from "./lectormanga";
 import leermanga from "./leermanga";
+import readmng from "./readmng";
 
 export const extensions: Extension[] = [
   tumangaonline,
@@ -11,4 +12,5 @@ export const extensions: Extension[] = [
   inmanga,
   lectormanga,
   leermanga,
+  readmng,
 ];
