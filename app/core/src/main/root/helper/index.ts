@@ -10,11 +10,23 @@ export const downloadEncrypt = async (
   const res = await worker<boolean>(
     `
     const {workerData, parentPort} = require("worker_threads");
-    const {getImg, encrypt} = require("workers");
     const {Readable} = require("stream");
-    const {resolve} = require("path");
-
-    const [base, prefix, imgs, headers] = workerData;
+    const {resolve, join} = require("path");
+    
+    const [base, prefix, imgs, headers, env] = workerData;
+    
+    const getNodeModulesPath = (moduleName) =>
+      env === "development"
+        ? moduleName
+        : join(process.cwd(), "resources/app/node_modules/" + moduleName);
+    
+    const dynamicRequire = (moduleName) => {
+      const modulePath = getNodeModulesPath(moduleName);
+      const module = require(modulePath);
+      return module;
+    }
+    
+    const {getImg, encrypt} = dynamicRequire("workers");
 
     (async()=>{
       for (const img of imgs) {
@@ -33,7 +45,8 @@ export const downloadEncrypt = async (
     base,
     prefix,
     imgs,
-    headers
+    headers,
+    process.env.NODE_ENV
   );
   return res;
 };
@@ -46,9 +59,22 @@ export const decryptChapter = async (
   const res = await worker<Buffer[]>(
     `
     const {workerData, parentPort} = require("worker_threads");
-    const {decrypt} = require("workers");
-
-    const [base, prefix, total] = workerData;
+    const {join} = require("path");
+    
+    const [base, prefix, total, env] = workerData;
+    
+    const getNodeModulesPath = (moduleName) =>
+      env === "development"
+        ? moduleName
+        : join(process.cwd(), "resources/app/node_modules/" + moduleName);
+    
+    const dynamicRequire = (moduleName) => {
+      const modulePath = getNodeModulesPath(moduleName);
+      const module = require(modulePath);
+      return module;
+    }
+    
+    const {decrypt} = dynamicRequire("workers");
 
     (async()=>{
       const res = [];
@@ -62,7 +88,8 @@ export const decryptChapter = async (
   `,
     base,
     prefix,
-    total
+    total,
+    process.env.NODE_ENV
   );
 
   return res;
@@ -83,9 +110,23 @@ export const getContent = async (url: string, opts?: Opts) => {
   const res = await worker<Content>(
     `
     const {workerData, parentPort} = require("worker_threads");
-    const {content} = require("workers");
+    const {join} = require("path");
 
-    const [url, opts] = workerData;
+    const [url, opts, env] = workerData;
+
+    const getNodeModulesPath = (moduleName) =>
+      env === "development"
+        ? moduleName
+        : join(process.cwd(), "resources/app/node_modules/" + moduleName);
+
+    const dynamicRequire = (moduleName) => {
+        const modulePath = getNodeModulesPath(moduleName);
+        const module = require(modulePath);
+        return module;
+    }
+
+    const {content} = dynamicRequire("workers");
+
     const {headers, scripts, action} = opts;
     let act;
     if(action !== ""){
@@ -98,7 +139,8 @@ export const getContent = async (url: string, opts?: Opts) => {
     })();
   `,
     url,
-    opts_
+    opts_,
+    process.env.NODE_ENV
   );
   return res;
 };

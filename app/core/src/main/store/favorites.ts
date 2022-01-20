@@ -3,7 +3,7 @@ import { app } from "electron";
 import { resolve } from "path";
 
 const store = new Store({
-  cwd: resolve(app.getPath("desktop") + "/xreader"),
+  cwd: resolve(app.getPath("desktop") + "/.tenarix"),
   name: "favorites",
 });
 

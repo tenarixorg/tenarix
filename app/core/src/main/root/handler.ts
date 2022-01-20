@@ -121,25 +121,29 @@ export const handler = (win?: BrowserWindow) => {
     async (e, { rid, root, id, imgs, title, info, pages }) => {
       const _rid = (rid as string).includes("=") ? await getHash(rid) : rid;
       const main =
-        resolve(app.getPath("desktop") + "/xreader") +
+        resolve(app.getPath("desktop") + "/.tenarix") +
         "/.dreader" +
         `/${await getHash(root)}`;
       const base = main + `/${_rid}`;
       if (!fs.existsSync(main)) fs.mkdirSync(main, { recursive: true });
       if (!fs.existsSync(base)) fs.mkdirSync(base, { recursive: true });
-      console.log("downloading");
-      const res = await downloadEncrypt(
-        base,
-        `./${id}_`,
-        imgs,
-        currentSource.opts?.refererRule
-          ? { Referer: currentSource.opts.refererRule(imgs[0].url) }
-          : currentSource.opts?.headers
-      );
-      console.log(res);
-      setDownload(rid, currentSourceName, { title, info, pages, id });
-      e.reply("download:done", rid);
-      e.reply("res:downloaded", getAllExtDownloads(currentSourceName));
+      try {
+        console.log("downloading");
+        const res = await downloadEncrypt(
+          base,
+          `./${id}_`,
+          imgs,
+          currentSource.opts?.refererRule
+            ? { Referer: currentSource.opts.refererRule(imgs[0].url) }
+            : currentSource.opts?.headers
+        );
+        console.log(res);
+        setDownload(rid, currentSourceName, { title, info, pages, id });
+        e.reply("download:done", rid);
+        e.reply("res:downloaded", getAllExtDownloads(currentSourceName));
+      } catch (error: any) {
+        e.reply("download:error", { error: error.message });
+      }
     }
   );
 
@@ -151,40 +155,48 @@ export const handler = (win?: BrowserWindow) => {
   /** App home */
 
   ipcMain.on("get:home", async (e) => {
-    if (hasCache(currentSourceName, "home")) {
-      e.reply("res:home", getCache(currentSourceName, "home"));
-    } else {
-      const res = await currentSource.home();
-      setCache(currentSourceName, "home", res);
-      e.reply("res:home", res);
+    try {
+      if (hasCache(currentSourceName, "home")) {
+        e.reply("res:home", getCache(currentSourceName, "home"));
+      } else {
+        const res = await currentSource.home();
+        setCache(currentSourceName, "home", res);
+        e.reply("res:home", res);
+      }
+    } catch (error: any) {
+      e.reply("res:home:error", { error: error.message });
     }
   });
 
   /** App details */
 
   ipcMain.on("get:details", async (e, { route, ext }) => {
-    if (ext) {
-      e.reply("res:details", {
-        res: getFavorite(ext, route),
-        fav: true,
-      });
-      return;
-    }
-    const key = "details" + route;
-    if (hasFavorite(currentSourceName, route)) {
-      e.reply("res:details", {
-        res: getFavorite(currentSourceName, route),
-        fav: true,
-      });
-    } else if (hasCache(currentSourceName, key)) {
-      e.reply("res:details", {
-        res: getCache(currentSourceName, key),
-        fav: false,
-      });
-    } else {
-      const res = await currentSource.details(route);
-      setCache(currentSourceName, key, res);
-      e.reply("res:details", { res, fav: false });
+    try {
+      if (ext) {
+        e.reply("res:details", {
+          res: getFavorite(ext, route),
+          fav: true,
+        });
+        return;
+      }
+      const key = "details" + route;
+      if (hasFavorite(currentSourceName, route)) {
+        e.reply("res:details", {
+          res: getFavorite(currentSourceName, route),
+          fav: true,
+        });
+      } else if (hasCache(currentSourceName, key)) {
+        e.reply("res:details", {
+          res: getCache(currentSourceName, key),
+          fav: false,
+        });
+      } else {
+        const res = await currentSource.details(route);
+        setCache(currentSourceName, key, res);
+        e.reply("res:details", { res, fav: false });
+      }
+    } catch (error: any) {
+      e.reply("res:details:error", { msg: error.message });
     }
   });
 
@@ -193,12 +205,16 @@ export const handler = (win?: BrowserWindow) => {
   ipcMain.on("get:library", async (e, { page, filters }) => {
     const key =
       "library" + page + JSON.stringify(filters).replace(/({|}|,|"|:)/g, "");
-    if (hasCache(currentSourceName, key)) {
-      e.reply("res:library", getCache(currentSourceName, key));
-    } else {
-      const res = await currentSource.library(page, filters);
-      setCache(currentSourceName, key, res.items);
-      e.reply("res:library", res.items);
+    try {
+      if (hasCache(currentSourceName, key)) {
+        e.reply("res:library", getCache(currentSourceName, key));
+      } else {
+        const res = await currentSource.library(page, filters);
+        setCache(currentSourceName, key, res.items);
+        e.reply("res:library", res.items);
+      }
+    } catch (error: any) {
+      e.reply("res:library:error", { msg: error.message });
     }
   });
 
@@ -208,18 +224,23 @@ export const handler = (win?: BrowserWindow) => {
     const key = "read" + id;
     const source = ext || currentSourceName;
     currentSource = baseExt[source];
-    if (hasDownload(id, source)) {
-      e.reply("res:read:init", getDownload(id, source));
-    } else if (hasCache(source, key)) {
-      e.reply("res:read:init", getCache(source, key));
-    } else {
-      const res = await currentSource.read(id);
-      setCache(source, key, res);
-      e.reply("res:read:init", res);
+    try {
+      if (hasDownload(id, source)) {
+        e.reply("res:read:init", getDownload(id, source));
+      } else if (hasCache(source, key)) {
+        e.reply("res:read:init", getCache(source, key));
+      } else {
+        const res = await currentSource.read(id);
+        setCache(source, key, res);
+        e.reply("res:read:init", res);
+      }
+    } catch (error: any) {
+      e.reply("res:read:error", { msg: error.message });
     }
   });
 
   ipcMain.on("get:read:page", async (e, { img }) => {
+    // Passthrough == delay
     e.reply("res:read:page", img);
   });
 
@@ -227,7 +248,7 @@ export const handler = (win?: BrowserWindow) => {
     const _rid = (rid as string).includes("=") ? await getHash(rid) : rid;
     const main =
       app.getPath("desktop") +
-      "/xreader" +
+      "/.tenarix" +
       "/.dreader" +
       `/${await getHash(root)}`;
     if (!fs.existsSync(resolve(main))) {
@@ -243,7 +264,7 @@ export const handler = (win?: BrowserWindow) => {
       const res = await decryptChapter(base, `/${id}_`, total);
       e.reply("res:read:local", res);
     } catch (error: any) {
-      e.reply("res:read:local", false);
+      e.reply("res:read:error", { error: error.message });
     }
   });
 

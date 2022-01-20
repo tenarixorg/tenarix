@@ -1,9 +1,8 @@
 {
   "appId": "com.akuqt.tenarix",
-  "asar": true,
-  "asarUnpack": "node_modules/puppeteer/.local-chromium/**/*",
+  "asar": false,
   "directories": {
-    "output": "release/${version}"
+    "output": "../../release/${version}"
   },
   "files": ["!node_modules/electron", "dist", "package.json"],
   "includeSubNodeModules": false,
