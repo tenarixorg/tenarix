@@ -142,7 +142,7 @@ export const handler = (win?: BrowserWindow) => {
         e.reply("download:done", rid);
         e.reply("res:downloaded", getAllExtDownloads(currentSourceName));
       } catch (error: any) {
-        e.reply("download:error", { error: error.message });
+        e.reply("res:error", { error: error.message });
       }
     }
   );
@@ -164,7 +164,7 @@ export const handler = (win?: BrowserWindow) => {
         e.reply("res:home", res);
       }
     } catch (error: any) {
-      e.reply("res:home:error", { error: error.message });
+      e.reply("res:error", { error: error.message });
     }
   });
 
@@ -196,7 +196,7 @@ export const handler = (win?: BrowserWindow) => {
         e.reply("res:details", { res, fav: false });
       }
     } catch (error: any) {
-      e.reply("res:details:error", { msg: error.message });
+      e.reply("res:error", { msg: error.message });
     }
   });
 
@@ -214,7 +214,7 @@ export const handler = (win?: BrowserWindow) => {
         e.reply("res:library", res.items);
       }
     } catch (error: any) {
-      e.reply("res:library:error", { msg: error.message });
+      e.reply("res:error", { msg: error.message });
     }
   });
 
@@ -235,7 +235,7 @@ export const handler = (win?: BrowserWindow) => {
         e.reply("res:read:init", res);
       }
     } catch (error: any) {
-      e.reply("res:read:error", { msg: error.message });
+      e.reply("res:error", { msg: error.message });
     }
   });
 
@@ -264,7 +264,7 @@ export const handler = (win?: BrowserWindow) => {
       const res = await decryptChapter(base, `/${id}_`, total);
       e.reply("res:read:local", res);
     } catch (error: any) {
-      e.reply("res:read:error", { error: error.message });
+      e.reply("res:error", { error: error.message });
     }
   });
 

@@ -18,7 +18,7 @@ export const downloadEncrypt = async (
     const getNodeModulesPath = (moduleName) =>
       env === "development"
         ? moduleName
-        : join(process.cwd(), "resources/app/node_modules/" + moduleName);
+        : join(process.cwd(), "resources/app.asar.unpacked/node_modules/" + moduleName);
     
     const dynamicRequire = (moduleName) => {
       const modulePath = getNodeModulesPath(moduleName);
@@ -66,7 +66,7 @@ export const decryptChapter = async (
     const getNodeModulesPath = (moduleName) =>
       env === "development"
         ? moduleName
-        : join(process.cwd(), "resources/app/node_modules/" + moduleName);
+        : join(process.cwd(), "resources/app.asar.unpacked/node_modules/" + moduleName);
     
     const dynamicRequire = (moduleName) => {
       const modulePath = getNodeModulesPath(moduleName);
@@ -117,7 +117,7 @@ export const getContent = async (url: string, opts?: Opts) => {
     const getNodeModulesPath = (moduleName) =>
       env === "development"
         ? moduleName
-        : join(process.cwd(), "resources/app/node_modules/" + moduleName);
+        : join(process.cwd(), "resources/app.asar.unpacked/node_modules/" + moduleName);
 
     const dynamicRequire = (moduleName) => {
         const modulePath = getNodeModulesPath(moduleName);

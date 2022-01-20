@@ -10,7 +10,7 @@ const UA =
 puppeteer.use(StealthPlugin());
 
 const getChromiumExecPath = () => {
-  return puppeteer.executablePath().replace("app.asar", "app.asar.unpacked");
+  return puppeteer.executablePath();
 };
 
 /* istanbul ignore next */
@@ -18,6 +18,7 @@ const content = async (url, opts) => {
   const browser = await puppeteer.launch({
     headless: true,
     executablePath: getChromiumExecPath(),
+    args: ["--no-sandbox", "--disabled-setupid-sandbox"],
   });
   const page = await browser.newPage();
   await page.setRequestInterception(true);

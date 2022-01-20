@@ -1,11 +1,12 @@
 {
   "appId": "com.akuqt.tenarix",
-  "asar": false,
+  "asar": true,
   "directories": {
     "output": "../../release/${version}"
   },
   "files": ["!node_modules/electron", "dist", "package.json"],
-  "includeSubNodeModules": false,
+  "asarUnpack": ["node_modules/**/*"],
+  "includeSubNodeModules": true,
   "mac": {
     "artifactName": "${productName}_${version}.${ext}",
     "target": ["dmg"]
