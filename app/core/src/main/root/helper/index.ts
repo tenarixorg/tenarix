@@ -1,5 +1,5 @@
 import { Content, Opts, Read } from "types";
-import { worker } from "../worker";
+import { worker } from "./worker";
 
 export const downloadEncrypt = async (
   base: string,
