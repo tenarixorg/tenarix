@@ -23,7 +23,7 @@
   "homepage": "https://github.com/Akuqt/tenarix#readme",
   "dependencies": {
     "assets": "*",
-    "base": "*",
+    "ui": "*",
     "cheerio": "^1.0.0-rc.10",
     "components": "*",
     "config": "*",

@@ -1,6 +1,6 @@
 import React from "react";
 import { ThemeProvider, LangProvider } from "context-providers";
-import { Main } from "base";
+import { Main } from "ui";
 
 export const App: React.FC = () => {
   return (
