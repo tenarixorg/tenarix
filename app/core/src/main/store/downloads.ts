@@ -1,13 +1,14 @@
 import Store from "electron-store";
 import { app } from "electron";
 import { resolve } from "path";
+import { DownloadStore } from "types";
 
-const store = new Store({
+const store = new Store<Record<string, DownloadStore>>({
   cwd: resolve(app.getPath("desktop") + "/.tenarix"),
   name: "downloads",
 });
 
-export const setDownload = (id: string, ext: string, value: any) => {
+export const setDownload = (id: string, ext: string, value: DownloadStore) => {
   store.set(`${id}::${ext}`, value);
 };
 
@@ -21,12 +22,12 @@ export const hasDownload = (id: string, ext: string): boolean => {
 };
 
 export const getAllExtDownloads = (ext: string) => {
-  const res: string[] = [];
+  const res: DownloadStore[] = [];
   const keys = Object.keys(store.store);
   for (const key of keys) {
     if (key.endsWith(`::${ext}`)) {
-      const s = key.substring(0, key.length - `${ext}::`.length);
-      res.push(s);
+      const down = store.store[key];
+      res.push(down);
     }
   }
 

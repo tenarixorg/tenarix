@@ -92,6 +92,7 @@ interface Props {
   root: string;
   colors: Theme["dark"];
   downloaded?: boolean;
+  downloading?: boolean;
 }
 
 const { api } = window.bridge;
@@ -142,7 +143,7 @@ export const Chapter: React.FC<Props> = (props) => {
               <BsFillCheckCircleFill color={props.colors.secondary} size={18} />
             ) : (
               <>
-                {loading ? (
+                {loading || props.downloading ? (
                   <SpinnerCircular
                     size={22}
                     color={props.colors.secondary}

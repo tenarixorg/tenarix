@@ -176,7 +176,7 @@ export interface Language {
 
 export interface DetailsState {
   data: Details;
-  downs: string[];
+  downs: DownloadStore[];
   order: boolean;
   show: boolean;
   loading: boolean;
@@ -267,4 +267,10 @@ export interface ReadState {
   remote: boolean;
   cascade: boolean;
   localImgs: string[];
+}
+
+export interface DownloadStore {
+  data: { title: string; info: string; pages: number; id: string; rid: string };
+  done: boolean;
+  inProgress: boolean;
 }

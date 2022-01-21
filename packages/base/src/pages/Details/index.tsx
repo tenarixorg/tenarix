@@ -242,7 +242,17 @@ export const Details: React.FC = () => {
                         <Chapter
                           downloaded={
                             !!downs.find(
-                              (u) => u === data.chapters[index].links[0].id
+                              (u) =>
+                                u.data.rid ===
+                                  data.chapters[index].links[0].id && u.done
+                            )
+                          }
+                          downloading={
+                            !!downs.find(
+                              (u) =>
+                                u.data.rid ===
+                                  data.chapters[index].links[0].id &&
+                                u.inProgress
                             )
                           }
                           colors={colors}

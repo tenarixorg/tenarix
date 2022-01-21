@@ -17,7 +17,7 @@ export const _read = (content: GetContent, parser: Parser) => {
           },
         }
       );
-      return load(parser, newR.innerHTML, current_url);
+      return load(parser, newR.innerHTML, newR.current_url);
     }
     return load(parser, innerHTML, current_url);
   };

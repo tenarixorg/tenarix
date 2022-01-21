@@ -1,11 +1,11 @@
 import fs from "fs";
-import baseExt from "./extension";
 import lang from "./language";
+import baseExt from "./extension";
 import { ipcMain, BrowserWindow, app, nativeTheme, session } from "electron";
+import { matchSystemLang, theme, getAllExt } from "utils";
 import { decryptChapter, downloadEncrypt } from "./helper";
 import { resolve } from "path";
 import { getHash } from "workers";
-import { matchSystemLang, theme, getAllExt } from "utils";
 import {
   getCache,
   setCache,
@@ -127,6 +127,12 @@ export const handler = (win?: BrowserWindow) => {
       const base = main + `/${_rid}`;
       if (!fs.existsSync(main)) fs.mkdirSync(main, { recursive: true });
       if (!fs.existsSync(base)) fs.mkdirSync(base, { recursive: true });
+      setDownload(rid, currentSourceName, {
+        data: { title, info, pages, id, rid: _rid },
+        done: false,
+        inProgress: true,
+      });
+      e.reply("res:downloaded", getAllExtDownloads(currentSourceName));
       try {
         console.log("downloading");
         const res = await downloadEncrypt(
@@ -138,7 +144,11 @@ export const handler = (win?: BrowserWindow) => {
             : currentSource.opts?.headers
         );
         console.log(res);
-        setDownload(rid, currentSourceName, { title, info, pages, id });
+        setDownload(rid, currentSourceName, {
+          data: { title, info, pages, id, rid: _rid },
+          done: true,
+          inProgress: false,
+        });
         e.reply("download:done", rid);
         e.reply("res:downloaded", getAllExtDownloads(currentSourceName));
       } catch (error: any) {
@@ -225,8 +235,8 @@ export const handler = (win?: BrowserWindow) => {
     const source = ext || currentSourceName;
     currentSource = baseExt[source];
     try {
-      if (hasDownload(id, source)) {
-        e.reply("res:read:init", getDownload(id, source));
+      if (hasDownload(id, source) && getDownload(id, source)?.done) {
+        e.reply("res:read:init", getDownload(id, source)?.data);
       } else if (hasCache(source, key)) {
         e.reply("res:read:init", getCache(source, key));
       } else {
@@ -246,6 +256,12 @@ export const handler = (win?: BrowserWindow) => {
 
   ipcMain.on("get:read:local", async (e, { rid, root, id, total }) => {
     const _rid = (rid as string).includes("=") ? await getHash(rid) : rid;
+
+    if (getDownload(_rid, currentSourceName)?.inProgress) {
+      e.reply("res:read:local", false);
+      return;
+    }
+
     const main =
       app.getPath("desktop") +
       "/.tenarix" +
