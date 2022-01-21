@@ -22,6 +22,8 @@ import {
   hasDownload,
   getDownload,
   getAllExtDownloads,
+  getSettings,
+  setSettings,
 } from "../store";
 
 export const handler = (win?: BrowserWindow) => {
@@ -77,11 +79,15 @@ export const handler = (win?: BrowserWindow) => {
   /** App theme */
 
   ipcMain.on("get:theme", (e) => {
-    e.reply("change:theme", theme[currentTheme]);
+    e.reply("change:theme", theme[getSettings()?.theme || currentTheme]);
   });
 
   ipcMain.on("toggle:theme", (e) => {
     currentTheme = currentTheme === "dark" ? "light" : "dark";
+    setSettings({
+      lang: getSettings()?.lang || currentLangId,
+      theme: currentTheme,
+    });
     e.reply("change:theme", theme[currentTheme]);
     e.reply("res:toggle:theme", currentTheme);
   });
@@ -89,13 +95,20 @@ export const handler = (win?: BrowserWindow) => {
   /** App language */
 
   ipcMain.on("get:lang", (e) => {
-    e.reply("res:lang:id", currentLangId);
-    e.reply("res:lang", currentLang);
+    e.reply("res:lang:id", getSettings()?.lang || currentLangId);
+    e.reply(
+      "res:lang",
+      lang[getSettings()?.lang || currentLangId] || currentLang
+    );
   });
 
   ipcMain.on("change:lang", (e, { id }) => {
     currentLangId = id;
     currentLang = lang[id];
+    setSettings({
+      lang: currentLangId,
+      theme: getSettings()?.theme || currentTheme,
+    });
     e.reply("res:lang", currentLang);
   });
 

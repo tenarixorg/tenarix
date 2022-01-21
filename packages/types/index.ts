@@ -274,3 +274,8 @@ export interface DownloadStore {
   done: boolean;
   inProgress: boolean;
 }
+
+export interface SettingsStore {
+  theme: "dark" | "light";
+  lang: string;
+}
