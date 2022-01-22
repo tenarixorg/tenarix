@@ -44,5 +44,5 @@ export const initialState: DetailsState = {
   fav: false,
   loading: true,
   order: true,
-  show: false,
+  show: true,
 };

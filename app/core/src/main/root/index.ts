@@ -40,6 +40,9 @@ export const handler = (win?: BrowserWindow) => {
     urls: ["*://*/*"],
   };
 
+  const maxDowns = 2;
+  let currentDowns = 0;
+
   session.defaultSession.webRequest.onBeforeSendHeaders(filter, (det, cb) => {
     const url = new URL(det.url);
     det.requestHeaders["Origin"] = url.origin;
@@ -131,41 +134,52 @@ export const handler = (win?: BrowserWindow) => {
 
   ipcMain.on(
     "download",
-    async (e, { rid, root, id, imgs, title, info, pages }) => {
-      const _rid = (rid as string).includes("=") ? await getHash(rid) : rid;
-      const main =
-        resolve(app.getPath("desktop") + "/.tenarix") +
-        "/.dreader" +
-        `/${await getHash(root)}`;
-      const base = main + `/${_rid}`;
-      if (!fs.existsSync(main)) fs.mkdirSync(main, { recursive: true });
-      if (!fs.existsSync(base)) fs.mkdirSync(base, { recursive: true });
-      setDownload(rid, currentSourceName, {
-        data: { title, info, pages, id, rid: _rid },
-        done: false,
-        inProgress: true,
-      });
-      e.reply("res:downloaded", getAllExtDownloads(currentSourceName));
-      try {
-        console.log("downloading");
-        const res = await downloadEncrypt(
-          base,
-          `./${id}_`,
-          imgs,
-          currentSource.opts?.refererRule
-            ? { Referer: currentSource.opts.refererRule(imgs[0].url) }
-            : currentSource.opts?.headers
-        );
-        console.log(res);
-        setDownload(rid, currentSourceName, {
-          data: { title, info, pages, id, rid: _rid },
-          done: true,
-          inProgress: false,
+    async (e, { rid, root, id, imgs, title, info, pages, ext }) => {
+      if (currentDowns < maxDowns) {
+        currentDowns++;
+        const _rid = (rid as string).includes("=") ? await getHash(rid) : rid;
+        const main =
+          resolve(app.getPath("desktop") + "/.tenarix") +
+          "/.dreader" +
+          `/${await getHash(root)}`;
+        const base = main + `/${_rid}`;
+        if (!fs.existsSync(main)) fs.mkdirSync(main, { recursive: true });
+        if (!fs.existsSync(base)) fs.mkdirSync(base, { recursive: true });
+        const source = ext || currentSourceName;
+
+        setDownload(rid, source, {
+          data: { title, info, pages, id, rid: rid },
+          done: false,
+          inProgress: true,
         });
+        e.reply("res:downloaded", getAllExtDownloads(source));
+        try {
+          console.log("downloading");
+          const res = await downloadEncrypt(
+            base,
+            `./${id}_`,
+            imgs,
+            currentSource.opts?.refererRule
+              ? { Referer: currentSource.opts.refererRule(imgs[0].url) }
+              : currentSource.opts?.headers
+          );
+          console.log(res);
+          setDownload(rid, source, {
+            data: { title, info, pages, id, rid: rid },
+            done: true,
+            inProgress: false,
+          });
+          currentDowns--;
+          e.reply("download:done", rid);
+          e.reply("res:downloaded", getAllExtDownloads(source));
+        } catch (error: any) {
+          currentDowns--;
+          e.reply("download:done", rid);
+          e.reply("res:error", { error: error.message });
+        }
+      } else {
         e.reply("download:done", rid);
-        e.reply("res:downloaded", getAllExtDownloads(currentSourceName));
-      } catch (error: any) {
-        e.reply("res:error", { error: error.message });
+        e.reply("res:error", { error: "Download limit reached" });
       }
     }
   );
@@ -267,14 +281,12 @@ export const handler = (win?: BrowserWindow) => {
     e.reply("res:read:page", img);
   });
 
-  ipcMain.on("get:read:local", async (e, { rid, root, id, total }) => {
+  ipcMain.on("get:read:local", async (e, { rid, root, id, total, ext }) => {
     const _rid = (rid as string).includes("=") ? await getHash(rid) : rid;
-
-    if (getDownload(_rid, currentSourceName)?.inProgress) {
+    if (getDownload(rid, ext || currentSourceName)?.inProgress) {
       e.reply("res:read:local", false);
       return;
     }
-
     const main =
       app.getPath("desktop") +
       "/.tenarix" +

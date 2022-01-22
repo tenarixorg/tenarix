@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 import { Chapter as ChapterProps } from "types";
 import { BsFillCheckCircleFill } from "react-icons/bs";
@@ -93,6 +93,7 @@ interface Props {
   colors: Theme["dark"];
   downloaded?: boolean;
   downloading?: boolean;
+  ext?: string;
 }
 
 const { api } = window.bridge;
@@ -101,6 +102,14 @@ export const Chapter: React.FC<Props> = (props) => {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const id_ = props.chapter.links[0].id;
+  const mounted = useRef(false);
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
 
   return (
     <Container>
@@ -128,16 +137,17 @@ export const Chapter: React.FC<Props> = (props) => {
                   title: res.title,
                   pages: res.pages,
                   info: res.info,
+                  ext: props.ext,
                 });
               });
-              api.on("download:done", () => {
-                setLoading(false);
+              api.on("download:done", (_e, rid) => {
+                if (mounted.current && rid === id_) setLoading(false);
                 api.removeAllListeners("download:done");
               });
               setLoading(true);
-              api.send("get:read:init", { id: id_ });
+              api.send("get:read:init", { id: id_, ext: props.ext });
             }}
-            disabled={loading || props.downloaded}
+            disabled={loading || props.downloaded || props.downloading}
           >
             {props.downloaded ? (
               <BsFillCheckCircleFill color={props.colors.secondary} size={18} />

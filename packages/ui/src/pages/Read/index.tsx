@@ -55,6 +55,7 @@ export const Read: React.FC = () => {
             id: data.id,
             page: current,
             total: data.pages,
+            ext: (URLstate as any)?.ext || "",
           });
         }
       }
@@ -67,6 +68,7 @@ export const Read: React.FC = () => {
     data.imgs,
     remote,
     localImgs,
+    URLstate,
   ]);
 
   useEffect(() => {

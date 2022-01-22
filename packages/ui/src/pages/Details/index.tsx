@@ -258,6 +258,7 @@ export const Details: React.FC = () => {
                           colors={colors}
                           root={params.route || ""}
                           chapter={data.chapters[index]}
+                          ext={(URLstate as any)?.ext || ""}
                           handler={(id) => {
                             navigation(`/read/${params.route}/${id}`, {
                               state: { ext: (URLstate as any)?.ext || "" },

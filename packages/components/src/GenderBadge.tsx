@@ -9,7 +9,7 @@ const Container = styled.div<{ bg: string; border: string }>`
   align-items: center;
   padding: 4px;
   border: 1px solid ${(p) => p.border};
-  cursor: pointer;
+  /* cursor: pointer; */
   margin: 5px 10px 5px 0px;
 `;
 
