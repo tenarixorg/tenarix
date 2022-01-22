@@ -4,7 +4,7 @@ import { resolve } from "path";
 import { DownloadStore } from "types";
 
 const store = new Store<Record<string, DownloadStore>>({
-  cwd: resolve(app.getPath("desktop") + "/.tenarix"),
+  cwd: resolve(app.getPath("home") + "/.tenarix"),
   name: "downloads",
 });
 

@@ -139,7 +139,7 @@ export const handler = (win?: BrowserWindow) => {
         currentDowns++;
         const _rid = (rid as string).includes("=") ? await getHash(rid) : rid;
         const main =
-          resolve(app.getPath("desktop") + "/.tenarix") +
+          resolve(app.getPath("home") + "/.tenarix") +
           "/.dreader" +
           `/${await getHash(root)}`;
         const base = main + `/${_rid}`;
@@ -293,7 +293,7 @@ export const handler = (win?: BrowserWindow) => {
       return;
     }
     const main =
-      app.getPath("desktop") +
+      app.getPath("home") +
       "/.tenarix" +
       "/.dreader" +
       `/${await getHash(root)}`;
