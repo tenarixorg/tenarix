@@ -26,7 +26,7 @@ export const Main: React.FC = () => {
   useEffect(() => {
     mounted.current = true;
     api.on("downloading:chapter", (_e, { rid, inf }) => {
-      toast(toastMessageFormat(inf), {
+      toast(toastMessageFormat(inf.substring(0, inf.indexOf("S"))), {
         id: "download:" + rid,
         duration: Infinity,
       });
