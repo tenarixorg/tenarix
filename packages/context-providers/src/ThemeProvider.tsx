@@ -12,13 +12,9 @@ export const ThemeProvider: React.FC = ({ children }) => {
     api.on("change:theme", (_e, res) => {
       setColors(res);
     });
-    api.on("res:error", (_e, res) => {
-      console.log(res);
-    });
     api.send("get:theme");
     return () => {
       api.removeAllListeners("change:theme");
-      api.removeAllListeners("res:error");
     };
   }, []);
 

@@ -40,4 +40,15 @@ export const matchSystemLang = (
   return slang || defaultLang;
 };
 
+export const toastMessageFormat = (msg: string): string => {
+  if (msg.length > 38) {
+    return (
+      msg.substring(0, 38) +
+      "\n" +
+      toastMessageFormat(msg.substring(38, msg.length))
+    );
+  }
+  return msg;
+};
+
 export * from "./theme";

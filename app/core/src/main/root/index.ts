@@ -154,8 +154,11 @@ export const handler = (win?: BrowserWindow) => {
         });
         e.reply("res:downloaded", getAllExtDownloads(source));
         try {
-          console.log("downloading");
-          const res = await downloadEncrypt(
+          win?.webContents.send("downloading:chapter", {
+            rid,
+            inf: title + " | " + info,
+          });
+          await downloadEncrypt(
             base,
             `./${id}_`,
             imgs,
@@ -163,7 +166,9 @@ export const handler = (win?: BrowserWindow) => {
               ? { Referer: currentSource.opts.refererRule(imgs[0].url) }
               : currentSource.opts?.headers
           );
-          console.log(res);
+          win?.webContents.send("downloading:chapter:done", {
+            rid,
+          });
           setDownload(rid, source, {
             data: { title, info, pages, id, rid: rid },
             done: true,
