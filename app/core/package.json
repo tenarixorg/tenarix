@@ -1,7 +1,7 @@
 {
   "name": "tenarix",
   "version": "0.1.0-alpha",
-  "description": "TODO",
+  "description": "Destop manga reader alternative.",
   "main": "dist/main/index.cjs",
   "private": true,
   "scripts": {
@@ -23,10 +23,10 @@
   "homepage": "https://github.com/Akuqt/tenarix#readme",
   "dependencies": {
     "assets": "*",
-    "ui": "*",
     "cheerio": "^1.0.0-rc.10",
     "components": "*",
     "config": "*",
+    "context-providers": "*",
     "electron-store": "^8.0.1",
     "extensions": "*",
     "languages": "*",
@@ -35,14 +35,15 @@
     "puppeteer-extra-plugin-stealth": "^2.9.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-hot-toast": "^2.2.0",
     "react-icons": "^4.3.1",
     "react-router-dom": "^6.2.1",
     "spinners-react": "^1.0.6",
     "styled-components": "^5.3.3",
     "types": "*",
+    "ui": "*",
     "utils": "*",
-    "workers": "*",
-    "context-providers": "*"
+    "workers": "*"
   },
   "devDependencies": {
     "@types/jest": "^27.4.0",

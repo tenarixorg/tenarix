@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Navbar, Sidebar } from "components";
+import { Navbar, Sidebar, CustomToast } from "components";
+import { toastMessageFormat } from "utils";
 import { useTheme } from "context-providers";
 import { Pages } from "./pages";
+import { toast } from "react-hot-toast";
 
 const { api } = window.bridge;
 
@@ -23,12 +25,30 @@ export const Main: React.FC = () => {
 
   useEffect(() => {
     mounted.current = true;
+    api.on("downloading:chapter", (_e, { rid, inf }) => {
+      toast(toastMessageFormat(inf), {
+        id: "download:" + rid,
+        duration: Infinity,
+      });
+    });
+    api.on("downloading:chapter:done", (_e, { rid }) => {
+      toast.dismiss("download:" + rid);
+    });
+    api.on("res:error", (_e, res) => {
+      toast(toastMessageFormat(res.error), {
+        id: "error_toast",
+        duration: 4000,
+      });
+    });
     api.on("close:sidebar", (_e, res) => {
       if (mounted.current) setClosed(res);
     });
     document.addEventListener("mousedown", handleSidebar);
     return () => {
       document.removeEventListener("mousedown", handleSidebar);
+      api.removeAllListeners("close:sidebar");
+      api.removeAllListeners("res:error");
+      api.removeAllListeners("downloading:chapter");
       mounted.current = false;
     };
   }, [handleSidebar]);
@@ -85,6 +105,7 @@ export const Main: React.FC = () => {
         />
         <Pages />
       </main>
+      <CustomToast colors={colors} />
     </>
   );
 };
