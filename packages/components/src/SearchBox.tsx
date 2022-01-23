@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Theme } from "utils";
+import { BaseTheme } from "types";
 
 const Container = styled.div<{ m: string }>`
   display: flex;
@@ -50,7 +50,7 @@ const Input = styled.input<{ color1: string; color2: string }>`
 interface Props {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   value: string;
-  colors: Theme["dark"];
+  colors: BaseTheme;
   placeholder: string;
   m: string;
 }

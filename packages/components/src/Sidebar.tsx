@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
 import { IoCogOutline, IoHeartOutline } from "react-icons/io5";
 import { FaRegCompass } from "react-icons/fa";
-import { Theme } from "utils";
+import { BaseTheme } from "types";
 
 const upAni = "translateY(-3px)";
 const rotAni = "rotate(45deg)";
@@ -59,7 +59,7 @@ interface Props {
   settings: () => void;
   favorites: () => void;
   closed?: boolean;
-  colors: Theme["dark"];
+  colors: BaseTheme;
 }
 export const Sidebar = forwardRef<HTMLDivElement, Props>((props, ref) => {
   return (

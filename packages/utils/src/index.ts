@@ -72,5 +72,3 @@ export const toastMessageFormat = (msg: string): string => {
   }
   return msg;
 };
-
-export * from "./theme";

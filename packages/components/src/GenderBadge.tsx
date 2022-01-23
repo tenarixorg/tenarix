@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Theme } from "utils";
+import { BaseTheme } from "types";
 
 const Container = styled.div<{ bg: string; border: string }>`
   background-color: ${(p) => p.bg};
@@ -15,7 +15,7 @@ const Container = styled.div<{ bg: string; border: string }>`
 
 interface Props {
   text: string;
-  colors: Theme["dark"];
+  colors: BaseTheme;
 }
 
 export const GenderBadge: React.FC<Props> = (props) => {

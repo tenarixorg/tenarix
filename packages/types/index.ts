@@ -136,6 +136,34 @@ export interface FavHome {
   data: Details;
 }
 
+export interface BaseTheme {
+  primary: string;
+  secondary: string;
+  background1: string;
+  background2: string;
+  fontPrimary: string;
+  fontSecondary: string;
+  navbar: {
+    background: string;
+    buttons: {
+      background: string;
+      color: string;
+      hover: string;
+    };
+  };
+  buttons: {
+    background: string;
+    hover: string;
+    color: string;
+    border: string;
+  };
+}
+
+export interface Theme {
+  dark: BaseTheme;
+  light: BaseTheme;
+}
+
 export interface Language {
   id: string;
   name: string;

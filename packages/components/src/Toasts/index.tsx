@@ -1,14 +1,14 @@
 import React from "react";
 import { Toast, Toaster } from "react-hot-toast";
-import { ErrorToast } from "./ErrorToast";
-import { Theme } from "utils";
 import { DownloadToast } from "./DownloadToast";
+import { ErrorToast } from "./ErrorToast";
+import { BaseTheme } from "types";
 
 interface Props {
-  colors: Theme["dark"];
+  colors: BaseTheme;
 }
 
-const selectToast = (id: string, toast: Toast, colors: Theme["dark"]) => {
+const selectToast = (id: string, toast: Toast, colors: BaseTheme) => {
   switch (id) {
     case "error_toast":
       return <ErrorToast toast={toast} colors={colors} />;
