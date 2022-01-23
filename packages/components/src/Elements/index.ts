@@ -191,9 +191,10 @@ export const ReadNav = styled.div`
   z-index: 2;
 `;
 
-export const ReadImg = styled.img`
-  width: 80%;
+export const ReadImg = styled.img<{ width: string }>`
+  width: ${(p) => p.width};
   margin-top: 10px;
+  transition: width 400ms ease-in-out;
 `;
 
 export const Opts = styled.div`

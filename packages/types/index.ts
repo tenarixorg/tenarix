@@ -110,6 +110,7 @@ export interface Content {
 export interface Opts {
   action?: (page: BPage) => Promise<void>;
   scripts?: boolean;
+  imgs?: boolean;
   headers?: Record<string, string>;
 }
 
@@ -302,7 +303,8 @@ export interface ReadAction {
     | "setLoading2"
     | "setRemote"
     | "setCascade"
-    | "setLocalImgs";
+    | "setLocalImgs"
+    | "setImgWidth";
   payload?: any;
 }
 
@@ -314,6 +316,7 @@ export interface ReadState {
   loading2: boolean;
   remote: boolean;
   cascade: boolean;
+  imgWidth: string;
   localImgs: string[];
 }
 

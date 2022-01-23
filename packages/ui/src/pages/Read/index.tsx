@@ -6,14 +6,14 @@ import { initialState, reducer } from "./helper";
 import { BsChevronBarExpand } from "react-icons/bs";
 import { useTheme } from "context-providers";
 import {
-  BtnAni,
-  Container,
-  Loading,
-  ReadImg,
-  ReadNav,
+  CP,
   Txt,
   Btn,
-  CP,
+  BtnAni,
+  ReadNav,
+  ReadImg,
+  Loading,
+  Container,
 } from "components/src/Elements";
 
 const { api } = window.bridge;
@@ -24,7 +24,17 @@ export const Read: React.FC = () => {
   const { colors } = useTheme();
   const { state: URLstate } = useLocation();
   const [
-    { remote, loading2, loading, img, cascade, current, data, localImgs },
+    {
+      remote,
+      loading2,
+      loading,
+      img,
+      cascade,
+      current,
+      data,
+      localImgs,
+      imgWidth,
+    },
     dispatch,
   ] = useReducer(reducer, initialState);
 
@@ -71,6 +81,17 @@ export const Read: React.FC = () => {
     URLstate,
   ]);
 
+  const handleWheel = useCallback(
+    (e: WheelEvent) => {
+      let width = parseInt(imgWidth.substring(0, imgWidth.indexOf("%")));
+      width -= e.deltaY / 10;
+      if (e.ctrlKey) {
+        dispatch({ type: "setImgWidth", payload: width + "%" });
+      }
+    },
+    [imgWidth]
+  );
+
   useEffect(() => {
     api.on("res:read:local", (_e, res) => {
       if (typeof res === "boolean" && !res) {
@@ -107,14 +128,17 @@ export const Read: React.FC = () => {
       ext: (URLstate as any)?.ext || "",
     });
 
+    document.addEventListener("wheel", handleWheel);
+
     mounted.current = true;
     return () => {
       mounted.current = false;
       api.removeAllListeners("res:read:init");
       api.removeAllListeners("res:read:page");
       api.removeAllListeners("res:read:local");
+      document.removeEventListener("wheel", handleWheel);
     };
-  }, [params.id, URLstate]);
+  }, [params.id, URLstate, handleWheel]);
 
   useEffect(() => {
     getNext();
@@ -196,20 +220,42 @@ export const Read: React.FC = () => {
             <>
               {cascade && data.imgs && data.imgs.length > 0 ? (
                 data.imgs.map((im, ix) => (
-                  <ReadImg src={im.url} key={ix} alt="img" draggable={false} />
+                  <ReadImg
+                    src={im.url}
+                    key={ix}
+                    alt="img"
+                    draggable={false}
+                    width={imgWidth}
+                  />
                 ))
               ) : (
-                <ReadImg src={img} alt="img" draggable={false} />
+                <ReadImg
+                  src={img}
+                  alt="img"
+                  draggable={false}
+                  width={imgWidth}
+                />
               )}
             </>
           ) : (
             <>
               {cascade && localImgs.length > 0 ? (
                 localImgs.map((im, ix) => (
-                  <ReadImg src={im} key={ix} alt="img" draggable={false} />
+                  <ReadImg
+                    src={im}
+                    key={ix}
+                    alt="img"
+                    draggable={false}
+                    width={imgWidth}
+                  />
                 ))
               ) : (
-                <ReadImg src={img} alt="img" draggable={false} />
+                <ReadImg
+                  src={img}
+                  alt="img"
+                  draggable={false}
+                  width={imgWidth}
+                />
               )}
             </>
           )}
