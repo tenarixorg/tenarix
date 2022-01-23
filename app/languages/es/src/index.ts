@@ -1,7 +1,7 @@
 import { Language } from "types";
 
 const lang: Language = {
-  id: "es-ES",
+  id: "es",
   name: "Español",
   home: {
     head: "Populares",
@@ -20,6 +20,7 @@ const lang: Language = {
   extensions: {
     pin_option_text: "Solo Anclados",
     search_placeholder: "Buscar...",
+    select_title: "Idioma",
   },
   settings: {
     options_1: {

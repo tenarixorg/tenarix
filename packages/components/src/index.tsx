@@ -7,3 +7,4 @@ export * from "./Sidebar";
 export * from "./SearchBox";
 export * from "./ExtensionCard";
 export * from "./Toasts";
+export * from "./LangSelect";

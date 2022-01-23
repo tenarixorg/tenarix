@@ -28,8 +28,8 @@ import {
 
 export const handler = (win?: BrowserWindow) => {
   let currentSourceName = "inmanga";
-  const slang = matchSystemLang(Object.keys(lang), app.getLocale(), "en-EN");
-  let currentLangId = slang || "en-EN";
+  const slang = matchSystemLang(Object.keys(lang), app.getLocale(), "en");
+  let currentLangId = slang;
   let currentSource = baseExt[currentSourceName];
   let currentLang = lang[currentLangId];
   let currentTheme: "dark" | "light" = nativeTheme.shouldUseDarkColors

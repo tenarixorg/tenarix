@@ -1,7 +1,7 @@
 import { Language } from "types";
 
 const lang: Language = {
-  id: "en-EN",
+  id: "en",
   name: "English",
   home: {
     head: "Populars",
@@ -20,6 +20,7 @@ const lang: Language = {
   extensions: {
     pin_option_text: "Pinned Only",
     search_placeholder: "Search...",
+    select_title: "Language",
   },
   settings: {
     options_1: {

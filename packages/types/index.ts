@@ -119,9 +119,15 @@ export type Parser = typeof load;
 
 export type Extension = (content: GetContent, parser: Parser) => AppContent;
 
+export interface Lang {
+  id: string;
+  name: string;
+}
+
 export interface Source {
   ext: string;
   pinned: boolean;
+  lang: string;
 }
 
 export interface FavHome {
@@ -145,6 +151,7 @@ export interface Language {
   extensions: {
     pin_option_text: string;
     search_placeholder: string;
+    select_title: string;
   };
   details: {
     genders: string;
@@ -200,10 +207,23 @@ export interface ExtensionsState {
   pinnedOnly: boolean;
   loading: boolean;
   query: string;
+  langs: Lang[];
+  slangs: SelectItem[];
+}
+
+export interface SelectItem {
+  value: string;
+  label: string;
 }
 
 export interface ExtensionsAction {
-  type: "setSources" | "setLoading" | "setPinnedOnly" | "setQuery";
+  type:
+    | "setSources"
+    | "setLangs"
+    | "setSlangs"
+    | "setLoading"
+    | "setPinnedOnly"
+    | "setQuery";
   payload?: any;
 }
 
