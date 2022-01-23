@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-undef */
 const fs = require("fs");
-const { decrypt, encrypt } = require("../src/crypto");
+const { decrypt, encrypt, getHash } = require("../src/crypto");
 const { resolve } = require("path");
 
 describe("Encryption", () => {
@@ -57,5 +57,22 @@ describe("Decryption", () => {
     } catch (error) {
       expect(error).toBeDefined();
     }
+  });
+});
+
+describe("Hashing", () => {
+  test("should get hash", async () => {
+    const hash = await getHash("test");
+    expect(hash).toBeDefined();
+    expect(hash.length).toBeGreaterThan(0);
+  });
+  test("should fail hashing", async () => {
+    let error;
+    try {
+      await getHash({ test: "test" });
+    } catch (err) {
+      error = err;
+    }
+    expect(error).toBeDefined();
   });
 });

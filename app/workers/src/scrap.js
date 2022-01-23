@@ -13,7 +13,6 @@ const getChromiumExecPath = () => {
   return puppeteer.executablePath();
 };
 
-/* istanbul ignore next */
 const content = async (url, opts) => {
   const browser = await puppeteer.launch({
     headless: true,
@@ -28,36 +27,23 @@ const content = async (url, opts) => {
     } else if (
       (req.resourceType() === "script" ||
         req.resourceType() === "xhr" ||
-        req.resourceType() === "image") &&
+        (req.resourceType() === "image" && opts?.imgs)) &&
       opts?.scripts
     ) {
+      /* istanbul ignore next */
       return req.continue();
     } else {
+      /* istanbul ignore next */
       return req.abort();
     }
   });
   await page.setUserAgent(UA);
   await page.setExtraHTTPHeaders(opts?.headers || {});
-  await page.goto(url);
+  await page.goto(url, { waitUntil: "load", timeout: 0 });
   if (opts?.action) {
     await opts.action(page);
   }
-  const innerHTML = await page.evaluate(() => {
-    const main = document.body;
-    for (const form of main.querySelectorAll("form")) {
-      form.remove();
-    }
-    for (const formr of main.querySelectorAll(".form-row")) {
-      formr.remove();
-    }
-    for (const script of main.querySelectorAll("script")) {
-      script.remove();
-    }
-    for (const iframe of main.querySelectorAll("iframe")) {
-      iframe.remove();
-    }
-    return main.innerHTML;
-  });
+  const innerHTML = await page.content();
   await page.close();
   await browser.close();
   page.removeAllListeners("request");
@@ -91,12 +77,18 @@ const getImg = async (url, headers) => {
   const y = box?.y;
   const w = box?.width;
   const h = box?.height;
-  const img = await page_.screenshot({
-    encoding: "binary",
-    clip: { x: x || 0, y: y || 0, width: w || 0, height: h || 0 },
-    type: "jpeg",
-    quality: 100,
-  });
+  let img;
+  try {
+    img = await page_.screenshot({
+      encoding: "binary",
+      clip: { x, y, width: w, height: h },
+      type: "jpeg",
+      quality: 100,
+    });
+  } catch (err) {
+    /* istanbul ignore next */
+    img = null;
+  }
   await browser.close();
   return img;
 };
