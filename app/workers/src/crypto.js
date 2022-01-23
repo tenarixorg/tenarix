@@ -18,7 +18,10 @@ const encrypt = (password, outputPath, input) => {
     const cipher = createCipheriv(algorithm, key, iv);
     const output = createWriteStream(outputPath);
     pipeline(input, cipher, output, (err) => {
-      if (err) reject(err);
+      /* istanbul ignore next */
+      if (err) {
+        reject(err);
+      }
       resolve(true);
     });
   });

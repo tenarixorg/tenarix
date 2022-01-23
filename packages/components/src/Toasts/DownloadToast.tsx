@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Toast, ToastBar } from "react-hot-toast";
 import { SpinnerCircular } from "spinners-react";
-import { Theme } from "utils";
 import { BsChevronDown } from "react-icons/bs";
+import { BaseTheme } from "types";
 import styled from "styled-components";
 
 const Message = styled.div<{ animate?: boolean }>`
@@ -26,7 +26,7 @@ const Btn = styled.button<{ animate?: boolean }>`
 `;
 
 interface Props {
-  colors: Theme["dark"];
+  colors: BaseTheme;
   toast: Toast;
 }
 

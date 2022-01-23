@@ -1,6 +1,6 @@
 import React, { useRef, useCallback, useEffect } from "react";
 import styled from "styled-components";
-import { Theme } from "utils";
+import { BaseTheme } from "types";
 import { Txt } from "./Elements";
 
 import { BsFillPinAngleFill } from "react-icons/bs";
@@ -62,7 +62,7 @@ interface Props {
   lang: string;
   pin: () => void;
   go: () => void;
-  colors: Theme["dark"];
+  colors: BaseTheme;
   pinned?: boolean;
 }
 

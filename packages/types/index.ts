@@ -110,6 +110,7 @@ export interface Content {
 export interface Opts {
   action?: (page: BPage) => Promise<void>;
   scripts?: boolean;
+  imgs?: boolean;
   headers?: Record<string, string>;
 }
 
@@ -134,6 +135,34 @@ export interface FavHome {
   route: string;
   ext: string;
   data: Details;
+}
+
+export interface BaseTheme {
+  primary: string;
+  secondary: string;
+  background1: string;
+  background2: string;
+  fontPrimary: string;
+  fontSecondary: string;
+  navbar: {
+    background: string;
+    buttons: {
+      background: string;
+      color: string;
+      hover: string;
+    };
+  };
+  buttons: {
+    background: string;
+    hover: string;
+    color: string;
+    border: string;
+  };
+}
+
+export interface Theme {
+  dark: BaseTheme;
+  light: BaseTheme;
 }
 
 export interface Language {
@@ -274,7 +303,8 @@ export interface ReadAction {
     | "setLoading2"
     | "setRemote"
     | "setCascade"
-    | "setLocalImgs";
+    | "setLocalImgs"
+    | "setImgWidth";
   payload?: any;
 }
 
@@ -286,6 +316,7 @@ export interface ReadState {
   loading2: boolean;
   remote: boolean;
   cascade: boolean;
+  imgWidth: string;
   localImgs: string[];
 }
 

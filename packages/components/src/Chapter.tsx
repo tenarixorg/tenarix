@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Chapter as ChapterProps } from "types";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { SpinnerCircular } from "spinners-react";
-import { Theme } from "utils";
+import { BaseTheme } from "types";
 import {
   RiPlayCircleFill,
   RiPlayFill,
@@ -90,7 +90,7 @@ interface Props {
   chapter: ChapterProps;
   handler: (id: string) => void;
   root: string;
-  colors: Theme["dark"];
+  colors: BaseTheme;
   downloaded?: boolean;
   downloading?: boolean;
   ext?: string;

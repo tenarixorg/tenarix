@@ -3,13 +3,13 @@ import Select from "react-dropdown-select";
 import styled from "styled-components";
 import { SelectItem } from "types";
 import { SearchBox } from "./SearchBox";
+import { BaseTheme } from "types";
 import { Check } from "./Elements";
-import { Theme } from "utils";
 
 interface Props {
   values: SelectItem[];
   options: SelectItem[];
-  colors: Theme["dark"];
+  colors: BaseTheme;
   onChange: (values: string[] | object) => void;
   title: string;
   placeholder: string;

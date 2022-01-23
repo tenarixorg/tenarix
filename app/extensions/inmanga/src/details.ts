@@ -7,6 +7,7 @@ export const _details = (content: GetContent, parser: Parser) => {
     const url = baseUrl + decodeRoute(route);
     const { innerHTML } = await content(url, {
       scripts: true,
+      imgs: true,
       action: async (page) => {
         await page.waitForSelector("i.icon-list ");
       },

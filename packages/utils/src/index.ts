@@ -20,7 +20,10 @@ export const capitalize = (data: string) =>
   data[0].toUpperCase() + data.slice(1);
 
 export const format_ext = (source: string) =>
-  source.split("_").reduce((acc, curr) => acc + " " + capitalize(curr), "");
+  source
+    .split("_")
+    .reduce((acc, curr) => acc + " " + capitalize(curr), "")
+    .trim();
 
 export const sourcesFilter =
   (pinnedOnly: boolean, query: string, slangs: SelectItem[]) => (u: Source) => {
@@ -72,5 +75,3 @@ export const toastMessageFormat = (msg: string): string => {
   }
   return msg;
 };
-
-export * from "./theme";

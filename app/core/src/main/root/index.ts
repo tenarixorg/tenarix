@@ -2,10 +2,11 @@ import fs from "fs";
 import lang from "./language";
 import baseExt from "./extension";
 import { ipcMain, BrowserWindow, app, nativeTheme, session } from "electron";
-import { matchSystemLang, theme, getAllExt } from "utils";
+import { matchSystemLang, getAllExt } from "utils";
 import { decryptChapter, downloadEncrypt } from "./helper";
 import { resolve } from "path";
 import { getHash } from "workers";
+import { theme } from "context-providers";
 import {
   getCache,
   setCache,

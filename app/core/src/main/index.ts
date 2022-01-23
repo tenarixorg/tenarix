@@ -22,6 +22,7 @@ async function mainWin() {
     width: 850,
     height: 500,
     show: false,
+    fullscreenable: false,
     webPreferences: {
       preload: join(__dirname, "../preload/index.cjs"),
       nodeIntegration: true,

@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Theme } from "utils";
+import { BaseTheme } from "types";
 
 const Circle = styled.div<{ color: string }>`
   display: flex;
@@ -25,7 +25,7 @@ const Container = styled.div<{ bg: string; border: string }>`
 
 interface Props {
   state: string;
-  colors: Theme["dark"];
+  colors: BaseTheme;
 }
 export const Status: React.FC<Props> = (props) => {
   return (

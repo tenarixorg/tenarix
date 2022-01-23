@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { IoHeartOutline, IoHeartSharp } from "react-icons/io5";
+import { BaseTheme } from "types";
 import { img404 } from "assets";
-import { Theme } from "utils";
 
 const Container = styled.div<{ pointer?: boolean; disabled?: boolean }>`
   position: relative;
@@ -97,7 +97,7 @@ interface Props {
   onClick?: () => void;
   pointer?: boolean;
   disabled?: boolean;
-  colors: Theme["dark"];
+  colors: BaseTheme;
   favorite?: boolean;
   showFav?: boolean;
   setFavorite?: (fav: boolean) => void;

@@ -10,7 +10,7 @@ export const _home = (content: GetContent, parser: Parser) => {
 
     const popular: HomeBase[] = [];
 
-    $("#app .container .row .col-12 .card").each((_i, el) => {
+    $("#app .container .row div.col-12.col-lg-8 .card").each((_i, el) => {
       const title = $(el).find(".card-header a").text().trim();
       const route =
         $(el)
