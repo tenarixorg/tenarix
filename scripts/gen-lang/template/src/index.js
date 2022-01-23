@@ -20,6 +20,7 @@ const lang: Language = {
   extensions: {
     pin_option_text: "",
     search_placeholder: "",
+    select_title: "",
   },
   settings: {
     options_1: {

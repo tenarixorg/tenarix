@@ -10,6 +10,7 @@ describe("Language: ${id}", () => {
     expect(lang.details.status.length).toBeGreaterThan(1);
     expect(lang.extensions.pin_option_text.length).toBeGreaterThan(1);
     expect(lang.extensions.search_placeholder.length).toBeGreaterThan(1);
+    expect(lang.extensions.select_title.length).toBeGreaterThan(1);
     expect(lang.settings.options_1.head.length).toBeGreaterThan(1);
     expect(
       lang.settings.options_1.appearance.content.btn_text.length
