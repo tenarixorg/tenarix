@@ -45,7 +45,7 @@ function load(parser: Parser, innerHTML: string, url: string) {
   return {
     id: id_,
     title,
-    info,
+    info: info.substring(0, info.indexOf("S")),
     pages,
     imgs: urls,
   };

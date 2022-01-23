@@ -170,7 +170,7 @@ export const Read: React.FC = () => {
               }` || "Title"}
           </Txt>
           <Txt margin="0px 0px 4px 0px" fs="20px" color={colors.fontPrimary}>
-            {data.info.substring(0, data.info.indexOf("S")) || data.info}
+            {data.info}
             {cascade ? "" : " - " + current + "/" + data.pages}
           </Txt>
 
