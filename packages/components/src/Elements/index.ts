@@ -26,6 +26,7 @@ export const Container = styled.div<{
   ::-webkit-scrollbar-thumb {
     background: ${(p) => p.scrollColor};
     border-radius: 30px;
+    height: 50px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
