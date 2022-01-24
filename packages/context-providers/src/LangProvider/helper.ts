@@ -36,8 +36,15 @@ export const baseLang: Language = {
       appearance: {
         option_text: "",
         content: {
-          btn_text: "",
+          btn_text1: "",
+          btn_text2: "",
           head_text: "",
+          sub_text1: "",
+          sub_text2: "",
+          radios: {
+            text1: "",
+            text2: "",
+          },
         },
       },
       head: "",
