@@ -31,6 +31,7 @@ const lang: Language = {
         option_text: "",
         content: {
           head_text: "",
+          sub_text: "",
         },
       },
       appearance: {

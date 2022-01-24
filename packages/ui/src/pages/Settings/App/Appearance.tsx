@@ -72,7 +72,7 @@ export const Appearance: React.FC = () => {
             color={colors.fontPrimary}
             fs="14px"
             bold
-            margin="0px 2px"
+            margin="0px 10px"
             htmlFor="opt1"
           >
             {lang.settings.options_1.appearance.content.radios.text1}
@@ -102,7 +102,7 @@ export const Appearance: React.FC = () => {
             color={colors.fontPrimary}
             fs="14px"
             bold
-            margin="0px 2px"
+            margin="0px 10px"
             htmlFor="opt2"
           >
             {lang.settings.options_1.appearance.content.radios.text2}

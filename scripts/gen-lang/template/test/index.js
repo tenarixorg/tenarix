@@ -39,6 +39,9 @@ describe("Language: ${id}", () => {
     expect(
       lang.settings.options_1.language.content.head_text.length
     ).toBeGreaterThan(1);
+    expect(
+      lang.settings.options_1.language.content.sub_text.length
+    ).toBeGreaterThan(1);
     expect(lang.settings.options_1.language.option_text.length).toBeGreaterThan(
       1
     );
