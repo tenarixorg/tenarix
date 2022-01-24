@@ -36,8 +36,15 @@ const lang: Language = {
       appearance: {
         option_text: "",
         content: {
-          btn_text: "",
+          sub_text1: "",
+          sub_text2: "",
+          btn_text1: "",
+          btn_text2: "",
           head_text: "",
+          radios: {
+            text1: "",
+            text2: "",
+          },
         },
       },
       head: "",

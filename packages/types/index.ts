@@ -193,8 +193,15 @@ export interface Language {
       appearance: {
         option_text: string;
         content: {
-          btn_text: string;
           head_text: string;
+          sub_text1: string;
+          radios: {
+            text1: string;
+            text2: string;
+          };
+          sub_text2: string;
+          btn_text1: string;
+          btn_text2: string;
         };
       };
       advanced: {
@@ -329,4 +336,5 @@ export interface DownloadStore {
 export interface SettingsStore {
   theme: "dark" | "light";
   lang: string;
+  colors: Theme;
 }

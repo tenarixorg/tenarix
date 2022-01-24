@@ -36,8 +36,15 @@ const lang: Language = {
       appearance: {
         option_text: "Appearance",
         content: {
-          btn_text: "Togle theme",
+          sub_text1: "Theme",
+          sub_text2: "Personalize",
+          btn_text1: "Revert",
+          btn_text2: "Apply",
           head_text: "Appearance",
+          radios: {
+            text1: "Dark",
+            text2: "Light",
+          },
         },
       },
       head: "App settings",

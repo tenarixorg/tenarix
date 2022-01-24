@@ -2,8 +2,8 @@ import fs from "fs";
 import lang from "./language";
 import baseExt from "./extension";
 import { ipcMain, BrowserWindow, app, nativeTheme, session } from "electron";
-import { matchSystemLang, getAllExt } from "utils";
 import { decryptChapter, downloadEncrypt } from "./helper";
+import { matchSystemLang, getAllExt } from "utils";
 import { resolve } from "path";
 import { getHash } from "workers";
 import { theme } from "context-providers";
@@ -36,6 +36,8 @@ export const handler = (win?: BrowserWindow) => {
   let currentTheme: "dark" | "light" = nativeTheme.shouldUseDarkColors
     ? "dark"
     : "light";
+
+  const customTheme = getSettings()?.colors || { ...theme };
 
   const filter = {
     urls: ["*://*/*"],
@@ -83,17 +85,45 @@ export const handler = (win?: BrowserWindow) => {
   /** App theme */
 
   ipcMain.on("get:theme", (e) => {
-    e.reply("change:theme", theme[getSettings()?.theme || currentTheme]);
+    e.reply("change:theme", customTheme[getSettings()?.theme || currentTheme]);
   });
 
-  ipcMain.on("toggle:theme", (e) => {
-    currentTheme = currentTheme === "dark" ? "light" : "dark";
+  ipcMain.on("get:theme:schema", (e) => {
+    e.reply("res:theme:schema", getSettings()?.theme || currentTheme);
+  });
+
+  ipcMain.on("change:theme:schema", (e, { schema }) => {
+    currentTheme = schema;
     setSettings({
       lang: getSettings()?.lang || currentLangId,
       theme: currentTheme,
+      colors: customTheme,
+    });
+    e.reply("change:theme", customTheme[currentTheme]);
+    e.reply("res:theme:schema", getSettings()?.theme || currentTheme);
+  });
+
+  ipcMain.on("revert:theme", (e, { schema }) => {
+    currentTheme = schema;
+    setSettings({
+      lang: getSettings()?.lang || currentLangId,
+      theme: currentTheme,
+      colors: theme,
     });
     e.reply("change:theme", theme[currentTheme]);
-    e.reply("res:toggle:theme", currentTheme);
+    e.reply("res:theme:schema", getSettings()?.theme || currentTheme);
+  });
+
+  ipcMain.on("new:theme", (e, { newColors, schema }) => {
+    currentTheme = schema;
+    customTheme[currentTheme] = newColors;
+    setSettings({
+      lang: getSettings()?.lang || currentLangId,
+      theme: currentTheme,
+      colors: customTheme,
+    });
+    e.reply("change:theme", customTheme[currentTheme]);
+    e.reply("res:theme:schema", getSettings()?.theme || currentTheme);
   });
 
   /** App language */
@@ -112,6 +142,7 @@ export const handler = (win?: BrowserWindow) => {
     setSettings({
       lang: currentLangId,
       theme: getSettings()?.theme || currentTheme,
+      colors: customTheme,
     });
     e.reply("res:lang", currentLang);
   });

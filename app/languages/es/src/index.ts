@@ -36,8 +36,15 @@ const lang: Language = {
       appearance: {
         option_text: "Apariencia",
         content: {
-          btn_text: "Cambiar tema",
+          sub_text1: "Tema",
+          sub_text2: "Personalizar",
+          btn_text1: "Revertir",
+          btn_text2: "Aplicar",
           head_text: "Apariencia",
+          radios: {
+            text1: "Oscuro",
+            text2: "Claro",
+          },
         },
       },
       head: "Ajustes de la aplicación",
