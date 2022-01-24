@@ -211,6 +211,7 @@ export interface Language {
         option_text: string;
         content: {
           head_text: string;
+          sub_text: string;
         };
       };
     };
