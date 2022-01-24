@@ -31,6 +31,7 @@ const lang: Language = {
         option_text: "Language",
         content: {
           head_text: "Language",
+          sub_text: "Select a language",
         },
       },
       appearance: {
