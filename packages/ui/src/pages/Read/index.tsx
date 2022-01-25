@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useCallback, useReducer } from "react";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
+import { initialState, nextChapter, reducer } from "./helper";
 import { SpinnerDotted, SpinnerInfinity } from "spinners-react";
-import { useParams, useLocation } from "react-router-dom";
-import { initialState, reducer } from "./helper";
+import { LazyImage, ReadPagination } from "components";
 import { BsChevronBarExpand } from "react-icons/bs";
 import { useTheme } from "context-providers";
 import {
@@ -14,37 +15,70 @@ import {
   Loading,
   Container,
 } from "components/src/Elements";
-import { LazyImage } from "components";
 
 const { api } = window.bridge;
 
 export const Read: React.FC = () => {
   const params = useParams();
   const mounted = useRef(false);
+  const navigation = useNavigate();
   const { colors } = useTheme();
   const { state: URLstate } = useLocation();
   const [
     {
-      remote,
-      loading2,
-      loading,
+      ids,
       img,
+      data,
+      remote,
+      loading,
       cascade,
       current,
-      data,
-      localImgs,
+      reverse,
+      loading2,
       imgWidth,
+      localImgs,
+      chapterIndex,
     },
     dispatch,
   ] = useReducer(reducer, initialState);
 
-  const getNext = useCallback(() => {
-    if (current <= 1) dispatch({ type: "setCurrent", payload: 1 });
-    if (current >= data.pages)
+  const getNextChapter = useCallback(() => {
+    const ext_ = (URLstate as any)?.ext || "";
+    nextChapter(
+      reverse,
+      current,
+      chapterIndex,
+      data.pages,
+      ids,
+      ext_,
+      params.route || "",
+      navigation,
+      () => {
+        dispatch({ type: "reset" });
+      }
+    );
+  }, [
+    ids,
+    current,
+    reverse,
+    URLstate,
+    data.pages,
+    chapterIndex,
+    params.route,
+    navigation,
+  ]);
+
+  const getNextPage = useCallback(() => {
+    if (current < 1) {
+      dispatch({ type: "setCurrent", payload: 1 });
+    }
+
+    if (current > data.pages && data.pages > 0) {
       dispatch({ type: "setCurrent", payload: data.pages });
-    if (data.id)
+    }
+    if (data.id) {
       if (remote) {
-        if (data.imgs.length > 0) {
+        if (data.imgs && data.imgs.length > 0) {
           dispatch({ type: "setLoading", payload: true });
           const im = data.imgs[current - 1];
           if (im) {
@@ -69,16 +103,17 @@ export const Read: React.FC = () => {
           });
         }
       }
+    }
   }, [
-    params.id,
-    params.route,
-    data.pages,
-    current,
-    data.id,
-    data.imgs,
     remote,
-    localImgs,
+    data.id,
+    current,
     URLstate,
+    params.id,
+    localImgs,
+    data.imgs,
+    data.pages,
+    params.route,
   ]);
 
   const handleWheel = useCallback(
@@ -93,6 +128,10 @@ export const Read: React.FC = () => {
   );
 
   useEffect(() => {
+    const chaps = (URLstate as any)?.chapters;
+    const rever = (URLstate as any)?.reverse;
+    const casc = (URLstate as any)?.cascade;
+
     api.on("res:read:local", (_e, res) => {
       if (typeof res === "boolean" && !res) {
         dispatch({ type: "setRemote", payload: true });
@@ -123,12 +162,17 @@ export const Read: React.FC = () => {
       }
     });
 
+    if (chaps) {
+      dispatch({ type: "setIds", payload: chaps });
+      dispatch({ type: "setChapterIndex", payload: chaps.indexOf(params.id) });
+    }
+    dispatch({ type: "setReverse", payload: !!rever });
+    dispatch({ type: "setCascade", payload: !!casc });
+
     api.send("get:read:init", {
       id: params.id,
       ext: (URLstate as any)?.ext || "",
     });
-
-    document.addEventListener("wheel", handleWheel);
 
     mounted.current = true;
     return () => {
@@ -136,13 +180,23 @@ export const Read: React.FC = () => {
       api.removeAllListeners("res:read:init");
       api.removeAllListeners("res:read:page");
       api.removeAllListeners("res:read:local");
-      document.removeEventListener("wheel", handleWheel);
     };
-  }, [params.id, URLstate, handleWheel]);
+  }, [params.id, URLstate]);
 
   useEffect(() => {
-    getNext();
-  }, [getNext]);
+    document.addEventListener("wheel", handleWheel);
+    return () => {
+      document.removeEventListener("wheel", handleWheel);
+    };
+  }, [handleWheel]);
+
+  useEffect(() => {
+    getNextPage();
+  }, [getNextPage]);
+
+  useEffect(() => {
+    getNextChapter();
+  }, [getNextChapter]);
 
   return (
     <Container
@@ -150,27 +204,64 @@ export const Read: React.FC = () => {
       bg={colors.background1}
       scrollColor={colors.primary}
     >
-      {!cascade && (
-        <ReadNav>
-          <BtnAni
-            onClick={() => {
+      <ReadNav>
+        <BtnAni
+          onClick={() => {
+            if (cascade) {
+              const ext_ = (URLstate as any)?.ext || "";
+              nextChapter(
+                reverse,
+                current,
+                chapterIndex,
+                data.pages,
+                ids,
+                ext_,
+                params.route || "",
+                navigation,
+                () => {
+                  dispatch({ type: "reset" });
+                },
+                true,
+                "left"
+              );
+            } else {
               dispatch({ type: "decrementCurrent", payload: 1 });
-            }}
-            disabled={loading || current <= 1}
-          >
-            <RiArrowLeftSLine size={60} color={colors.primary} />
-          </BtnAni>
-          <BtnAni
-            right
-            onClick={() => {
+            }
+          }}
+          disabled={loading || loading2}
+        >
+          <RiArrowLeftSLine size={60} color={colors.primary} />
+        </BtnAni>
+        <BtnAni
+          right
+          onClick={() => {
+            if (cascade) {
+              const ext_ = (URLstate as any)?.ext || "";
+              nextChapter(
+                reverse,
+                current,
+                chapterIndex,
+                data.pages,
+                ids,
+                ext_,
+                params.route || "",
+                navigation,
+                () => {
+                  dispatch({ type: "reset" });
+                },
+                true,
+                "right"
+              );
+            } else {
               dispatch({ type: "incrementCurrent", payload: 1 });
-            }}
-            disabled={loading || current >= data.pages}
-          >
-            <RiArrowRightSLine size={60} color={colors.primary} />
-          </BtnAni>
-        </ReadNav>
-      )}
+            }
+          }}
+          disabled={loading || loading2}
+        >
+          <RiArrowRightSLine size={60} color={colors.primary} />
+        </BtnAni>
+      </ReadNav>
+
       {loading2 ? (
         <SpinnerInfinity
           size={80}
@@ -193,14 +284,39 @@ export const Read: React.FC = () => {
                   : ""
               }` || "Title"}
           </Txt>
-          <Txt margin="0px 0px 4px 0px" fs="20px" color={colors.fontPrimary}>
-            {data.info}
-            {cascade ? "" : " - " + current + "/" + data.pages}
-          </Txt>
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Txt margin="0px 40px 0px 0px" fs="20px" color={colors.fontPrimary}>
+              {data.info}
+            </Txt>
+            {!cascade && (
+              <ReadPagination
+                selectedItemColor={colors.secondary}
+                listScrollColor={colors.primary}
+                listBg={colors.background2}
+                max={data.pages}
+                min={1}
+                value={current}
+                color={colors.fontPrimary}
+                listColor={colors.fontPrimary}
+                fs="20px"
+                onChange={(n) => {
+                  dispatch({ type: "setCurrent", payload: n });
+                }}
+              />
+            )}
+          </div>
 
           <Btn
-            onClick={() => dispatch({ type: "setCascade" })}
-            style={{ marginBottom: 10 }}
+            onClick={() => dispatch({ type: "toggleCascade" })}
+            style={{ margin: "10px 0px" }}
           >
             <CP rot={cascade}>
               <BsChevronBarExpand color={colors.primary} size={30} />
@@ -208,7 +324,7 @@ export const Read: React.FC = () => {
           </Btn>
         </>
       )}
-      {loading ? (
+      {loading || loading2 ? (
         <Loading>
           <SpinnerDotted
             size={100}
