@@ -9,3 +9,4 @@ export * from "./ExtensionCard";
 export * from "./Toasts";
 export * from "./LangSelect";
 export * from "./ThemeDescriptor";
+export * from "./LazyImage";

@@ -59,7 +59,7 @@ export const Grid = styled.div<{ margin?: string; bg?: string }>`
   background-color: ${(p) => p.bg || "transparent"};
   margin: ${(p) => p.margin || "0px"};
   z-index: 2;
-  @media (max-width: 850px) {
+  @media (max-width: 1250px) {
     grid-template-columns: repeat(3, 1fr);
   }
 `;
@@ -194,7 +194,6 @@ export const ReadNav = styled.div`
 
 export const ReadImg = styled.img<{ width: string }>`
   width: ${(p) => p.width};
-  margin-top: 10px;
   transition: width 400ms ease-in-out;
 `;
 
