@@ -179,10 +179,10 @@ const Panel = styled.div.attrs<IDivElement>((p) => ({
     backgroundColor: p.bg,
     borderRight: `${p.br ? "1" : "0"}px solid ${
       p.borderColor || "transparent"
-    };`,
+    }`,
     borderBottom: `${p.bb ? "1" : "0"}px solid ${
       p.borderColor || "transparent"
-    };`,
+    }`,
   },
 }))<IDivElement>`
   position: absolute;

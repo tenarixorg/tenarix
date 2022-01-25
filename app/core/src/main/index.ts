@@ -17,10 +17,10 @@ async function mainWin() {
   win = new BrowserWindow({
     titleBarStyle: "hidden",
     title: "X Reader",
-    minWidth: 850,
-    minHeight: 500,
-    width: 850,
-    height: 500,
+    minWidth: 950,
+    minHeight: 520,
+    width: 950,
+    height: 520,
     show: false,
     fullscreenable: false,
     webPreferences: {

@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { IoHeartOutline, IoHeartSharp } from "react-icons/io5";
+import { SpinnerDotted } from "spinners-react";
 import { BaseTheme } from "types";
+import { LazyImage } from "./LazyImage";
 import { img404 } from "assets";
 
 const Container = styled.div<{ pointer?: boolean; disabled?: boolean }>`
@@ -40,7 +42,7 @@ const Badge = styled.div<{
   border-bottom: 1px solid black;
   border-left: ${(p) => (p.bl ? "1" : "0")}px solid black;
   border-right: ${(p) => (p.br ? "1" : "0")}px solid black;
-  z-index: 3;
+  z-index: 11;
 `;
 
 const Txt = styled.p`
@@ -65,7 +67,7 @@ const Score = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10;
+  z-index: 12;
 `;
 
 const Fav = styled.button`
@@ -79,7 +81,7 @@ const Fav = styled.button`
   width: fit-content;
   top: 9%;
   left: 1%;
-  z-index: 10;
+  z-index: 12;
   cursor: pointer;
   transition: transform 200ms ease-in-out;
   &:hover {
@@ -148,17 +150,40 @@ export const Card: React.FC<Props> = ({ onClick, setFavorite, ...props }) => {
           <Txt>{props.type}</Txt>
         </Badge>
       )}
-      <img
+
+      <LazyImage
         src={props.img}
         alt="card-image"
-        style={{
-          width: "100%",
-          height: "100%",
-        }}
-        draggable={false}
+        imgWidth="100%"
         onError={(e) => {
           e.currentTarget.onerror = null;
           e.currentTarget.src = img404;
+        }}
+        Loading={() => (
+          <SpinnerDotted
+            size={100}
+            thickness={180}
+            speed={100}
+            color={props.colors.secondary}
+          />
+        )}
+        containerStyle={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "450px",
+          width: "300px",
+          position: "relative",
+        }}
+        loadingContainerStyle={{
+          position: "absolute",
+          top: "calc(50% - 50px)",
+          left: "calc(50% - 50px)",
+        }}
+        imageStyle={{
+          height: "100%",
+          width: "100%",
         }}
       />
       {props.score && (

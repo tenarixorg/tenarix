@@ -11,10 +11,10 @@ import {
   Btn,
   BtnAni,
   ReadNav,
-  ReadImg,
   Loading,
   Container,
 } from "components/src/Elements";
+import { LazyImage } from "components";
 
 const { api } = window.bridge;
 
@@ -198,7 +198,10 @@ export const Read: React.FC = () => {
             {cascade ? "" : " - " + current + "/" + data.pages}
           </Txt>
 
-          <Btn onClick={() => dispatch({ type: "setCascade" })}>
+          <Btn
+            onClick={() => dispatch({ type: "setCascade" })}
+            style={{ marginBottom: 10 }}
+          >
             <CP rot={cascade}>
               <BsChevronBarExpand color={colors.primary} size={30} />
             </CP>
@@ -220,20 +223,66 @@ export const Read: React.FC = () => {
             <>
               {cascade && data.imgs && data.imgs.length > 0 ? (
                 data.imgs.map((im, ix) => (
-                  <ReadImg
+                  <LazyImage
                     src={im.url}
                     key={ix}
                     alt="img"
-                    draggable={false}
-                    width={imgWidth}
+                    imgWidth={imgWidth}
+                    containerStyle={{
+                      position: "relative",
+                      width: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                    loadingContainerStyle={{
+                      width: "100%",
+                      height: "70vh",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                    Loading={() => (
+                      <SpinnerDotted
+                        size={100}
+                        thickness={180}
+                        speed={100}
+                        color={colors.secondary}
+                      />
+                    )}
                   />
                 ))
               ) : (
-                <ReadImg
+                <LazyImage
                   src={img}
                   alt="img"
-                  draggable={false}
-                  width={imgWidth}
+                  imgWidth={imgWidth}
+                  containerStyle={{
+                    position: "relative",
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                  loadingContainerStyle={{
+                    width: "100%",
+                    height: "70vh",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                  Loading={() => (
+                    <SpinnerDotted
+                      size={100}
+                      thickness={180}
+                      speed={100}
+                      color={colors.secondary}
+                    />
+                  )}
                 />
               )}
             </>
@@ -241,20 +290,66 @@ export const Read: React.FC = () => {
             <>
               {cascade && localImgs.length > 0 ? (
                 localImgs.map((im, ix) => (
-                  <ReadImg
+                  <LazyImage
                     src={im}
                     key={ix}
                     alt="img"
-                    draggable={false}
-                    width={imgWidth}
+                    imgWidth={imgWidth}
+                    containerStyle={{
+                      position: "relative",
+                      width: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                    loadingContainerStyle={{
+                      width: "100%",
+                      height: "70vh",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                    Loading={() => (
+                      <SpinnerDotted
+                        size={100}
+                        thickness={180}
+                        speed={100}
+                        color={colors.secondary}
+                      />
+                    )}
                   />
                 ))
               ) : (
-                <ReadImg
+                <LazyImage
                   src={img}
                   alt="img"
-                  draggable={false}
-                  width={imgWidth}
+                  imgWidth={imgWidth}
+                  containerStyle={{
+                    position: "relative",
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                  loadingContainerStyle={{
+                    width: "100%",
+                    height: "70vh",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                  Loading={() => (
+                    <SpinnerDotted
+                      size={100}
+                      thickness={180}
+                      speed={100}
+                      color={colors.secondary}
+                    />
+                  )}
                 />
               )}
             </>
