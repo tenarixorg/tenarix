@@ -225,11 +225,14 @@ export interface DetailsState {
   show: boolean;
   loading: boolean;
   fav: boolean;
+  reverse: boolean;
+  ids: string[];
 }
 
 export interface DetailsAction {
   type:
     | "setData"
+    | "setIds"
     | "reverseChapter"
     | "setDowns"
     | "toggleOrder"
@@ -302,6 +305,7 @@ export interface LibraryAction {
 
 export interface ReadAction {
   type:
+    | "reset"
     | "setData"
     | "setImg"
     | "setCurrent"
@@ -311,8 +315,12 @@ export interface ReadAction {
     | "setLoading2"
     | "setRemote"
     | "setCascade"
+    | "toggleCascade"
     | "setLocalImgs"
-    | "setImgWidth";
+    | "setImgWidth"
+    | "setIds"
+    | "setReverse"
+    | "setChapterIndex";
   payload?: any;
 }
 
@@ -326,6 +334,9 @@ export interface ReadState {
   cascade: boolean;
   imgWidth: string;
   localImgs: string[];
+  ids: string[];
+  reverse: boolean;
+  chapterIndex: number;
 }
 
 export interface DownloadStore {

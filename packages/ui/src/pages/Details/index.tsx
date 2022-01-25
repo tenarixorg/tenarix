@@ -68,10 +68,8 @@ export const Details: React.FC = () => {
   const { colors } = useTheme();
   const { lang } = useLang();
   const { state: URLstate } = useLocation();
-  const [{ show, order, data, loading, fav, downs }, dispatch] = useReducer(
-    reducer,
-    initialState
-  );
+  const [{ show, order, data, loading, fav, downs, ids, reverse }, dispatch] =
+    useReducer(reducer, initialState);
 
   useEffect(() => {
     mounted.current = true;
@@ -92,6 +90,7 @@ export const Details: React.FC = () => {
     api.send("get:downloaded", {
       ext: (URLstate as any)?.ext || "",
     });
+
     return () => {
       api.removeAllListeners("res:details");
       api.removeAllListeners("res:downloaded");
@@ -261,7 +260,12 @@ export const Details: React.FC = () => {
                           ext={(URLstate as any)?.ext || ""}
                           handler={(id) => {
                             navigation(`/read/${params.route}/${id}`, {
-                              state: { ext: (URLstate as any)?.ext || "" },
+                              state: {
+                                ext: (URLstate as any)?.ext || "",
+                                chapters: ids,
+                                reverse,
+                                cascade: false,
+                              },
                             });
                           }}
                         />

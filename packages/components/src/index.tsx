@@ -10,3 +10,4 @@ export * from "./Toasts";
 export * from "./LangSelect";
 export * from "./ThemeDescriptor";
 export * from "./LazyImage";
+export * from "./ReadPagination";
