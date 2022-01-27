@@ -227,12 +227,14 @@ export interface DetailsState {
   fav: boolean;
   reverse: boolean;
   ids: string[];
+  percentages: ReadPercentage[];
 }
 
 export interface DetailsAction {
   type:
     | "setData"
     | "setIds"
+    | "setPercentages"
     | "reverseChapter"
     | "setDowns"
     | "toggleOrder"
@@ -349,4 +351,14 @@ export interface SettingsStore {
   theme: "dark" | "light";
   lang: string;
   colors: Theme;
+}
+
+export interface ReadPercentageStore {
+  percentage: number;
+  lastPage: number;
+}
+
+export interface ReadPercentage {
+  id: string;
+  percetage: number;
 }

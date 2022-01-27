@@ -63,9 +63,9 @@ export const Read: React.FC = () => {
     reverse,
     URLstate,
     data.pages,
+    navigation,
     chapterIndex,
     params.route,
-    navigation,
   ]);
 
   const getNextPage = useCallback(() => {
@@ -82,7 +82,14 @@ export const Read: React.FC = () => {
           dispatch({ type: "setLoading", payload: true });
           const im = data.imgs[current - 1];
           if (im) {
-            api.send("get:read:page", { img: im.url });
+            api.send("get:read:page", {
+              img: im.url,
+              page: current,
+              total: data.pages,
+              ext: (URLstate as any)?.ext || "",
+              route: params.route,
+              id: params.id,
+            });
           }
         }
       } else {
@@ -90,7 +97,14 @@ export const Read: React.FC = () => {
         if (localImgs.length > 0) {
           const im = localImgs[current - 1];
           if (im) {
-            api.send("get:read:page", { img: im });
+            api.send("get:read:page", {
+              img: im,
+              page: current,
+              total: data.pages,
+              ext: (URLstate as any)?.ext || "",
+              route: params.route,
+              id: params.id,
+            });
           }
         } else {
           api.send("get:read:local", {
@@ -118,14 +132,43 @@ export const Read: React.FC = () => {
 
   const handleWheel = useCallback(
     (e: WheelEvent) => {
-      let width = parseInt(imgWidth.substring(0, imgWidth.indexOf("%")));
-      width -= e.deltaY / 10;
       if (e.ctrlKey) {
+        let width = parseInt(imgWidth.substring(0, imgWidth.indexOf("%")));
+        width -= e.deltaY / 10;
         dispatch({ type: "setImgWidth", payload: width + "%" });
       }
     },
     [imgWidth]
   );
+
+  const observeCascadeImgs = useCallback(() => {
+    if (cascade) {
+      const observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const page_ = entry.target.getAttribute("data-saved");
+            let page = 1;
+            if (page_) {
+              page = parseInt(page_);
+            }
+            api.send("set:read:percentage", {
+              route: params.route,
+              id: params.id,
+              ext: (URLstate as any)?.ext,
+              percentage: (page / data.pages) * 100,
+              page,
+              check: true,
+            });
+          }
+        }
+      });
+
+      const imgs_ = document.querySelectorAll(".percentage-image");
+      for (const img_ of imgs_) {
+        observer.observe(img_);
+      }
+    }
+  }, [cascade, data.pages, URLstate, params.id, params.route]);
 
   useEffect(() => {
     const chaps = (URLstate as any)?.chapters;
@@ -159,6 +202,15 @@ export const Read: React.FC = () => {
       if (mounted.current) {
         dispatch({ type: "setData", payload: res });
         dispatch({ type: "setLoading2", payload: false });
+        api.on("res:read:percentage:page", (_e, res) => {
+          const n = res === -1 ? res.pages : res;
+          dispatch({ type: "setCurrent", payload: n });
+        });
+        api.send("get:read:percentage:page", {
+          route: params.route,
+          ext: (URLstate as any)?.ext || "",
+          id: params.id,
+        });
       }
     });
 
@@ -181,7 +233,7 @@ export const Read: React.FC = () => {
       api.removeAllListeners("res:read:page");
       api.removeAllListeners("res:read:local");
     };
-  }, [params.id, URLstate]);
+  }, [params.id, URLstate, params.route]);
 
   useEffect(() => {
     document.addEventListener("wheel", handleWheel);
@@ -197,6 +249,10 @@ export const Read: React.FC = () => {
   useEffect(() => {
     getNextChapter();
   }, [getNextChapter]);
+
+  useEffect(() => {
+    observeCascadeImgs();
+  }, [observeCascadeImgs]);
 
   return (
     <Container
@@ -340,6 +396,8 @@ export const Read: React.FC = () => {
               {cascade && data.imgs && data.imgs.length > 0 ? (
                 data.imgs.map((im, ix) => (
                   <LazyImage
+                    className="percentage-image"
+                    data={ix + 1}
                     src={im.url}
                     key={ix}
                     alt="img"
@@ -408,6 +466,8 @@ export const Read: React.FC = () => {
                 localImgs.map((im, ix) => (
                   <LazyImage
                     src={im}
+                    className="percentage-image"
+                    data={ix + 1}
                     key={ix}
                     alt="img"
                     imgWidth={imgWidth}

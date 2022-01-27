@@ -39,6 +39,8 @@ export const reducer = (
       return { ...state, fav: action.payload };
     case "setIds":
       return { ...state, ids: action.payload };
+    case "setPercentages":
+      return { ...state, percentages: action.payload };
     default:
       return state;
   }
@@ -64,4 +66,5 @@ export const initialState: DetailsState = {
   loading: true,
   order: true,
   show: true,
+  percentages: [],
 };

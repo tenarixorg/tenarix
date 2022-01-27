@@ -50,6 +50,26 @@ export const Txt = styled.p<{
   width: fit-content;
 `;
 
+export const Description = styled.p<{
+  pointer?: boolean;
+  fs: string;
+  bold?: boolean;
+  color: string;
+  margin?: string;
+  padding?: string;
+}>`
+  cursor: ${(p) => (p.pointer ? "pointer" : "default")};
+  margin: ${(p) => p.margin || "0px"};
+  font-size: ${(p) => p.fs};
+  font-weight: ${(p) => (p.bold ? "600" : "normal")};
+  color: ${(p) => p.color};
+  overflow: hidden;
+  width: 100%;
+  max-height: 200px;
+  text-indent: 10;
+  line-height: 1.4;
+`;
+
 export const Grid = styled.div<{ margin?: string; bg?: string }>`
   display: grid;
   grid-gap: 10px;
@@ -88,6 +108,7 @@ export const InfoContainer = styled.div`
   justify-content: flex-start;
   width: 100%;
   padding: 10px;
+  max-height: 450px;
 `;
 
 export const GenderContainer = styled.div`
@@ -101,7 +122,7 @@ export const CardInfo = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: 25%;
+  width: 300px;
 `;
 
 export const Main = styled.div<{ width: string }>`
