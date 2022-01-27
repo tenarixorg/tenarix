@@ -25,6 +25,9 @@ import {
   getAllExtDownloads,
   getSettings,
   setSettings,
+  getAllReadPercentage,
+  getReadPercentage,
+  setReadPersentage,
 } from "../store";
 
 export const handler = (win?: BrowserWindow) => {
@@ -313,10 +316,20 @@ export const handler = (win?: BrowserWindow) => {
     }
   });
 
-  ipcMain.on("get:read:page", async (e, { img }) => {
-    // Passthrough == delay
-    e.reply("res:read:page", img);
-  });
+  ipcMain.on(
+    "get:read:page",
+    async (e, { img, page, total, ext, route, id }) => {
+      const percentage = (page / total) * 100;
+      const stored = getReadPercentage(ext || currentSourceName, route, id);
+      if (!stored?.percentage || stored.percentage < percentage) {
+        setReadPersentage(ext || currentSourceName, route, id, {
+          percentage: (page / total) * 100,
+          lastPage: page,
+        });
+      }
+      e.reply("res:read:page", img);
+    }
+  );
 
   ipcMain.on("get:read:local", async (e, { rid, root, id, total, ext }) => {
     const _rid = (rid as string).includes("=") ? await getHash(rid) : rid;
@@ -380,5 +393,45 @@ export const handler = (win?: BrowserWindow) => {
     removePinExt(ext);
     const res = getAllExt(baseExt, hasPinExt);
     e.reply("res:exts", res);
+  });
+
+  /* App read percentage */
+
+  ipcMain.on("get:read:percentage", (e, { ext, route }) => {
+    e.reply(
+      "res:read:percentage",
+      getAllReadPercentage(ext || currentSourceName, route)
+    );
+  });
+
+  ipcMain.on(
+    "set:read:percentage",
+    (e, { ext, route, id, percentage, page, check }) => {
+      if (check) {
+        const stored =
+          getReadPercentage(ext || currentSourceName, route, id)?.percentage ||
+          -1;
+        if (stored !== -1 && stored < percentage)
+          setReadPersentage(ext || currentSourceName, route, id, {
+            percentage,
+            lastPage: page,
+          });
+      } else {
+        setReadPersentage(ext || currentSourceName, route, id, {
+          percentage,
+          lastPage: page,
+        });
+      }
+      e.reply(
+        "res:read:percentage",
+        getAllReadPercentage(ext || currentSourceName, route)
+      );
+    }
+  );
+
+  ipcMain.on("get:read:percentage:page", (e, { route, ext, id }) => {
+    const lastPage =
+      getReadPercentage(ext || currentSourceName, route, id)?.lastPage || 1;
+    e.reply("res:read:percentage:page", lastPage);
   });
 };

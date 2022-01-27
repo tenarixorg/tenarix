@@ -21,6 +21,7 @@ import {
   ChaptersHeader,
   GenderContainer,
   ChaptersContainer,
+  Description,
 } from "components/src/Elements";
 
 const { api } = window.bridge;
@@ -68,8 +69,10 @@ export const Details: React.FC = () => {
   const { colors } = useTheme();
   const { lang } = useLang();
   const { state: URLstate } = useLocation();
-  const [{ show, order, data, loading, fav, downs, ids, reverse }, dispatch] =
-    useReducer(reducer, initialState);
+  const [
+    { show, order, data, loading, fav, downs, ids, reverse, percentages },
+    dispatch,
+  ] = useReducer(reducer, initialState);
 
   useEffect(() => {
     mounted.current = true;
@@ -83,6 +86,9 @@ export const Details: React.FC = () => {
     api.on("res:downloaded", (_e, res) => {
       if (mounted.current) dispatch({ type: "setDowns", payload: res });
     });
+    api.on("res:read:percentage", (_e, res) => {
+      if (mounted.current) dispatch({ type: "setPercentages", payload: res });
+    });
     api.send("get:details", {
       route: params.route,
       ext: (URLstate as any)?.ext || "",
@@ -90,7 +96,10 @@ export const Details: React.FC = () => {
     api.send("get:downloaded", {
       ext: (URLstate as any)?.ext || "",
     });
-
+    api.send("get:read:percentage", {
+      ext: (URLstate as any)?.ext || "",
+      route: params.route,
+    });
     return () => {
       api.removeAllListeners("res:details");
       api.removeAllListeners("res:downloaded");
@@ -150,18 +159,13 @@ export const Details: React.FC = () => {
                 >
                   {data.title}
                 </Txt>
-                <Txt
+                <Description
                   fs="16px"
-                  margin="0px 0px 4px 0px"
+                  margin="20px 0px 10px 0px"
                   color={colors.fontSecondary}
-                  style={{
-                    margin: "20px 0px 10px 0px",
-                    textIndent: 10,
-                    lineHeight: 1.4,
-                  }}
                 >
                   {data.description}
-                </Txt>
+                </Description>
 
                 {data.genders.length > 0 && (
                   <Txt
@@ -239,6 +243,35 @@ export const Details: React.FC = () => {
                     {({ index, style }) => (
                       <div style={style}>
                         <Chapter
+                          percentage={() => {
+                            const notFound = {
+                              id: data.chapters[index].links[0].id,
+                              percetage: 0,
+                            };
+                            const per = percentages.find(
+                              (u) => u.id === data.chapters[index].links[0].id
+                            );
+                            return per ? per : notFound;
+                          }}
+                          handlePercentage={(per) => {
+                            if (per.percetage < 100) {
+                              api.send("set:read:percentage", {
+                                route: params.route,
+                                ext: (URLstate as any)?.ext || "",
+                                id: per.id,
+                                percentage: 100,
+                                page: -1,
+                              });
+                            } else {
+                              api.send("set:read:percentage", {
+                                route: params.route,
+                                ext: (URLstate as any)?.ext || "",
+                                id: per.id,
+                                percentage: 0,
+                                page: 1,
+                              });
+                            }
+                          }}
                           downloaded={
                             !!downs.find(
                               (u) =>

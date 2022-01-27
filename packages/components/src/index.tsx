@@ -11,3 +11,4 @@ export * from "./LangSelect";
 export * from "./ThemeDescriptor";
 export * from "./LazyImage";
 export * from "./ReadPagination";
+export * from "./ReadPercentage";
