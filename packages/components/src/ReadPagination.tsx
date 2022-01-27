@@ -133,11 +133,11 @@ const List = styled.ul<{
   box-shadow: 4px 4px 9px -5px #000000;
   font-size: ${(p) => p.fs};
   max-height: 30vh;
-  width: calc(${(p) => p.width} - 4px);
+  width: calc(${(p) => p.width} + 4px);
   background-color: ${(p) => p.bg};
   position: absolute;
   top: ${(p) => p.top};
-  left: calc(50% - (${(p) => p.width} - 4px) / 2);
+  left: calc(50% - (${(p) => p.width} + 4px) / 2);
   height: ${(p) => p.heigth};
   z-index: 100;
   transition: height 200ms ease-in-out;
