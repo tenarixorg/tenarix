@@ -59,14 +59,14 @@ export const ReadPagination: React.FC<Props> = ({
     <Container>
       <Container>
         <Txt fs={fs} color={color} style={{ textAlign: "center" }}>
-          {value}
+          {value || 1}
         </Txt>
 
         <Btn
           ref={btnRef}
           width={fs}
           top={"90%"}
-          len={max.toString().length - value.toString().length}
+          len={(max || 1).toString().length - (value || 1).toString().length}
           animate={show}
           onClick={() => {
             setShow((c) => !c);
@@ -79,15 +79,15 @@ export const ReadPagination: React.FC<Props> = ({
           scrollColor={listScrollColor}
           ref={listRef}
           fs={fs}
-          heigth={show ? `calc(${max + 1} * ${fs} + ${fs})` : "0px"}
-          width={`calc(${fs} * ${max.toString().length})`}
+          heigth={show ? `calc(${(max || 1) + 1} * ${fs} + ${fs})` : "0px"}
+          width={`calc(${fs} * ${(max || 1).toString().length})`}
           bg={listBg}
-          len={max.toString().length - value.toString().length}
+          len={(max || 1).toString().length - (value || 1).toString().length}
           top="160%"
         >
-          {range(min, max).map((el, i) => (
+          {range(min, max || 1).map((el, i) => (
             <Item
-              color={el === value ? selectedItemColor : listColor}
+              color={el === (value || 1) ? selectedItemColor : listColor}
               key={i}
               onClick={() => {
                 onChange(el);
