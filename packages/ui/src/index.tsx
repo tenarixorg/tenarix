@@ -85,10 +85,6 @@ export const Main: React.FC = () => {
             window.location.href = "#/";
             setClosed((c) => !c);
           }}
-          forward={() => {
-            window.history.forward();
-            setClosed((c) => !c);
-          }}
           favorites={() => {
             window.location.href = "#/favorites";
             setClosed((c) => !c);

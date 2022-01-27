@@ -23,6 +23,8 @@ import {
   ChaptersContainer,
   Description,
 } from "components/src/Elements";
+import styled from "styled-components";
+import { IoHeartOutline, IoHeartSharp } from "react-icons/io5";
 
 const { api } = window.bridge;
 
@@ -86,6 +88,9 @@ export const Details: React.FC = () => {
     api.on("res:downloaded", (_e, res) => {
       if (mounted.current) dispatch({ type: "setDowns", payload: res });
     });
+    api.on("res:favorite", (_e, res) => {
+      if (mounted.current) dispatch({ type: "setFav", payload: res });
+    });
     api.on("res:read:percentage", (_e, res) => {
       if (mounted.current) dispatch({ type: "setPercentages", payload: res });
     });
@@ -126,27 +131,30 @@ export const Details: React.FC = () => {
         <>
           {data && (
             <InfoContainer>
+              <Fav
+                onClick={() => {
+                  if (!fav) {
+                    api.send("set:favorite", { route: params.route, data });
+                  } else {
+                    api.send("remove:favorite", {
+                      route: params.route,
+                      ext: (URLstate as any)?.ext || "",
+                    });
+                  }
+                }}
+              >
+                {fav ? (
+                  <IoHeartSharp color={"red"} size={30} />
+                ) : (
+                  <IoHeartOutline color={"red"} size={30} />
+                )}
+              </Fav>
               <CardInfo>
                 <Card
                   colors={colors}
                   disabled
                   img={data.img}
                   type={data.type}
-                  score={data.score}
-                  demography={data.demography}
-                  showFav
-                  favorite={fav}
-                  setFavorite={(f) => {
-                    dispatch({ type: "setFav", payload: f });
-                    if (f) {
-                      api.send("set:favorite", { route: params.route, data });
-                    } else {
-                      api.send("remove:favorite", {
-                        route: params.route,
-                        ext: (URLstate as any)?.ext || "",
-                      });
-                    }
-                  }}
                 />
               </CardInfo>
               <Info>
@@ -155,7 +163,11 @@ export const Details: React.FC = () => {
                   fs="35px"
                   bold
                   color={colors.fontPrimary}
-                  style={{ width: "95%" }}
+                  style={{
+                    width: "95%",
+                    display: "flex",
+                    flexDirection: "row",
+                  }}
                 >
                   {data.title}
                 </Txt>
@@ -314,3 +326,22 @@ export const Details: React.FC = () => {
     </Container>
   );
 };
+
+const Fav = styled.button`
+  position: absolute;
+  top: 22px;
+  left: calc(100% - 50px);
+  border: none;
+  outline: none;
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  z-index: 12;
+  cursor: pointer;
+  transition: transform 300ms ease-in-out;
+  &:hover {
+    transform: translateY(-2px);
+  }
+`;

@@ -361,14 +361,16 @@ export const handler = (win?: BrowserWindow) => {
 
   /** App favorites */
 
-  ipcMain.on("set:favorite", (_e, { route, data }) => {
+  ipcMain.on("set:favorite", (e, { route, data }) => {
     if (hasFavorite(currentSourceName, route)) return;
     setFavorite(currentSourceName, route, data);
+    e.reply("res:favorite", true);
   });
 
-  ipcMain.on("remove:favorite", (_e, { route, ext }) => {
+  ipcMain.on("remove:favorite", (e, { route, ext }) => {
     const _ext = ext || currentSource;
     removeFavorite(_ext, route);
+    e.reply("res:favorite", false);
   });
 
   ipcMain.on("get:favorites", (e) => {

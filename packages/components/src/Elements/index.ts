@@ -151,7 +151,7 @@ export const ChaptersHeader = styled.div<{ bg: string }>`
 export const Info = styled.div`
   display: flex;
   flex-direction: column;
-  width: 75%;
+  width: calc(100% - 300px);
   padding: 0px 20px;
 `;
 
