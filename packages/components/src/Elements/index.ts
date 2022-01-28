@@ -66,8 +66,11 @@ export const Description = styled.p<{
   overflow: hidden;
   width: 100%;
   max-height: 200px;
-  text-indent: 10;
   line-height: 1.4;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  overflow: hidden;
 `;
 
 export const Grid = styled.div<{ margin?: string; bg?: string }>`
@@ -407,5 +410,24 @@ export const CustomScroll = styled.div<{ scrollColor: string }>`
 
   ::-webkit-scrollbar-thumb:hover {
     background: ${(p) => p.scrollColor};
+  }
+`;
+
+export const Fav = styled.button`
+  position: absolute;
+  top: 22px;
+  left: calc(100% - 50px);
+  border: none;
+  outline: none;
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  z-index: 12;
+  cursor: pointer;
+  transition: transform 300ms ease-in-out;
+  &:hover {
+    transform: translateY(-2px);
   }
 `;

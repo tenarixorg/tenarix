@@ -4,6 +4,7 @@ import { BsSortNumericDown, BsSortNumericUpAlt } from "react-icons/bs";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Chapter, Status, GenderBadge, Card } from "components";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
+import { IoHeartOutline, IoHeartSharp } from "react-icons/io5";
 import { initialState, reducer } from "./helper";
 import { useLang, useTheme } from "context-providers";
 import { SpinnerDotted } from "spinners-react";
@@ -11,20 +12,19 @@ import { FixedSizeList } from "react-window";
 import {
   Btn,
   Txt,
+  Fav,
   Main,
   Info,
   Loading,
   CardInfo,
   Container,
+  Description,
   CustomScroll,
   InfoContainer,
   ChaptersHeader,
   GenderContainer,
   ChaptersContainer,
-  Description,
 } from "components/src/Elements";
-import styled from "styled-components";
-import { IoHeartOutline, IoHeartSharp } from "react-icons/io5";
 
 const { api } = window.bridge;
 
@@ -165,8 +165,9 @@ export const Details: React.FC = () => {
                   color={colors.fontPrimary}
                   style={{
                     width: "95%",
-                    display: "flex",
-                    flexDirection: "row",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
                   }}
                 >
                   {data.title}
@@ -326,22 +327,3 @@ export const Details: React.FC = () => {
     </Container>
   );
 };
-
-const Fav = styled.button`
-  position: absolute;
-  top: 22px;
-  left: calc(100% - 50px);
-  border: none;
-  outline: none;
-  background-color: transparent;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: fit-content;
-  z-index: 12;
-  cursor: pointer;
-  transition: transform 300ms ease-in-out;
-  &:hover {
-    transform: translateY(-2px);
-  }
-`;
