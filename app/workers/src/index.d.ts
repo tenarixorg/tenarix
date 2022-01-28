@@ -1,21 +1,25 @@
-import { Parser, GetContent } from "types";
+import { Parser, GetContent, Folder } from "types";
 import { Readable } from "stream";
 
 declare const content: GetContent;
 
 declare const parser: Parser;
 
-declare function getHash(data: string): Promise<string>;
+declare const getHash: (data: string) => Promise<string>;
 
-declare function decrypt(password: string, inputPath: string): Buffer;
+declare const decrypt: (password: string, inputPath: string) => Buffer;
 
-declare function encrypt(
+declare const encrypt: (
   password: string,
   outputPath: string,
   input: Readable
-): Promise<boolean>;
+) => Promise<boolean>;
 
-declare function getImg(
+declare const getImg: (
   url: string,
   headers?: Record<string, string>
-): Promise<Buffer>;
+) => Promise<Buffer>;
+
+declare const init: (basePath: string, folders: Folder[]) => void;
+
+declare const loadJson: <T extends object>(path: string) => Promise<T>;

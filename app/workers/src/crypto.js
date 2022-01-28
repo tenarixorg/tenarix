@@ -12,6 +12,13 @@ const { pipeline } = require("stream");
 const algorithm = "aes-192-cbc";
 const iv = Buffer.alloc(16, 0);
 
+/**
+ *
+ * @param {string} password
+ * @param {string} outputPath
+ * @param {import("stream").Readable} input
+ * @returns {Promise<boolean>}
+ */
 const encrypt = (password, outputPath, input) => {
   return new Promise((resolve, reject) => {
     const key = scryptSync(password, "salt", 24);
@@ -27,6 +34,12 @@ const encrypt = (password, outputPath, input) => {
   });
 };
 
+/**
+ *
+ * @param {string} password
+ * @param {string} inputPath
+ * @returns {Promise<Buffer>}
+ */
 const decrypt = (password, inputPath) => {
   return new Promise((resolve, reject) => {
     const key = scryptSync(password, "salt", 24);
@@ -53,6 +66,11 @@ function stream2buffer(stream) {
   });
 }
 
+/**
+ *
+ * @param {string} data
+ * @returns {Promise<string>}
+ */
 const getHash = (data) => {
   return new Promise((resolve, reject) => {
     const h = createHash("md5");

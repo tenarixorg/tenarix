@@ -13,6 +13,11 @@ const getChromiumExecPath = () => {
   return puppeteer.executablePath();
 };
 
+/**
+ * @param {string} url
+ * @param {{action?: (page: import("puppeteer").Page) => Promise<void>;scripts?: boolean;imgs?: boolean;headers?: Record<string, string>;}} opts
+ * @returns {Promise<{innerHTML:string, current_url:string}>}
+ */
 const content = async (url, opts) => {
   const browser = await puppeteer.launch({
     headless: true,
@@ -51,6 +56,12 @@ const content = async (url, opts) => {
   return { innerHTML, current_url };
 };
 
+/**
+ *
+ * @param {string} url
+ * @param {Record<string,string>} headers
+ * @returns {Promise<Buffer>}
+ */
 const getImg = async (url, headers) => {
   const browser = await puppeteer.launch({
     headless: true,

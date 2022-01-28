@@ -40,11 +40,6 @@ export const ThemeDescriptor: React.FC<Props> = ({ colors, width, height }) => {
       />
       <Circle
         bg={colors.navbar.buttons.color}
-        top="25%"
-        left="calc(0.2vw + 0.5vh)"
-      />
-      <Circle
-        bg={colors.navbar.buttons.color}
         top="85%"
         left="calc(0.2vw + 0.5vh)"
       />

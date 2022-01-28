@@ -1,4 +1,4 @@
-import { Content, Opts, Read } from "types";
+import { Content, Folder, Opts, Read } from "types";
 import { worker } from "./worker";
 
 export const downloadEncrypt = async (
@@ -142,5 +142,70 @@ export const getContent = async (url: string, opts?: Opts) => {
     opts_,
     process.env.NODE_ENV
   );
+  return res;
+};
+
+export const initFolders = async (basePath: string, folders: Folder[]) => {
+  const res = await worker<boolean>(
+    `
+    const {workerData, parentPort} = require("worker_threads");
+    const {join} = require("path");
+    
+    const [basePath, folders, env] = workerData;
+    
+    const getNodeModulesPath = (moduleName) =>
+      env === "development"
+        ? moduleName
+        : join(process.cwd(), "resources/app.asar.unpacked/node_modules/" + moduleName);
+    
+    const dynamicRequire = (moduleName) => {
+      const modulePath = getNodeModulesPath(moduleName);
+      const module = require(modulePath);
+      return module;
+    }
+    
+    const {init} = dynamicRequire("workers");
+    
+    init(basePath,folders);
+    parentPort.postMessage({done: true, data: true});
+  `,
+    basePath,
+    folders,
+    process.env.NODE_ENV
+  );
+
+  return res;
+};
+
+export const loadJsonFile = async <T extends object>(path: string) => {
+  const res = await worker<T>(
+    `
+    const {workerData, parentPort} = require("worker_threads");
+    const {join} = require("path");
+    
+    const [path, env] = workerData;
+    
+    const getNodeModulesPath = (moduleName) =>
+      env === "development"
+        ? moduleName
+        : join(process.cwd(), "resources/app.asar.unpacked/node_modules/" + moduleName);
+    
+    const dynamicRequire = (moduleName) => {
+      const modulePath = getNodeModulesPath(moduleName);
+      const module = require(modulePath);
+      return module;
+    }
+    
+    const {loadJson} = dynamicRequire("workers");
+
+    (async()=>{
+      const res_ = await loadJson(path);
+      parentPort.postMessage({done: true, data: res_});
+    })();
+  `,
+    path,
+    process.env.NODE_ENV
+  );
+
   return res;
 };
