@@ -1,37 +1,41 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { Chapter as ChapterProps, ReadPercentage as IPercentage } from "types";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { SpinnerCircular } from "spinners-react";
 import { BaseTheme } from "types";
-import {
-  RiPlayCircleFill,
-  RiPlayFill,
-  // RiArrowDownSLine,
-  // RiArrowUpSLine,
-  RiDownloadCloudLine,
-} from "react-icons/ri";
+import { RiPlayFill, RiDownloadCloudLine } from "react-icons/ri";
 import { ReadPercentage } from "./ReadPercentage";
 
 interface Props {
   chapter: ChapterProps;
-  root: string;
   colors: BaseTheme;
-  downloaded?: boolean;
-  downloading?: boolean;
-  ext?: string;
-  handler: (id: string) => void;
-  percentage: () => IPercentage;
+  currentSource?: string;
+  downloaded: (id: string) => boolean;
+  downloading: (id: string) => boolean;
+  handleDownload: (id: string) => void;
+  handleRead: (id: string) => void;
+  percentage: (id: string) => IPercentage;
   handlePercentage: (per: IPercentage) => void;
+  onSourceChange: (id: string) => void;
 }
 
-const { api } = window.bridge;
-
-export const Chapter: React.FC<Props> = (props) => {
+export const Chapter: React.FC<Props> = ({ currentSource, ...props }) => {
   const [show, setShow] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const id_ = props.chapter.links[0].id;
   const mounted = useRef(false);
+  const modalRef = useRef<HTMLDivElement | null>(null);
+  const titleRef = useRef<HTMLParagraphElement | null>(null);
+
+  const id_ = props.chapter.links[0].id;
+
+  const handleModal = useCallback((e: MouseEvent) => {
+    if (
+      !modalRef.current?.contains(e.target as Node) &&
+      !titleRef.current?.contains(e.target as Node)
+    ) {
+      if (mounted.current) setShow(false);
+    }
+  }, []);
 
   useEffect(() => {
     mounted.current = true;
@@ -40,20 +44,33 @@ export const Chapter: React.FC<Props> = (props) => {
     };
   }, []);
 
+  useEffect(() => {
+    document.addEventListener("click", handleModal);
+    return () => {
+      document.removeEventListener("click", handleModal);
+    };
+  }, [handleModal]);
+
   return (
     <Container>
       <Main width="100%">
         <Txt
           color={
-            props.percentage().percetage < 100
+            props.percentage(currentSource || id_).percetage < 100
               ? props.colors.fontPrimary
               : props.colors.fontPrimary + "a0"
           }
           wrap="true"
+          style={{
+            width: "fit-content",
+          }}
           fs="18px"
-          // pointer
+          pointer
           bold
-          onClick={() => setShow(false)}
+          ref={titleRef}
+          onClick={() => {
+            setShow((c) => !c);
+          }}
         >
           {props.chapter.title}
         </Txt>
@@ -63,46 +80,31 @@ export const Chapter: React.FC<Props> = (props) => {
               width: "30px",
             }}
             onClick={() => {
-              props.handlePercentage(props.percentage());
+              props.handlePercentage(props.percentage(currentSource || id_));
             }}
           >
             <ReadPercentage
               size={18}
               color={props.colors.secondary}
               bg={props.colors.fontSecondary}
-              percentage={props.percentage().percetage}
+              percentage={props.percentage(currentSource || id_).percetage}
               stroke="1px"
             />
           </Btn>
           <Btn
             onClick={() => {
-              api.on("res:read:init", (_e, res) => {
-                api.removeAllListeners("res:read:init");
-                api.send("download", {
-                  rid: id_,
-                  root: props.root,
-                  id: res.id,
-                  imgs: res.imgs,
-                  title: res.title,
-                  pages: res.pages,
-                  info: res.info,
-                  ext: props.ext,
-                });
-              });
-              api.on("download:done", (_e, rid) => {
-                if (mounted.current && rid === id_) setLoading(false);
-                api.removeAllListeners("download:done");
-              });
-              setLoading(true);
-              api.send("get:read:init", { id: id_, ext: props.ext });
+              props.handleDownload(currentSource || id_);
             }}
-            disabled={loading || props.downloaded || props.downloading}
+            disabled={
+              props.downloaded(currentSource || id_) ||
+              props.downloading(currentSource || id_)
+            }
           >
-            {props.downloaded ? (
+            {props.downloaded(currentSource || id_) ? (
               <BsFillCheckCircleFill color={props.colors.secondary} size={18} />
             ) : (
               <>
-                {loading || props.downloading ? (
+                {props.downloading(currentSource || id_) ? (
                   <SpinnerCircular
                     size={22}
                     color={props.colors.secondary}
@@ -117,21 +119,17 @@ export const Chapter: React.FC<Props> = (props) => {
               </>
             )}
           </Btn>
-          <Btn onClick={() => props.handler(props.chapter.links[0].id)}>
+          <Btn onClick={() => props.handleRead(currentSource || id_)}>
             <RiPlayFill color={props.colors.secondary} size={26} />
           </Btn>
-
-          {/* <Btn onClick={() => setShow((c) => !c)}>
-            {show ? (
-              <RiArrowUpSLine color={props.colors.secondary} size={30} />
-            ) : (
-              <RiArrowDownSLine color={props.colors.secondary} size={30} />
-            )}
-          </Btn> */}
         </Main>
       </Main>
       {show && (
-        <div>
+        <Modal
+          ref={modalRef}
+          borderColor={props.colors.primary}
+          bg={props.colors.background1}
+        >
           {props.chapter.links.map((el, ii) => (
             <div
               key={ii}
@@ -149,21 +147,27 @@ export const Chapter: React.FC<Props> = (props) => {
                   justifyContent: "flex-start",
                 }}
               >
-                <Line init={ii === 0} />
-                <Txt color={props.colors.fontPrimary} fs="15px">
+                <Line
+                  selectedColor={props.colors.secondary}
+                  normalColor={props.colors.primary}
+                  init={ii === 0}
+                  selected={el.id === (currentSource || id_)}
+                />
+                <Txt
+                  color={props.colors.fontPrimary}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    setShow(false);
+                    props.onSourceChange(el.id);
+                  }}
+                  fs="15px"
+                >
                   {el.src}
                 </Txt>
               </div>
-              <Btn onClick={() => props.handler(el.id)}>
-                <RiPlayCircleFill
-                  color={props.colors.secondary}
-                  size={22}
-                  style={{ marginRight: 45 }}
-                />
-              </Btn>
             </div>
           ))}
-        </div>
+        </Modal>
       )}
     </Container>
   );
@@ -172,7 +176,22 @@ export const Chapter: React.FC<Props> = (props) => {
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  margin-bottom: 10px;
+  position: relative;
+`;
+
+const Modal = styled.div<{ borderColor: string; bg: string }>`
+  position: absolute;
+  z-index: 8;
+  background-color: ${(p) => p.bg + "f0"};
+  box-shadow: 4px 4px 9px -5px #000000;
+  backdrop-filter: blur(5px);
+  border-radius: 4px;
+  border-top-left-radius: 0px;
+  top: 100%;
+  width: fit-content;
+  margin-left: 5px;
+  border: 2px solid ${(p) => p.borderColor};
+  padding: 1px 5px;
 `;
 
 const Main = styled.div<{ width: string }>`
@@ -206,30 +225,35 @@ const Txt = styled.p<{
       : ""};
 `;
 
-const Line = styled.div<{ init?: boolean }>`
+const Line = styled.div<{
+  init?: boolean;
+  selected?: boolean;
+  selectedColor: string;
+  normalColor: string;
+}>`
   position: relative;
   height: 100%;
   width: 16px;
-  margin-left: 5px;
-  margin-right: 2px;
   &::after {
     content: "";
     position: absolute;
-    top: ${(p) => (p.init ? "-30%" : "-50%")};
-    left: 0;
+    top: ${(p) => (p.init ? "-40%" : "-50%")};
+    left: -7px;
     width: 2px;
+    z-index: 2;
     height: calc(100% - ${(p) => (p.init ? "20%" : "0px")});
-    background-color: #146def;
+    background-color: ${(p) => p.normalColor};
   }
 
   &::before {
     content: "";
     position: absolute;
-    top: calc(50% - 2px);
-    left: 0;
-    width: 15px;
-    height: 2px;
-    background-color: #146def;
+    top: calc(50% - 3px);
+    left: -5px;
+    width: 18px;
+    height: 4px;
+    z-index: 1;
+    background-color: ${(p) => (p.selected ? p.selectedColor : p.normalColor)};
   }
 `;
 

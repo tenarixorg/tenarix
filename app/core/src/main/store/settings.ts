@@ -4,7 +4,7 @@ import { resolve } from "path";
 import { SettingsStore } from "types";
 
 const store = new Store<Record<string, SettingsStore>>({
-  cwd: resolve(app.getPath("home") + "/.tenarix"),
+  cwd: resolve(app.getPath("home") + "/.tenarix/config"),
   name: "settings",
 });
 

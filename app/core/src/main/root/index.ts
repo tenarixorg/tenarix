@@ -30,6 +30,8 @@ import {
   getAllReadPercentage,
   getReadPercentage,
   setReadPersentage,
+  getCurrentSources,
+  setCurrentSource,
 } from "../store";
 import {
   decryptChapter,
@@ -39,10 +41,10 @@ import {
 } from "./helper";
 
 export const handler = (win?: BrowserWindow) => {
-  let currentSourceName = "inmanga";
+  let currentExtName = "inmanga";
   const slang = matchSystemLang(Object.keys(lang), app.getLocale(), "en");
   let currentLangId = slang;
-  let currentSource = baseExt[currentSourceName];
+  let currentExt = baseExt[currentExtName];
   let currentLang = lang[currentLangId];
   let customTheme = { ...theme };
   let currentThemeSchema: "dark" | "light" = nativeTheme.shouldUseDarkColors
@@ -54,6 +56,13 @@ export const handler = (win?: BrowserWindow) => {
   };
 
   const themeFolder = resolve(app.getPath("home") + "/.tenarix/themes");
+  const settingsPath = resolve(
+    app.getPath("home") + "/.tenarix/config/settings.json"
+  );
+  const downloadFolder = resolve(
+    app.getPath("home") + "/.tenarix" + "/.dreader"
+  );
+
   const maxDowns = 2;
   let currentDowns = 0;
 
@@ -68,21 +77,39 @@ export const handler = (win?: BrowserWindow) => {
           { name: "basic.json", content: JSON.stringify(theme, null, "\t") },
         ],
       },
+      {
+        name: "config",
+        files: [
+          {
+            name: "settings.json",
+            content: JSON.stringify(
+              {
+                app: {
+                  lang: slang,
+                  theme: {
+                    schema: currentThemeSchema,
+                    file: "basic.json",
+                  },
+                },
+              },
+              null,
+              "\t"
+            ),
+          },
+        ],
+      },
     ]);
   });
 
   session.defaultSession.webRequest.onBeforeSendHeaders(filter, (det, cb) => {
     const url = new URL(det.url);
     det.requestHeaders["Origin"] = url.origin;
-    if (currentSource.opts) {
-      for (const key of Object.keys(currentSource.opts.headers)) {
-        if (
-          key.toLowerCase() === "referer" &&
-          !!currentSource.opts.refererRule
-        ) {
-          det.requestHeaders[key] = currentSource.opts.refererRule(url.href);
+    if (currentExt.opts) {
+      for (const key of Object.keys(currentExt.opts.headers)) {
+        if (key.toLowerCase() === "referer" && !!currentExt.opts.refererRule) {
+          det.requestHeaders[key] = currentExt.opts.refererRule(url.href);
         } else {
-          det.requestHeaders[key] = currentSource.opts.headers[key];
+          det.requestHeaders[key] = currentExt.opts.headers[key];
         }
       }
     }
@@ -364,9 +391,9 @@ export const handler = (win?: BrowserWindow) => {
   /** App extension source */
 
   ipcMain.on("change:source", (e, { source }) => {
-    const c = currentSourceName;
-    currentSource = baseExt[source];
-    currentSourceName = source;
+    const c = currentExtName;
+    currentExt = baseExt[source];
+    currentExtName = source;
     e.reply("res:change:source", { c, n: source });
   });
 
@@ -378,15 +405,11 @@ export const handler = (win?: BrowserWindow) => {
       if (currentDowns < maxDowns) {
         currentDowns++;
         const _rid = (rid as string).includes("=") ? await getHash(rid) : rid;
-        const main =
-          resolve(app.getPath("home") + "/.tenarix") +
-          "/.dreader" +
-          `/${await getHash(root)}`;
+        const main = downloadFolder + `/${await getHash(root)}`;
         const base = main + `/${_rid}`;
         if (!fs.existsSync(main)) fs.mkdirSync(main, { recursive: true });
         if (!fs.existsSync(base)) fs.mkdirSync(base, { recursive: true });
-        const source = ext || currentSourceName;
-
+        const source = ext || currentExtName;
         setDownload(rid, source, {
           data: { title, info, pages, id, rid: rid },
           done: false,
@@ -402,9 +425,9 @@ export const handler = (win?: BrowserWindow) => {
             base,
             `./${id}_`,
             imgs,
-            currentSource.opts?.refererRule
-              ? { Referer: currentSource.opts.refererRule(imgs[0].url) }
-              : currentSource.opts?.headers
+            currentExt.opts?.refererRule
+              ? { Referer: currentExt.opts.refererRule(imgs[0].url) }
+              : currentExt.opts?.headers
           );
           win?.webContents.send("downloading:chapter:done", {
             rid,
@@ -430,7 +453,7 @@ export const handler = (win?: BrowserWindow) => {
   );
 
   ipcMain.on("get:downloaded", (e, { ext }) => {
-    const res = getAllExtDownloads(ext || currentSourceName);
+    const res = getAllExtDownloads(ext || currentExtName);
     e.reply("res:downloaded", res);
   });
 
@@ -438,11 +461,11 @@ export const handler = (win?: BrowserWindow) => {
 
   ipcMain.on("get:home", async (e) => {
     try {
-      if (hasCache(currentSourceName, "home")) {
-        e.reply("res:home", getCache(currentSourceName, "home"));
+      if (hasCache(currentExtName, "home")) {
+        e.reply("res:home", getCache(currentExtName, "home"));
       } else {
-        const res = await currentSource.home();
-        setCache(currentSourceName, "home", res);
+        const res = await currentExt.home();
+        setCache(currentExtName, "home", res);
         e.reply("res:home", res);
       }
     } catch (error: any) {
@@ -462,19 +485,19 @@ export const handler = (win?: BrowserWindow) => {
         return;
       }
       const key = "details" + route;
-      if (hasFavorite(currentSourceName, route)) {
+      if (hasFavorite(currentExtName, route)) {
         e.reply("res:details", {
-          res: getFavorite(currentSourceName, route),
+          res: getFavorite(currentExtName, route),
           fav: true,
         });
-      } else if (hasCache(currentSourceName, key)) {
+      } else if (hasCache(currentExtName, key)) {
         e.reply("res:details", {
-          res: getCache(currentSourceName, key),
+          res: getCache(currentExtName, key),
           fav: false,
         });
       } else {
-        const res = await currentSource.details(route);
-        setCache(currentSourceName, key, res);
+        const res = await currentExt.details(route);
+        setCache(currentExtName, key, res);
         e.reply("res:details", { res, fav: false });
       }
     } catch (error: any) {
@@ -488,11 +511,11 @@ export const handler = (win?: BrowserWindow) => {
     const key =
       "library" + page + JSON.stringify(filters).replace(/({|}|,|"|:)/g, "");
     try {
-      if (hasCache(currentSourceName, key)) {
-        e.reply("res:library", getCache(currentSourceName, key));
+      if (hasCache(currentExtName, key)) {
+        e.reply("res:library", getCache(currentExtName, key));
       } else {
-        const res = await currentSource.library(page, filters);
-        setCache(currentSourceName, key, res.items);
+        const res = await currentExt.library(page, filters);
+        setCache(currentExtName, key, res.items);
         e.reply("res:library", res.items);
       }
     } catch (error: any) {
@@ -504,15 +527,15 @@ export const handler = (win?: BrowserWindow) => {
 
   ipcMain.on("get:read:init", async (e, { id, ext }) => {
     const key = "read" + id;
-    const source = ext || currentSourceName;
-    currentSource = baseExt[source];
+    const source = ext || currentExtName;
+    currentExt = baseExt[source];
     try {
       if (hasDownload(id, source) && getDownload(id, source)?.done) {
         e.reply("res:read:init", getDownload(id, source)?.data);
       } else if (hasCache(source, key)) {
         e.reply("res:read:init", getCache(source, key));
       } else {
-        const res = await currentSource.read(id);
+        const res = await currentExt.read(id);
         setCache(source, key, res);
         e.reply("res:read:init", res);
       }
@@ -525,9 +548,9 @@ export const handler = (win?: BrowserWindow) => {
     "get:read:page",
     async (e, { img, page, total, ext, route, id }) => {
       const percentage = (page / total) * 100;
-      const stored = getReadPercentage(ext || currentSourceName, route, id);
+      const stored = getReadPercentage(ext || currentExtName, route, id);
       if (!stored?.percentage || stored.percentage < percentage) {
-        setReadPersentage(ext || currentSourceName, route, id, {
+        setReadPersentage(ext || currentExtName, route, id, {
           percentage: (page / total) * 100,
           lastPage: page,
         });
@@ -538,7 +561,7 @@ export const handler = (win?: BrowserWindow) => {
 
   ipcMain.on("get:read:local", async (e, { rid, root, id, total, ext }) => {
     const _rid = (rid as string).includes("=") ? await getHash(rid) : rid;
-    if (getDownload(rid, ext || currentSourceName)?.inProgress) {
+    if (getDownload(rid, ext || currentExtName)?.inProgress) {
       e.reply("res:read:local", false);
       return;
     }
@@ -567,13 +590,13 @@ export const handler = (win?: BrowserWindow) => {
   /** App favorites */
 
   ipcMain.on("set:favorite", (e, { route, data }) => {
-    if (hasFavorite(currentSourceName, route)) return;
-    setFavorite(currentSourceName, route, data);
+    if (hasFavorite(currentExtName, route)) return;
+    setFavorite(currentExtName, route, data);
     e.reply("res:favorite", true);
   });
 
   ipcMain.on("remove:favorite", (e, { route, ext }) => {
-    const _ext = ext || currentSource;
+    const _ext = ext || currentExt;
     removeFavorite(_ext, route);
     e.reply("res:favorite", false);
   });
@@ -607,7 +630,7 @@ export const handler = (win?: BrowserWindow) => {
   ipcMain.on("get:read:percentage", (e, { ext, route }) => {
     e.reply(
       "res:read:percentage",
-      getAllReadPercentage(ext || currentSourceName, route)
+      getAllReadPercentage(ext || currentExtName, route)
     );
   });
 
@@ -616,29 +639,28 @@ export const handler = (win?: BrowserWindow) => {
     (e, { ext, route, id, percentage, page, check }) => {
       if (check) {
         const stored =
-          getReadPercentage(ext || currentSourceName, route, id)?.percentage ||
-          -1;
+          getReadPercentage(ext || currentExtName, route, id)?.percentage || -1;
         if (stored !== -1 && stored < percentage)
-          setReadPersentage(ext || currentSourceName, route, id, {
+          setReadPersentage(ext || currentExtName, route, id, {
             percentage,
             lastPage: page,
           });
       } else {
-        setReadPersentage(ext || currentSourceName, route, id, {
+        setReadPersentage(ext || currentExtName, route, id, {
           percentage,
           lastPage: page,
         });
       }
       e.reply(
         "res:read:percentage",
-        getAllReadPercentage(ext || currentSourceName, route)
+        getAllReadPercentage(ext || currentExtName, route)
       );
     }
   );
 
   ipcMain.on("get:read:percentage:page", (e, { route, ext, id }) => {
     const lastPage =
-      getReadPercentage(ext || currentSourceName, route, id)?.lastPage || 1;
+      getReadPercentage(ext || currentExtName, route, id)?.lastPage || 1;
     e.reply("res:read:percentage:page", lastPage);
   });
 
@@ -646,17 +668,28 @@ export const handler = (win?: BrowserWindow) => {
 
   ipcMain.on("load:editor", async (e, { src, data }) => {
     if (src === "theme") {
-      const themePath = resolve(
-        app.getPath("home") + "/.tenarix/themes/" + data.filename
-      );
+      const themePath = resolve(themeFolder + "/" + data.filename);
       const res = await loadLocalFile(themePath, "string");
       e.reply("res:load:editor", res);
     } else if (src === "setup") {
-      const settingsPath = resolve(
-        app.getPath("home") + "/.tenarix/settings.json"
-      );
       const res = await loadLocalFile(settingsPath, "string");
       e.reply("res:load:editor", res);
     }
+  });
+
+  /* App chapter current source*/
+
+  ipcMain.on(
+    "set:current:chapter:source",
+    (e, { ext, route, chapter, current }) => {
+      setCurrentSource(ext || currentExtName, route, chapter, current);
+      const res = getCurrentSources(ext, route);
+      e.reply("res:current:chapters:sources", res);
+    }
+  );
+
+  ipcMain.on("get:current:chapters:sources", (e, { ext, route }) => {
+    const res = getCurrentSources(ext, route);
+    e.reply("res:current:chapters:sources", res);
   });
 };

@@ -9,6 +9,14 @@ const getIds = (chapters: DetailsState["data"]["chapters"]) => {
   return ids_;
 };
 
+export const getSource = (
+  sources: { chapter: string; id: string }[],
+  title: string
+): string | undefined => {
+  const src = sources.find((u) => u.chapter == title);
+  return src ? src.id : undefined;
+};
+
 export const reducer = (
   state: DetailsState,
   action: DetailsAction
@@ -29,6 +37,8 @@ export const reducer = (
       };
     case "setDowns":
       return { ...state, downs: action.payload };
+    case "setSources":
+      return { ...state, sources: action.payload };
     case "toggleOrder":
       return { ...state, order: !state.order };
     case "toggleShow":
@@ -67,4 +77,5 @@ export const initialState: DetailsState = {
   order: true,
   show: true,
   percentages: [],
+  sources: [],
 };

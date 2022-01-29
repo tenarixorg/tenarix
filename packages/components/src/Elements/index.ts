@@ -153,6 +153,7 @@ export const ChaptersHeader = styled.div<{ bg: string }>`
   top: -1px;
   background-color: ${(p) => p.bg};
   width: 100%;
+  z-index: 10;
 `;
 
 export const Info = styled.div`
