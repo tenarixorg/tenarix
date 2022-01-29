@@ -37,7 +37,7 @@ export const initialState: AppearanceState = {
   },
   current: "",
   filename: "",
-  modal: false,
+  showFileCard: false,
   options: [],
   values: [{ label: "", value: "" }],
 };
@@ -53,17 +53,15 @@ export const reducer = (
       return { ...state, loading: action.payload };
     case "setFilename":
       return { ...state, filename: action.payload };
-    case "setModal":
-      return { ...state, modal: action.payload };
-    case "toggleModal":
-      return { ...state, modal: !state.modal };
+    case "setShowFileCard":
+      return { ...state, showFileCard: action.payload };
+    case "toggleShowFileCard":
+      return { ...state, showFileCard: !state.showFileCard };
     case "setNewColors":
       return { ...state, newColors: action.payload };
     case "setOptions":
       return { ...state, options: action.payload };
     case "setValues": {
-      console.log(action.payload);
-
       return { ...state, values: action.payload };
     }
     case "setPrimary":

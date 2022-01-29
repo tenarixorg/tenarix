@@ -16,7 +16,7 @@ let win: BrowserWindow | null = null;
 async function mainWin() {
   win = new BrowserWindow({
     titleBarStyle: "hidden",
-    title: "X Reader",
+    title: "Tenarix",
     minWidth: 950,
     minHeight: 520,
     width: 950,

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useCallback, useReducer } from "react";
 import { cleanColor, initialState, reducer } from "./helper";
 import { ThemeDescriptor, ThemeSelector } from "components";
 import { useLang, useTheme } from "context-providers";
+import { useNavigate } from "react-router-dom";
 import { Container } from "components/src/Elements";
 import {
   Btn,
@@ -24,13 +25,15 @@ const { api } = window.bridge;
 
 export const Appearance: React.FC = () => {
   const mounted = useRef(false);
+  const navigation = useNavigate();
   const fileCardRef = useRef<HTMLFormElement | null>(null);
   const saveBtnRef = useRef<HTMLButtonElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { colors } = useTheme();
   const { lang } = useLang();
 
   const [
-    { values, options, current, filename, modal, loading, newColors },
+    { values, options, current, filename, showFileCard, loading, newColors },
     dispatch,
   ] = useReducer(reducer, initialState);
 
@@ -62,7 +65,8 @@ export const Appearance: React.FC = () => {
       !fileCardRef.current?.contains(e.target as Node) &&
       !saveBtnRef.current?.contains(e.target as Node)
     ) {
-      if (mounted.current) dispatch({ type: "setModal", payload: false });
+      if (mounted.current)
+        dispatch({ type: "setShowFileCard", payload: false });
     }
   }, []);
 
@@ -83,7 +87,7 @@ export const Appearance: React.FC = () => {
       scrollColor={colors.primary}
       padding="0px 0px 50px 0px"
     >
-      <ModalContainer show={modal}>
+      <ModalContainer show={showFileCard}>
         <FileCard
           ref={fileCardRef}
           bg={colors.background1 + "c0"}
@@ -95,15 +99,17 @@ export const Appearance: React.FC = () => {
                 data: newColors,
                 schema: current,
               });
-              dispatch({ type: "setModal", payload: false });
+              dispatch({ type: "setShowFileCard", payload: false });
               dispatch({ type: "setFilename", payload: "" });
             }
           }}
         >
           <FilenameInput
-            disabled={!modal}
+            ref={fileInputRef}
+            disabled={!showFileCard}
             color={colors.fontPrimary}
             borderColor={colors.primary}
+            type="text"
             value={filename}
             placeholder="Filename"
             onChange={(e) => {
@@ -142,8 +148,10 @@ export const Appearance: React.FC = () => {
             values={values}
             loading={loading}
             onChange={(vs) => {
-              dispatch({ type: "setValues", payload: vs });
-              api.send("set:external:theme", { file: (vs as any)[0].value });
+              if ((vs as any)[0].value !== "") {
+                dispatch({ type: "setValues", payload: vs });
+                api.send("set:external:theme", { file: (vs as any)[0].value });
+              }
             }}
           />
         </div>
@@ -410,11 +418,29 @@ export const Appearance: React.FC = () => {
             heigth="30px"
             margin="10px 10px 0px 0px"
             onClick={() => {
-              dispatch({ type: "toggleModal" });
+              dispatch({ type: "toggleShowFileCard" });
+              fileInputRef.current?.focus();
             }}
           >
             <Label fs="14px" color={colors.fontPrimary} bold>
               {lang.settings.options_1.appearance.content.btn_text1}
+            </Label>
+          </Btn>
+          <Btn
+            bg={colors.secondary}
+            width="70px"
+            heigth="30px"
+            margin="10px 10px 0px 0px"
+            onClick={() => {
+              navigation("/editor/theme", {
+                state: {
+                  filename: values[0].value,
+                },
+              });
+            }}
+          >
+            <Label fs="14px" color={colors.fontPrimary} bold>
+              {lang.settings.options_1.appearance.content.btn_text2}
             </Label>
           </Btn>
         </BtnContainer>

@@ -9,11 +9,11 @@ const store = new Store<Record<string, SettingsStore>>({
 });
 
 export const setSettings = (value: SettingsStore) => {
-  store.set("user", value);
+  store.set("app", value);
 };
 
 export const getSettings = () => {
-  if (store.has("user")) return store.get("user");
+  if (store.has("app")) return store.get("app");
   return undefined;
 };
 

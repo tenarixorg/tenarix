@@ -5,6 +5,7 @@
   "types": "src/index.tsx",
   "private": true,
   "dependencies": {
+    "@monaco-editor/react": "^4.3.1",
     "assets": "*",
     "components": "*",
     "config": "*",
@@ -16,7 +17,8 @@
     "react-window": "^1.8.6",
     "styled-components": "^5.3.3",
     "types": "*",
-    "utils": "*"
+    "utils": "*",
+    "schemas": "*"
   },
   "devDependencies": {
     "@types/react": "^17.0.38",

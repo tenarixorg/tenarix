@@ -177,13 +177,16 @@ export const initFolders = async (basePath: string, folders: Folder[]) => {
   return res;
 };
 
-export const loadJsonFile = async <T extends object>(path: string) => {
-  const res = await worker<T>(
+export const loadLocalFile = async <T>(
+  path: string,
+  type: T extends object ? "object" : "string"
+) => {
+  const res = await worker<T extends object ? T : string>(
     `
     const {workerData, parentPort} = require("worker_threads");
     const {join} = require("path");
     
-    const [path, env] = workerData;
+    const [path, type, env] = workerData;
     
     const getNodeModulesPath = (moduleName) =>
       env === "development"
@@ -196,14 +199,15 @@ export const loadJsonFile = async <T extends object>(path: string) => {
       return module;
     }
     
-    const {loadJson} = dynamicRequire("workers");
+    const {loadFile} = dynamicRequire("workers");
 
     (async()=>{
-      const res_ = await loadJson(path);
+      const res_ = await loadFile(path,type);
       parentPort.postMessage({done: true, data: res_});
     })();
   `,
     path,
+    type,
     process.env.NODE_ENV
   );
 

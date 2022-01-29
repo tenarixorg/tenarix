@@ -1,12 +1,14 @@
 import fs from "fs";
 import lang from "./language";
 import baseExt from "./extension";
+import Ajv from "ajv";
 import { ipcMain, BrowserWindow, app, nativeTheme, session } from "electron";
 import { matchSystemLang, getAllExt, format_ext } from "utils";
 import { resolve } from "path";
 import { getHash } from "workers";
 import { theme } from "context-providers";
-import { Theme } from "types";
+import { settingsSchema, themeSchema } from "schemas";
+import { SettingsStore, Theme } from "types";
 import {
   getCache,
   setCache,
@@ -33,7 +35,7 @@ import {
   decryptChapter,
   downloadEncrypt,
   initFolders,
-  loadJsonFile,
+  loadLocalFile,
 } from "./helper";
 
 export const handler = (win?: BrowserWindow) => {
@@ -42,8 +44,8 @@ export const handler = (win?: BrowserWindow) => {
   let currentLangId = slang;
   let currentSource = baseExt[currentSourceName];
   let currentLang = lang[currentLangId];
-  let customTheme = getSettings()?.colors || { ...theme };
-  let currentTheme: "dark" | "light" = nativeTheme.shouldUseDarkColors
+  let customTheme = { ...theme };
+  let currentThemeSchema: "dark" | "light" = nativeTheme.shouldUseDarkColors
     ? "dark"
     : "light";
 
@@ -51,6 +53,7 @@ export const handler = (win?: BrowserWindow) => {
     urls: ["*://*/*"],
   };
 
+  const themeFolder = resolve(app.getPath("home") + "/.tenarix/themes");
   const maxDowns = 2;
   let currentDowns = 0;
 
@@ -62,7 +65,7 @@ export const handler = (win?: BrowserWindow) => {
       {
         name: "themes",
         files: [
-          { name: "basic.json", content: JSON.stringify(theme, null, 2) },
+          { name: "basic.json", content: JSON.stringify(theme, null, "\t") },
         ],
       },
     ]);
@@ -119,13 +122,24 @@ export const handler = (win?: BrowserWindow) => {
 
   /** App theme */
 
-  ipcMain.on("get:theme", (e) => {
-    e.reply("change:theme", customTheme[getSettings()?.theme || currentTheme]);
+  ipcMain.on("get:theme", async (e) => {
+    const file = getSettings()?.theme.file || "basic.json";
+    const schema = getSettings()?.theme.schema || currentThemeSchema;
+    try {
+      const theme_ = await loadLocalFile<Theme>(
+        resolve(themeFolder + "/" + file),
+        "object"
+      );
+      customTheme = theme_;
+      e.reply("change:theme", customTheme[schema]);
+    } catch (error) {
+      e.reply("change:theme", theme[schema]);
+    }
   });
 
   ipcMain.on("get:theme:schema", (e) => {
-    const file = getSettings()?.themeName || "basic.json";
-    const schema = getSettings()?.theme || currentTheme;
+    const file = getSettings()?.theme.file || "basic.json";
+    const schema = getSettings()?.theme.schema || currentThemeSchema;
     const res = {
       schema,
       themeName: {
@@ -137,16 +151,27 @@ export const handler = (win?: BrowserWindow) => {
     e.reply("res:theme:schema", res);
   });
 
-  ipcMain.on("change:theme:schema", (e, { schema }) => {
-    currentTheme = schema;
+  ipcMain.on("change:theme:schema", async (e, { schema }) => {
+    currentThemeSchema = schema;
     setSettings({
       lang: getSettings()?.lang || currentLangId,
-      theme: currentTheme,
-      colors: customTheme,
-      themeName: getSettings()?.themeName || "basic.json",
+      theme: {
+        schema: currentThemeSchema || getSettings()?.theme.schema,
+        file: getSettings()?.theme.file || "basic.json",
+      },
     });
-    const file = getSettings()?.themeName || "basic.json";
-    e.reply("change:theme", customTheme[currentTheme]);
+    const file = getSettings()?.theme.file || "basic.json";
+    e.reply("change:theme", customTheme[currentThemeSchema]);
+    try {
+      const theme_ = await loadLocalFile<Theme>(
+        resolve(themeFolder + "/" + file),
+        "object"
+      );
+      customTheme = theme_;
+      e.reply("change:theme", customTheme[currentThemeSchema]);
+    } catch (error) {
+      e.reply("change:theme", theme[currentThemeSchema]);
+    }
     e.reply("res:theme:schema", {
       schema,
       themeName: {
@@ -157,8 +182,7 @@ export const handler = (win?: BrowserWindow) => {
   });
 
   ipcMain.on("get:external:themes", async (e) => {
-    const basePath = resolve(app.getPath("home") + "/.tenarix/themes");
-    const files = fs.readdirSync(basePath);
+    const files = fs.readdirSync(themeFolder);
     const res: { label: string; value: string }[] = [];
     for (const file of files) {
       res.push({
@@ -169,22 +193,28 @@ export const handler = (win?: BrowserWindow) => {
     e.reply("res:external:themes", res);
   });
 
+  ipcMain.on("get:external:themes:files", async (e) => {
+    const files = fs.readdirSync(themeFolder);
+    e.reply("res:external:themes:files", files);
+  });
+
   ipcMain.on("set:external:theme", async (e, { file }) => {
-    const basePath = resolve(app.getPath("home") + "/.tenarix/themes/" + file);
+    const basePath = resolve(themeFolder + "/" + file);
     try {
-      const newTheme = await loadJsonFile<Theme>(basePath);
+      const newTheme = await loadLocalFile<Theme>(basePath, "object");
       customTheme = newTheme;
     } catch (err: any) {
       e.reply("res:error", { error: err.message });
     }
     setSettings({
       lang: getSettings()?.lang || currentLangId,
-      theme: currentTheme,
-      colors: customTheme,
-      themeName: file,
+      theme: {
+        schema: getSettings()?.theme.schema || currentThemeSchema,
+        file,
+      },
     });
-    const file_ = getSettings()?.themeName || "basic.json";
-    const schema = getSettings()?.theme || currentTheme;
+    const file_ = getSettings()?.theme.file || "basic.json";
+    const schema = getSettings()?.theme.schema || currentThemeSchema;
     e.reply("change:theme", customTheme[schema]);
     e.reply("res:theme:schema", {
       schema,
@@ -196,25 +226,25 @@ export const handler = (win?: BrowserWindow) => {
   });
 
   ipcMain.on("save:external:theme", (e, { filename, data, schema }) => {
-    const basePath = resolve(app.getPath("home") + "/.tenarix/themes/");
+    const basePath = themeFolder;
     const file = fs.createWriteStream(resolve(basePath + "/" + filename));
     file.write(
-      JSON.stringify({ ...customTheme, [schema]: data }, null, 2),
+      JSON.stringify({ ...customTheme, [schema]: data }, null, "\t"),
       (err) => {
         file.close();
         if (err) {
           e.reply("res:error", { error: err.message });
         } else {
-          e.reply("res:error", { error: "Theme saved" });
-          currentTheme = schema;
-          customTheme[currentTheme] = data;
+          currentThemeSchema = schema;
+          customTheme[currentThemeSchema] = data;
           setSettings({
             lang: getSettings()?.lang || currentLangId,
-            theme: currentTheme,
-            colors: customTheme,
-            themeName: filename,
+            theme: {
+              file: filename,
+              schema: currentThemeSchema,
+            },
           });
-          e.reply("change:theme", customTheme[currentTheme]);
+          e.reply("change:theme", customTheme[currentThemeSchema]);
           e.reply("res:theme:schema", {
             schema,
             themeName: {
@@ -236,6 +266,72 @@ export const handler = (win?: BrowserWindow) => {
     );
   });
 
+  ipcMain.on("save:full:settings", async (e, { data }) => {
+    const base_ = JSON.parse(data) as { app: SettingsStore };
+    const files = fs.readdirSync(themeFolder);
+    const ajv = new Ajv();
+    const validator = ajv.compile(settingsSchema(files));
+    const valid = validator(base_);
+    if (valid) {
+      setSettings(base_.app);
+      e.reply(
+        "res:lang",
+        lang[getSettings()?.lang || currentLangId] || currentLang
+      );
+      const file_ = getSettings()?.theme.file || "basic.json";
+      const schema = getSettings()?.theme.schema || currentThemeSchema;
+      const theme_ = await loadLocalFile<Theme>(
+        resolve(themeFolder + "/" + file_),
+        "object"
+      );
+      customTheme = theme_;
+      e.reply("change:theme", customTheme[schema]);
+      e.reply("res:theme:schema", {
+        schema,
+        themeName: {
+          label: format_ext(file_.replace(/\.json/gi, "")),
+          value: file_,
+        },
+      });
+    } else {
+      e.reply("res:error", { error: ajv.errorsText(validator.errors) });
+    }
+  });
+
+  ipcMain.on("save:full:external:theme", (e, { filename, data }) => {
+    try {
+      const base_ = JSON.parse(data) as Theme;
+      const ajv = new Ajv();
+      const validator = ajv.compile(themeSchema);
+      const valid = validator(base_);
+      if (!valid) {
+        e.reply("res:error", { error: ajv.errorsText(validator.errors) });
+      } else {
+        const basePath = themeFolder;
+        const file = fs.createWriteStream(resolve(basePath + "/" + filename));
+        file.write(data, (err) => {
+          file.close();
+          if (err) {
+            e.reply("res:error", { error: err.message });
+          } else {
+            e.reply("res:error", { error: "Theme saved" });
+            customTheme = base_;
+            setSettings({
+              lang: getSettings()?.lang || currentLangId,
+              theme: {
+                file: filename,
+                schema: currentThemeSchema,
+              },
+            });
+            e.reply("change:theme", customTheme[currentThemeSchema]);
+          }
+        });
+      }
+    } catch (err: any) {
+      e.reply("res:error", { error: err.message });
+    }
+  });
+
   /** App language */
 
   ipcMain.on("get:lang", (e) => {
@@ -251,9 +347,10 @@ export const handler = (win?: BrowserWindow) => {
     currentLang = lang[id];
     setSettings({
       lang: currentLangId,
-      theme: getSettings()?.theme || currentTheme,
-      colors: customTheme,
-      themeName: getSettings()?.themeName || "basic.json",
+      theme: {
+        file: getSettings()?.theme.file || "basic.json",
+        schema: getSettings()?.theme.schema || currentThemeSchema,
+      },
     });
     e.reply("res:lang", currentLang);
   });
@@ -543,5 +640,23 @@ export const handler = (win?: BrowserWindow) => {
     const lastPage =
       getReadPercentage(ext || currentSourceName, route, id)?.lastPage || 1;
     e.reply("res:read:percentage:page", lastPage);
+  });
+
+  /* App Editor */
+
+  ipcMain.on("load:editor", async (e, { src, data }) => {
+    if (src === "theme") {
+      const themePath = resolve(
+        app.getPath("home") + "/.tenarix/themes/" + data.filename
+      );
+      const res = await loadLocalFile(themePath, "string");
+      e.reply("res:load:editor", res);
+    } else if (src === "setup") {
+      const settingsPath = resolve(
+        app.getPath("home") + "/.tenarix/settings.json"
+      );
+      const res = await loadLocalFile(settingsPath, "string");
+      e.reply("res:load:editor", res);
+    }
   });
 };

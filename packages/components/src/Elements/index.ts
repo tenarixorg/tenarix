@@ -4,15 +4,18 @@ export const Container = styled.div<{
   bg: string;
   scrollColor: string;
   padding?: string;
+  noScroll?: boolean;
 }>`
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
   background-color: ${(p) => p.bg};
-  overflow-y: scroll;
   height: 100vh;
   padding: ${(p) => p.padding || "0px"};
+  ${(p) =>
+    !p.noScroll
+      ? `overflow-y: scroll;
   scroll-behavior: smooth;
   ::-webkit-scrollbar {
     width: 6px;
@@ -24,14 +27,15 @@ export const Container = styled.div<{
   }
 
   ::-webkit-scrollbar-thumb {
-    background: ${(p) => p.scrollColor};
+    background: ${p.scrollColor};
     border-radius: 30px;
     height: 50px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: ${(p) => p.scrollColor};
-  }
+    background: ${p.scrollColor};
+  }`
+      : ""};
 `;
 
 export const Txt = styled.p<{

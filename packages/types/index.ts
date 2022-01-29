@@ -343,8 +343,8 @@ export interface ReadState {
 
 export interface AppearanceAction {
   type:
-    | "setModal"
-    | "toggleModal"
+    | "setShowFileCard"
+    | "toggleShowFileCard"
     | "setLoading"
     | "setCurrent"
     | "setFilename"
@@ -363,7 +363,7 @@ export interface AppearanceAction {
 }
 
 export interface AppearanceState {
-  modal: boolean;
+  showFileCard: boolean;
   current: string;
   loading: boolean;
   filename: string;
@@ -379,10 +379,11 @@ export interface DownloadStore {
 }
 
 export interface SettingsStore {
-  theme: "dark" | "light";
   lang: string;
-  colors: Theme;
-  themeName: string;
+  theme: {
+    schema: "dark" | "light";
+    file: string;
+  };
 }
 
 export interface ReadPercentageStore {

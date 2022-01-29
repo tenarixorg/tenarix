@@ -22,4 +22,7 @@ declare const getImg: (
 
 declare const init: (basePath: string, folders: Folder[]) => void;
 
-declare const loadJson: <T extends object>(path: string) => Promise<T>;
+declare const loadFile: <T>(
+  path: string,
+  type: T extends object ? "object" : "string"
+) => Promise<T extends object ? T : string>;

@@ -2,7 +2,7 @@
 /* eslint-disable no-undef */
 const { decrypt, encrypt, getHash } = require("./crypto");
 const { getImg, content, parser } = require("./scrap");
-const { loadJson } = require("./loader");
+const { loadFile } = require("./loader");
 const { init } = require("./init");
 
 module.exports = {
@@ -12,6 +12,6 @@ module.exports = {
   decrypt,
   encrypt,
   getHash,
-  loadJson,
+  loadFile,
   init,
 };
