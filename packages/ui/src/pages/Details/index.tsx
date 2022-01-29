@@ -1,11 +1,12 @@
-import React, { useCallback, useEffect, useReducer, useRef } from "react";
+import React, { useEffect, useReducer, useRef } from "react";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { BsSortNumericDown, BsSortNumericUpAlt } from "react-icons/bs";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Chapter, Status, GenderBadge, Card } from "components";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
+import { getSource, initialState, reducer } from "./helper";
 import { IoHeartOutline, IoHeartSharp } from "react-icons/io5";
-import { initialState, reducer } from "./helper";
+import { CustomScrollbarsVirtualList } from "./CustomScroll";
 import { useLang, useTheme } from "context-providers";
 import { SpinnerDotted } from "spinners-react";
 import { FixedSizeList } from "react-window";
@@ -19,7 +20,6 @@ import {
   CardInfo,
   Container,
   Description,
-  CustomScroll,
   InfoContainer,
   ChaptersHeader,
   GenderContainer,
@@ -27,42 +27,6 @@ import {
 } from "components/src/Elements";
 
 const { api } = window.bridge;
-
-const CustomScrollbars: React.FC<{
-  onScroll?: React.UIEventHandler<HTMLDivElement>;
-  forwardedRef?: any;
-  style?: React.CSSProperties;
-}> = ({ onScroll, forwardedRef, style, children }) => {
-  const { colors } = useTheme();
-
-  const refSetter = useCallback(
-    (scrollbarsRef) => {
-      if (scrollbarsRef) {
-        forwardedRef(scrollbarsRef.view);
-      } else {
-        forwardedRef(null);
-      }
-    },
-    [forwardedRef]
-  );
-
-  return (
-    <CustomScroll
-      ref={refSetter}
-      scrollColor={colors.secondary}
-      style={{
-        ...style,
-      }}
-      onScroll={onScroll}
-    >
-      {children}
-    </CustomScroll>
-  );
-};
-
-const CustomScrollbarsVirtualList = React.forwardRef((props, ref) => (
-  <CustomScrollbars {...props} forwardedRef={ref} />
-));
 
 export const Details: React.FC = () => {
   const mounted = useRef(false);
@@ -72,7 +36,18 @@ export const Details: React.FC = () => {
   const { lang } = useLang();
   const { state: URLstate } = useLocation();
   const [
-    { show, order, data, loading, fav, downs, ids, reverse, percentages },
+    {
+      show,
+      order,
+      data,
+      loading,
+      fav,
+      downs,
+      ids,
+      reverse,
+      percentages,
+      sources,
+    },
     dispatch,
   ] = useReducer(reducer, initialState);
 
@@ -94,6 +69,9 @@ export const Details: React.FC = () => {
     api.on("res:read:percentage", (_e, res) => {
       if (mounted.current) dispatch({ type: "setPercentages", payload: res });
     });
+    api.on("res:current:chapters:sources", (_e, res) => {
+      if (mounted.current) dispatch({ type: "setSources", payload: res });
+    });
     api.send("get:details", {
       route: params.route,
       ext: (URLstate as any)?.ext || "",
@@ -105,9 +83,16 @@ export const Details: React.FC = () => {
       ext: (URLstate as any)?.ext || "",
       route: params.route,
     });
+    api.send("get:current:chapters:sources", {
+      ext: (URLstate as any)?.ext || "",
+      route: params.route,
+    });
     return () => {
       api.removeAllListeners("res:details");
       api.removeAllListeners("res:downloaded");
+      api.removeAllListeners("res:favorite");
+      api.removeAllListeners("res:read:percentage");
+      api.removeAllListeners("res:current:chapters:sources");
       mounted.current = false;
     };
   }, [params.route, URLstate]);
@@ -116,7 +101,7 @@ export const Details: React.FC = () => {
     <Container
       bg={colors.background1}
       scrollColor={colors.primary}
-      padding="0px 0px 20px 0px"
+      padding="0px 0px 30px 0px"
     >
       {loading ? (
         <Loading>
@@ -256,14 +241,18 @@ export const Details: React.FC = () => {
                     {({ index, style }) => (
                       <div style={style}>
                         <Chapter
-                          percentage={() => {
+                          colors={colors}
+                          chapter={data.chapters[index]}
+                          currentSource={getSource(
+                            sources,
+                            data.chapters[index].title
+                          )}
+                          percentage={(curr) => {
                             const notFound = {
-                              id: data.chapters[index].links[0].id,
+                              id: curr,
                               percetage: 0,
                             };
-                            const per = percentages.find(
-                              (u) => u.id === data.chapters[index].links[0].id
-                            );
+                            const per = percentages.find((u) => u.id === curr);
                             return per ? per : notFound;
                           }}
                           handlePercentage={(per) => {
@@ -285,26 +274,48 @@ export const Details: React.FC = () => {
                               });
                             }
                           }}
-                          downloaded={
+                          handleDownload={(rid) => {
+                            api.on("res:read:init", (_e, res) => {
+                              api.removeAllListeners("res:read:init");
+                              api.send("download", {
+                                rid,
+                                root: params.route,
+                                id: res.id,
+                                imgs: res.imgs,
+                                title: res.title,
+                                pages: res.pages,
+                                info: res.info,
+                                ext: (URLstate as any)?.ext || "",
+                              });
+                            });
+                            api.send("get:read:init", {
+                              id: rid,
+                              ext: (URLstate as any)?.ext || "",
+                            });
+                          }}
+                          downloaded={(curr) =>
                             !!downs.find(
                               (u) =>
-                                u.data.rid ===
-                                  data.chapters[index].links[0].id && u.done
+                                curr !== "" && u.data.rid === curr && u.done
                             )
                           }
-                          downloading={
+                          downloading={(curr) =>
                             !!downs.find(
                               (u) =>
-                                u.data.rid ===
-                                  data.chapters[index].links[0].id &&
+                                curr !== "" &&
+                                u.data.rid === curr &&
                                 u.inProgress
                             )
                           }
-                          colors={colors}
-                          root={params.route || ""}
-                          chapter={data.chapters[index]}
-                          ext={(URLstate as any)?.ext || ""}
-                          handler={(id) => {
+                          onSourceChange={(id_) => {
+                            api.send("set:current:chapter:source", {
+                              ext: (URLstate as any)?.ext,
+                              route: params.route,
+                              chapter: data.chapters[index].title,
+                              current: id_,
+                            });
+                          }}
+                          handleRead={(id) => {
                             navigation(`/read/${params.route}/${id}`, {
                               state: {
                                 ext: (URLstate as any)?.ext || "",

@@ -227,6 +227,7 @@ export interface DetailsState {
   fav: boolean;
   reverse: boolean;
   ids: string[];
+  sources: { chapter: string; id: string }[];
   percentages: ReadPercentage[];
 }
 
@@ -237,6 +238,7 @@ export interface DetailsAction {
     | "setPercentages"
     | "reverseChapter"
     | "setDowns"
+    | "setSources"
     | "toggleOrder"
     | "toggleShow"
     | "setLoading"
