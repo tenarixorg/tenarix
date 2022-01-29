@@ -1,7 +1,7 @@
 /* eslint-disable react/display-name */
 import React, { forwardRef } from "react";
 import styled from "styled-components";
-import { RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
+import { RiArrowLeftSLine } from "react-icons/ri";
 import { IoCogOutline, IoHeartOutline } from "react-icons/io5";
 import { FaRegCompass } from "react-icons/fa";
 import { BaseTheme } from "types";
@@ -10,7 +10,6 @@ const upAni = "translateY(-3px)";
 const rotAni = "rotate(45deg)";
 const rotAni2 = "rotate(-90deg)";
 const leftAni = "translateX(-4px)";
-const rightAni = "translateX(4px)";
 
 const Container = styled.div<{ closed?: boolean; bg: string }>`
   position: relative;
@@ -55,7 +54,6 @@ const Btn = styled.button<{ margin: string; animation?: string }>`
 interface Props {
   back: () => void;
   home: () => void;
-  forward: () => void;
   settings: () => void;
   favorites: () => void;
   closed?: boolean;
@@ -70,16 +68,6 @@ export const Sidebar = forwardRef<HTMLDivElement, Props>((props, ref) => {
     >
       <Btn onClick={props.back} animation={leftAni} margin="0px 0px 10px 0px">
         <RiArrowLeftSLine size={28} color={props.colors.navbar.buttons.color} />
-      </Btn>
-      <Btn
-        onClick={props.forward}
-        animation={rightAni}
-        margin="0px 0px 10px 0px"
-      >
-        <RiArrowRightSLine
-          size={28}
-          color={props.colors.navbar.buttons.color}
-        />
       </Btn>
 
       <BottomOpts>

@@ -39,8 +39,8 @@ const lang: Language = {
         content: {
           sub_text1: "Theme",
           sub_text2: "Personalize",
-          btn_text1: "Revert",
-          btn_text2: "Apply",
+          btn_text1: "Save",
+          btn_text2: "Edit",
           head_text: "Appearance",
           radios: {
             text1: "Dark",

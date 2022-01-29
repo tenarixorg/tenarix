@@ -341,6 +341,37 @@ export interface ReadState {
   chapterIndex: number;
 }
 
+export interface AppearanceAction {
+  type:
+    | "setShowFileCard"
+    | "toggleShowFileCard"
+    | "setLoading"
+    | "setCurrent"
+    | "setFilename"
+    | "setValues"
+    | "setOptions"
+    | "setNewColors"
+    | "setPrimary"
+    | "setBackground1"
+    | "setBackground2"
+    | "setNavBackground"
+    | "setNavBtnsColors"
+    | "setFontPrimary"
+    | "setFontSecondary"
+    | "setSecondary";
+  payload?: any;
+}
+
+export interface AppearanceState {
+  showFileCard: boolean;
+  current: string;
+  loading: boolean;
+  filename: string;
+  values: SelectItem[];
+  options: SelectItem[];
+  newColors: BaseTheme;
+}
+
 export interface DownloadStore {
   data: { title: string; info: string; pages: number; id: string; rid: string };
   done: boolean;
@@ -348,9 +379,11 @@ export interface DownloadStore {
 }
 
 export interface SettingsStore {
-  theme: "dark" | "light";
   lang: string;
-  colors: Theme;
+  theme: {
+    schema: "dark" | "light";
+    file: string;
+  };
 }
 
 export interface ReadPercentageStore {
@@ -361,4 +394,12 @@ export interface ReadPercentageStore {
 export interface ReadPercentage {
   id: string;
   percetage: number;
+}
+
+export interface Folder {
+  name: string;
+  files?: {
+    name: string;
+    content: string;
+  }[];
 }

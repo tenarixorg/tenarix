@@ -23,10 +23,8 @@ const selectToast = (id: string, toast: Toast, colors: BaseTheme) => {
 
 export const CustomToast: React.FC<Props> = ({ colors }) => {
   return (
-    <div>
-      <Toaster position="bottom-right">
-        {(t) => selectToast(t.id, t, colors)}
-      </Toaster>
-    </div>
+    <Toaster position="bottom-right">
+      {(t) => selectToast(t.id, t, colors)}
+    </Toaster>
   );
 };

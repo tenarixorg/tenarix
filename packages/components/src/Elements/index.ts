@@ -4,15 +4,18 @@ export const Container = styled.div<{
   bg: string;
   scrollColor: string;
   padding?: string;
+  noScroll?: boolean;
 }>`
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
   background-color: ${(p) => p.bg};
-  overflow-y: scroll;
   height: 100vh;
   padding: ${(p) => p.padding || "0px"};
+  ${(p) =>
+    !p.noScroll
+      ? `overflow-y: scroll;
   scroll-behavior: smooth;
   ::-webkit-scrollbar {
     width: 6px;
@@ -24,14 +27,15 @@ export const Container = styled.div<{
   }
 
   ::-webkit-scrollbar-thumb {
-    background: ${(p) => p.scrollColor};
+    background: ${p.scrollColor};
     border-radius: 30px;
     height: 50px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: ${(p) => p.scrollColor};
-  }
+    background: ${p.scrollColor};
+  }`
+      : ""};
 `;
 
 export const Txt = styled.p<{
@@ -66,8 +70,11 @@ export const Description = styled.p<{
   overflow: hidden;
   width: 100%;
   max-height: 200px;
-  text-indent: 10;
   line-height: 1.4;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  overflow: hidden;
 `;
 
 export const Grid = styled.div<{ margin?: string; bg?: string }>`
@@ -151,7 +158,7 @@ export const ChaptersHeader = styled.div<{ bg: string }>`
 export const Info = styled.div`
   display: flex;
   flex-direction: column;
-  width: 75%;
+  width: calc(100% - 300px);
   padding: 0px 20px;
 `;
 
@@ -407,5 +414,24 @@ export const CustomScroll = styled.div<{ scrollColor: string }>`
 
   ::-webkit-scrollbar-thumb:hover {
     background: ${(p) => p.scrollColor};
+  }
+`;
+
+export const Fav = styled.button`
+  position: absolute;
+  top: 22px;
+  left: calc(100% - 50px);
+  border: none;
+  outline: none;
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  z-index: 12;
+  cursor: pointer;
+  transition: transform 300ms ease-in-out;
+  &:hover {
+    transform: translateY(-2px);
   }
 `;

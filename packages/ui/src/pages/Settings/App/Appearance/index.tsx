@@ -1,41 +1,123 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useCallback, useReducer } from "react";
+import { cleanColor, initialState, reducer } from "./helper";
+import { ThemeDescriptor, ThemeSelector } from "components";
 import { useLang, useTheme } from "context-providers";
-import { ThemeDescriptor } from "components";
+import { useNavigate } from "react-router-dom";
 import { Container } from "components/src/Elements";
-import styled from "styled-components";
-import { BaseTheme } from "types";
+import {
+  Btn,
+  Label,
+  Options,
+  RadioOpt,
+  FileCard,
+  ColorText,
+  ColorPicker,
+  BtnContainer,
+  FilenameInput,
+  RadioContainer,
+  ModalContainer,
+  ThemeContainer,
+  ColorOptContainer,
+  ThemeTogleContainer,
+} from "components/src/Elements/Appearance";
 
 const { api } = window.bridge;
 
 export const Appearance: React.FC = () => {
   const mounted = useRef(false);
+  const navigation = useNavigate();
+  const fileCardRef = useRef<HTMLFormElement | null>(null);
+  const saveBtnRef = useRef<HTMLButtonElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { colors } = useTheme();
   const { lang } = useLang();
-  const [newColors, setNewColors] = useState<BaseTheme>(colors);
-  const [current, setCurrent] = useState("");
+
+  const [
+    { values, options, current, filename, showFileCard, loading, newColors },
+    dispatch,
+  ] = useReducer(reducer, initialState);
 
   useEffect(() => {
     api.on("res:theme:schema", (_e, res) => {
-      if (mounted.current) setCurrent(res);
+      if (mounted.current) {
+        dispatch({ type: "setCurrent", payload: res.schema });
+        dispatch({ type: "setValues", payload: [res.themeName] });
+      }
+    });
+    api.on("res:external:themes", (_e, res) => {
+      if (mounted.current) {
+        dispatch({ type: "setOptions", payload: res });
+        dispatch({ type: "setLoading", payload: false });
+      }
     });
     api.send("get:theme:schema");
+    api.send("get:external:themes");
     mounted.current = true;
     return () => {
       api.removeAllListeners("res:theme:schema");
+      api.removeAllListeners("res:external:themes");
       mounted.current = false;
     };
   }, []);
 
+  const handleFileCard = useCallback((e: MouseEvent) => {
+    if (
+      !fileCardRef.current?.contains(e.target as Node) &&
+      !saveBtnRef.current?.contains(e.target as Node)
+    ) {
+      if (mounted.current)
+        dispatch({ type: "setShowFileCard", payload: false });
+    }
+  }, []);
+
   useEffect(() => {
-    setNewColors(colors);
+    dispatch({ type: "setNewColors", payload: colors });
   }, [colors]);
+
+  useEffect(() => {
+    document.addEventListener("click", handleFileCard);
+    return () => {
+      document.removeEventListener("click", handleFileCard);
+    };
+  }, [handleFileCard]);
 
   return (
     <Container
       bg={colors.background2}
       scrollColor={colors.primary}
-      padding="0px 0px 30px 0px"
+      padding="0px 0px 50px 0px"
     >
+      <ModalContainer show={showFileCard}>
+        <FileCard
+          ref={fileCardRef}
+          bg={colors.background1 + "c0"}
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (filename !== "") {
+              api.send("save:external:theme", {
+                filename: filename.toLowerCase().replace(" ", "_") + ".json",
+                data: newColors,
+                schema: current,
+              });
+              dispatch({ type: "setShowFileCard", payload: false });
+              dispatch({ type: "setFilename", payload: "" });
+            }
+          }}
+        >
+          <FilenameInput
+            ref={fileInputRef}
+            disabled={!showFileCard}
+            color={colors.fontPrimary}
+            borderColor={colors.primary}
+            type="text"
+            value={filename}
+            placeholder="Filename"
+            onChange={(e) => {
+              dispatch({ type: "setFilename", payload: e.target.value });
+            }}
+          />
+        </FileCard>
+      </ModalContainer>
       <div style={{ width: "60vw", margin: "10px 0px 0px -4%" }}>
         <p style={{ color: colors.fontSecondary, fontSize: 18 }}>
           {lang.settings.options_1.appearance.content.head_text}
@@ -44,10 +126,36 @@ export const Appearance: React.FC = () => {
 
       <ThemeTogleContainer>
         <div style={{ width: "61vw", margin: "5px 0px" }}>
-          <Label fs="18" bold color={colors.fontPrimary}>
-            {lang.settings.options_1.appearance.content.sub_text1}
+          <Label
+            fs="18"
+            bold
+            color={colors.fontPrimary}
+            style={{ cursor: "default" }}
+          >
+            {lang.settings.options_1.appearance.content.sub_text1 + "s"}
           </Label>
         </div>
+        <div
+          style={{
+            width: "61vw",
+            margin: "5px 0px 20px 0px",
+          }}
+        >
+          <ThemeSelector
+            colors={colors}
+            placeholder="Search"
+            options={options}
+            values={values}
+            loading={loading}
+            onChange={(vs) => {
+              if ((vs as any)[0].value !== "") {
+                dispatch({ type: "setValues", payload: vs });
+                api.send("set:external:theme", { file: (vs as any)[0].value });
+              }
+            }}
+          />
+        </div>
+
         <RadioContainer
           bg={colors.background1}
           onClick={() => {
@@ -111,7 +219,12 @@ export const Appearance: React.FC = () => {
       </ThemeTogleContainer>
 
       <div style={{ width: "61vw", margin: "20px 0px 5px 0px" }}>
-        <Label fs="18" bold color={colors.fontPrimary}>
+        <Label
+          fs="18"
+          bold
+          color={colors.fontPrimary}
+          style={{ cursor: "default" }}
+        >
           {lang.settings.options_1.appearance.content.sub_text2}
         </Label>
       </div>
@@ -125,7 +238,7 @@ export const Appearance: React.FC = () => {
               type="color"
               value={newColors.primary}
               onChange={(e) => {
-                setNewColors((c) => ({ ...c, primary: e.target.value }));
+                dispatch({ type: "setPrimary", payload: e.target.value });
               }}
             />
             <ColorText
@@ -137,8 +250,7 @@ export const Appearance: React.FC = () => {
               type="text"
               value={newColors.primary}
               onChange={(e) => {
-                const v = cleanColor(e);
-                setNewColors((c) => ({ ...c, primary: v }));
+                dispatch({ type: "setPrimary", payload: cleanColor(e) });
               }}
             />
           </ColorOptContainer>
@@ -147,7 +259,7 @@ export const Appearance: React.FC = () => {
               type="color"
               value={newColors.secondary}
               onChange={(e) => {
-                setNewColors((c) => ({ ...c, secondary: e.target.value }));
+                dispatch({ type: "setSecondary", payload: e.target.value });
               }}
             />
             <ColorText
@@ -159,8 +271,7 @@ export const Appearance: React.FC = () => {
               type="text"
               value={newColors.secondary}
               onChange={(e) => {
-                const v = cleanColor(e);
-                setNewColors((c) => ({ ...c, secondary: v }));
+                dispatch({ type: "setSecondary", payload: cleanColor(e) });
               }}
             />
           </ColorOptContainer>
@@ -169,7 +280,7 @@ export const Appearance: React.FC = () => {
               type="color"
               value={newColors.background1}
               onChange={(e) => {
-                setNewColors((c) => ({ ...c, background1: e.target.value }));
+                dispatch({ type: "setBackground1", payload: e.target.value });
               }}
             />
             <ColorText
@@ -181,8 +292,7 @@ export const Appearance: React.FC = () => {
               type="text"
               value={newColors.background1}
               onChange={(e) => {
-                const v = cleanColor(e);
-                setNewColors((c) => ({ ...c, background1: v }));
+                dispatch({ type: "setBackground1", payload: cleanColor(e) });
               }}
             />
           </ColorOptContainer>
@@ -191,7 +301,7 @@ export const Appearance: React.FC = () => {
               type="color"
               value={newColors.background2}
               onChange={(e) => {
-                setNewColors((c) => ({ ...c, background2: e.target.value }));
+                dispatch({ type: "setBackground2", payload: e.target.value });
               }}
             />
             <ColorText
@@ -203,8 +313,7 @@ export const Appearance: React.FC = () => {
               type="text"
               value={newColors.background2}
               onChange={(e) => {
-                const v = cleanColor(e);
-                setNewColors((c) => ({ ...c, background2: v }));
+                dispatch({ type: "setBackground2", payload: cleanColor(e) });
               }}
             />
           </ColorOptContainer>
@@ -215,10 +324,10 @@ export const Appearance: React.FC = () => {
               type="color"
               value={newColors.navbar.background}
               onChange={(e) => {
-                setNewColors((c) => ({
-                  ...c,
-                  navbar: { ...c.navbar, background: e.target.value },
-                }));
+                dispatch({
+                  type: "setNavBackground",
+                  payload: e.target.value,
+                });
               }}
             />
             <ColorText
@@ -230,11 +339,10 @@ export const Appearance: React.FC = () => {
               type="text"
               value={newColors.navbar.background}
               onChange={(e) => {
-                const v = cleanColor(e);
-                setNewColors((c) => ({
-                  ...c,
-                  navbar: { ...c.navbar, background: v },
-                }));
+                dispatch({
+                  type: "setNavBackground",
+                  payload: cleanColor(e),
+                });
               }}
             />
           </ColorOptContainer>
@@ -243,13 +351,7 @@ export const Appearance: React.FC = () => {
               type="color"
               value={newColors.navbar.buttons.color}
               onChange={(e) => {
-                setNewColors((c) => ({
-                  ...c,
-                  navbar: {
-                    ...c.navbar,
-                    buttons: { ...c.navbar.buttons, color: e.target.value },
-                  },
-                }));
+                dispatch({ type: "setNavBtnsColors", payload: e.target.value });
               }}
             />
             <ColorText
@@ -261,14 +363,7 @@ export const Appearance: React.FC = () => {
               type="text"
               value={newColors.navbar.buttons.color}
               onChange={(e) => {
-                const v = cleanColor(e);
-                setNewColors((c) => ({
-                  ...c,
-                  navbar: {
-                    ...c.navbar,
-                    buttons: { ...c.navbar.buttons, color: v },
-                  },
-                }));
+                dispatch({ type: "setNavBtnsColors", payload: cleanColor(e) });
               }}
             />
           </ColorOptContainer>
@@ -277,7 +372,7 @@ export const Appearance: React.FC = () => {
               type="color"
               value={newColors.fontPrimary}
               onChange={(e) => {
-                setNewColors((c) => ({ ...c, fontPrimary: e.target.value }));
+                dispatch({ type: "setFontPrimary", payload: e.target.value });
               }}
             />
             <ColorText
@@ -289,8 +384,7 @@ export const Appearance: React.FC = () => {
               type="text"
               value={newColors.fontPrimary}
               onChange={(e) => {
-                const v = cleanColor(e);
-                setNewColors((c) => ({ ...c, fontPrimary: v }));
+                dispatch({ type: "setFontPrimary", payload: cleanColor(e) });
               }}
             />
           </ColorOptContainer>
@@ -299,7 +393,7 @@ export const Appearance: React.FC = () => {
               type="color"
               value={newColors.fontSecondary}
               onChange={(e) => {
-                setNewColors((c) => ({ ...c, fontSecondary: e.target.value }));
+                dispatch({ type: "setFontSecondary", payload: e.target.value });
               }}
             />
             <ColorText
@@ -311,20 +405,21 @@ export const Appearance: React.FC = () => {
               type="text"
               value={newColors.fontSecondary}
               onChange={(e) => {
-                const v = cleanColor(e);
-                setNewColors((c) => ({ ...c, fontSecondary: v }));
+                dispatch({ type: "setFontSecondary", payload: cleanColor(e) });
               }}
             />
           </ColorOptContainer>
         </Options>
         <BtnContainer>
           <Btn
+            ref={saveBtnRef}
             bg={colors.secondary}
             width="70px"
             heigth="30px"
             margin="10px 10px 0px 0px"
             onClick={() => {
-              api.send("revert:theme", { schema: current });
+              dispatch({ type: "toggleShowFileCard" });
+              fileInputRef.current?.focus();
             }}
           >
             <Label fs="14px" color={colors.fontPrimary} bold>
@@ -332,12 +427,16 @@ export const Appearance: React.FC = () => {
             </Label>
           </Btn>
           <Btn
-            bg={colors.primary}
+            bg={colors.secondary}
             width="70px"
             heigth="30px"
-            margin="10px 0px 0px 0px"
+            margin="10px 10px 0px 0px"
             onClick={() => {
-              api.send("new:theme", { newColors, schema: current });
+              navigation("/editor/theme", {
+                state: {
+                  filename: values[0].value,
+                },
+              });
             }}
           >
             <Label fs="14px" color={colors.fontPrimary} bold>
@@ -349,158 +448,3 @@ export const Appearance: React.FC = () => {
     </Container>
   );
 };
-
-const BtnContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  align-items: center;
-  width: 100%;
-`;
-
-const ThemeContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-`;
-
-const Options = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  margin: 10px 0px;
-`;
-
-const ColorOptContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: fit-content;
-`;
-
-const ColorPicker = styled.input`
-  border: none;
-  outline: none;
-  appearance: none;
-  width: 22px;
-  height: 24px;
-  cursor: pointer;
-  background-color: transparent;
-
-  &::-webkit-color-swatch {
-    border: 1px solid black;
-    appearance: none;
-  }
-`;
-
-const ColorText = styled.input<{ color: string }>`
-  border: none;
-  outline: none;
-  appearance: none;
-  background-color: transparent;
-  text-transform: uppercase;
-  color: ${(p) => p.color};
-  width: 4rem;
-`;
-
-const RadioOpt = styled.input<{ bg: string; color: string }>`
-  position: relative;
-  border: 1px solid black;
-  outline: none;
-  appearance: none;
-  background-color: ${(p) => p.bg};
-  cursor: pointer;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  &::after {
-    position: absolute;
-    content: "";
-    top: calc(50% - 5px);
-    left: calc(50% - 5px);
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-  }
-  &:checked {
-    &::after {
-      background-color: ${(p) => p.color};
-    }
-  }
-`;
-
-const Label = styled.label<{
-  color: string;
-  fs: string;
-  bold?: boolean;
-  margin?: string;
-}>`
-  cursor: pointer;
-  color: ${(p) => p.color};
-  font-size: ${(p) => p.fs};
-  font-weight: ${(p) => (p.bold ? "bold" : "normal")};
-  margin: ${(p) => p.margin || "0px"};
-`;
-
-const RadioContainer = styled.div<{ bg: string }>`
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  margin: 5px 0px;
-  cursor: pointer;
-  background-color: ${(p) => p.bg};
-  padding: 5px 0px 5px 10px;
-  border-radius: 4px;
-  box-shadow: 4px 4px 9px -5px #000000;
-  width: 60vw;
-  transition: transform 500ms ease-in-out;
-
-  &:hover {
-    transform: translate3D(-1px, -1px, 0px);
-  }
-`;
-
-const ThemeTogleContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  margin: 30px 0px 10px 0px;
-`;
-
-const Btn = styled.button<{
-  bg: string;
-  width: string;
-  heigth: string;
-  margin?: string;
-}>`
-  border: none;
-  outline: none;
-  background-color: ${(p) => p.bg};
-  border-radius: 4px;
-  width: ${(p) => p.width};
-  height: ${(p) => p.heigth};
-  margin: ${(p) => p.margin || "0px"};
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  &:hover {
-    background-color: ${(p) => p.bg + "aa"};
-  }
-`;
-
-function cleanColor(e: React.ChangeEvent<HTMLInputElement>) {
-  let v = e.target.value;
-  if (v === "") {
-    v = "#000000";
-  } else if (!v.startsWith("#")) {
-    v = "#" + v.slice(0, v.length - 1);
-  }
-  return v;
-}

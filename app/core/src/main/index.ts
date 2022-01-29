@@ -16,7 +16,7 @@ let win: BrowserWindow | null = null;
 async function mainWin() {
   win = new BrowserWindow({
     titleBarStyle: "hidden",
-    title: "X Reader",
+    title: "Tenarix",
     minWidth: 950,
     minHeight: 520,
     width: 950,
@@ -30,24 +30,6 @@ async function mainWin() {
   });
 
   handler(win);
-
-  win?.on("resize", () => {
-    if (win?.isNormal()) {
-      win.webContents.send("resize", false);
-      win.webContents.send("close:sidebar", true);
-    } else {
-      win?.webContents.send("close:sidebar", true);
-      win?.webContents.send("resize", true);
-    }
-  });
-
-  win?.on("move", () => {
-    win?.webContents.send("close:sidebar", true);
-  });
-
-  win?.on("ready-to-show", () => {
-    win?.show();
-  });
 
   if (app.isPackaged) {
     win.loadFile(join(__dirname, "../renderer/index.html"));

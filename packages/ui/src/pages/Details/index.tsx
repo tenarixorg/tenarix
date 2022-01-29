@@ -4,6 +4,7 @@ import { BsSortNumericDown, BsSortNumericUpAlt } from "react-icons/bs";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Chapter, Status, GenderBadge, Card } from "components";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
+import { IoHeartOutline, IoHeartSharp } from "react-icons/io5";
 import { initialState, reducer } from "./helper";
 import { useLang, useTheme } from "context-providers";
 import { SpinnerDotted } from "spinners-react";
@@ -11,17 +12,18 @@ import { FixedSizeList } from "react-window";
 import {
   Btn,
   Txt,
+  Fav,
   Main,
   Info,
   Loading,
   CardInfo,
   Container,
+  Description,
   CustomScroll,
   InfoContainer,
   ChaptersHeader,
   GenderContainer,
   ChaptersContainer,
-  Description,
 } from "components/src/Elements";
 
 const { api } = window.bridge;
@@ -86,6 +88,9 @@ export const Details: React.FC = () => {
     api.on("res:downloaded", (_e, res) => {
       if (mounted.current) dispatch({ type: "setDowns", payload: res });
     });
+    api.on("res:favorite", (_e, res) => {
+      if (mounted.current) dispatch({ type: "setFav", payload: res });
+    });
     api.on("res:read:percentage", (_e, res) => {
       if (mounted.current) dispatch({ type: "setPercentages", payload: res });
     });
@@ -126,27 +131,30 @@ export const Details: React.FC = () => {
         <>
           {data && (
             <InfoContainer>
+              <Fav
+                onClick={() => {
+                  if (!fav) {
+                    api.send("set:favorite", { route: params.route, data });
+                  } else {
+                    api.send("remove:favorite", {
+                      route: params.route,
+                      ext: (URLstate as any)?.ext || "",
+                    });
+                  }
+                }}
+              >
+                {fav ? (
+                  <IoHeartSharp color={"red"} size={30} />
+                ) : (
+                  <IoHeartOutline color={"red"} size={30} />
+                )}
+              </Fav>
               <CardInfo>
                 <Card
                   colors={colors}
                   disabled
                   img={data.img}
                   type={data.type}
-                  score={data.score}
-                  demography={data.demography}
-                  showFav
-                  favorite={fav}
-                  setFavorite={(f) => {
-                    dispatch({ type: "setFav", payload: f });
-                    if (f) {
-                      api.send("set:favorite", { route: params.route, data });
-                    } else {
-                      api.send("remove:favorite", {
-                        route: params.route,
-                        ext: (URLstate as any)?.ext || "",
-                      });
-                    }
-                  }}
                 />
               </CardInfo>
               <Info>
@@ -155,7 +163,12 @@ export const Details: React.FC = () => {
                   fs="35px"
                   bold
                   color={colors.fontPrimary}
-                  style={{ width: "95%" }}
+                  style={{
+                    width: "95%",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                  }}
                 >
                   {data.title}
                 </Txt>

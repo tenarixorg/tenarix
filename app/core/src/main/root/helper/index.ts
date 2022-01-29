@@ -1,4 +1,4 @@
-import { Content, Opts, Read } from "types";
+import { Content, Folder, Opts, Read } from "types";
 import { worker } from "./worker";
 
 export const downloadEncrypt = async (
@@ -142,5 +142,74 @@ export const getContent = async (url: string, opts?: Opts) => {
     opts_,
     process.env.NODE_ENV
   );
+  return res;
+};
+
+export const initFolders = async (basePath: string, folders: Folder[]) => {
+  const res = await worker<boolean>(
+    `
+    const {workerData, parentPort} = require("worker_threads");
+    const {join} = require("path");
+    
+    const [basePath, folders, env] = workerData;
+    
+    const getNodeModulesPath = (moduleName) =>
+      env === "development"
+        ? moduleName
+        : join(process.cwd(), "resources/app.asar.unpacked/node_modules/" + moduleName);
+    
+    const dynamicRequire = (moduleName) => {
+      const modulePath = getNodeModulesPath(moduleName);
+      const module = require(modulePath);
+      return module;
+    }
+    
+    const {init} = dynamicRequire("workers");
+    
+    init(basePath,folders);
+    parentPort.postMessage({done: true, data: true});
+  `,
+    basePath,
+    folders,
+    process.env.NODE_ENV
+  );
+
+  return res;
+};
+
+export const loadLocalFile = async <T>(
+  path: string,
+  type: T extends object ? "object" : "string"
+) => {
+  const res = await worker<T extends object ? T : string>(
+    `
+    const {workerData, parentPort} = require("worker_threads");
+    const {join} = require("path");
+    
+    const [path, type, env] = workerData;
+    
+    const getNodeModulesPath = (moduleName) =>
+      env === "development"
+        ? moduleName
+        : join(process.cwd(), "resources/app.asar.unpacked/node_modules/" + moduleName);
+    
+    const dynamicRequire = (moduleName) => {
+      const modulePath = getNodeModulesPath(moduleName);
+      const module = require(modulePath);
+      return module;
+    }
+    
+    const {loadFile} = dynamicRequire("workers");
+
+    (async()=>{
+      const res_ = await loadFile(path,type);
+      parentPort.postMessage({done: true, data: res_});
+    })();
+  `,
+    path,
+    type,
+    process.env.NODE_ENV
+  );
+
   return res;
 };
