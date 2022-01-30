@@ -1,10 +1,10 @@
 import React, { useEffect, useReducer, useRef } from "react";
+import { format_ext, langs2SelectOptions, sourcesFilter } from "utils";
 import { Check, Container, Loading, Opts, Txt } from "components/src/Elements";
-import { SearchBox, ExtensionCard } from "components";
+import { SearchBox, ExtensionCard, LangSelect } from "components";
 import { initialState, reducer } from "./helper";
 import { useLang, useTheme } from "context-providers";
 import { SpinnerDotted } from "spinners-react";
-import { format_ext } from "utils";
 
 const { api } = window.bridge;
 
@@ -12,11 +12,8 @@ export const Extensions: React.FC = () => {
   const mounted = useRef(false);
   const { colors } = useTheme();
   const { lang } = useLang();
-  const [{ sources, pinnedOnly, loading, query }, dispatch] = useReducer(
-    reducer,
-    initialState
-  );
-
+  const [{ sources, pinnedOnly, loading, query, langs, slangs }, dispatch] =
+    useReducer(reducer, initialState);
   useEffect(() => {
     api.on("res:exts", (_e, res) => {
       if (mounted.current) {
@@ -24,20 +21,25 @@ export const Extensions: React.FC = () => {
         dispatch({ type: "setLoading", payload: false });
       }
     });
-
-    api.send("get:exts");
+    api.on("res:all:lang", (_e, res) => {
+      if (mounted.current) {
+        dispatch({ type: "setLangs", payload: res });
+      }
+    });
     mounted.current = true;
-
+    api.send("get:exts");
+    api.send("get:all:lang");
     return () => {
-      api.removeAllListeners("res:exts");
       mounted.current = false;
+      api.removeAllListeners("res:exts");
+      api.removeAllListeners("res:all:lang");
     };
   }, []);
   return (
     <Container
       bg={colors.background1}
       scrollColor={colors.primary}
-      padding="0px 34px"
+      padding="0px 34px 40px 34px"
     >
       {loading ? (
         <Loading>
@@ -52,13 +54,26 @@ export const Extensions: React.FC = () => {
         <>
           <div style={{ width: 350 }}>
             <SearchBox
+              m="30px 0px 0px 0px"
               value={query}
-              onChange={(q) => dispatch({ type: "setQuery", payload: q })}
+              onChange={(q) =>
+                dispatch({ type: "setQuery", payload: q.target.value })
+              }
               colors={colors}
               placeholder={lang.extensions.search_placeholder}
             />
           </div>
           <Opts>
+            <LangSelect
+              title={lang.extensions.select_title}
+              placeholder={lang.extensions.search_placeholder}
+              onChange={(values) => {
+                dispatch({ type: "setSlangs", payload: values });
+              }}
+              colors={colors}
+              options={langs2SelectOptions(langs)}
+              values={slangs}
+            />
             <Txt color={colors.fontPrimary} fs="12px">
               {lang.extensions.pin_option_text}
             </Txt>
@@ -75,24 +90,7 @@ export const Extensions: React.FC = () => {
           </Opts>
           <div style={{ width: "100%" }}>
             {sources
-              .filter((u) => {
-                if (pinnedOnly) {
-                  if (
-                    format_ext(u.ext)
-                      .toLowerCase()
-                      .includes(query.toLowerCase()) &&
-                    u.pinned
-                  )
-                    return u;
-                } else {
-                  if (
-                    format_ext(u.ext)
-                      .toLowerCase()
-                      .includes(query.toLowerCase())
-                  )
-                    return u;
-                }
-              })
+              .filter(sourcesFilter(pinnedOnly, query, slangs))
               .map((e, i) => (
                 <ExtensionCard
                   key={i}
@@ -109,7 +107,7 @@ export const Extensions: React.FC = () => {
                   }}
                   pinned={e.pinned}
                   name={format_ext(e.ext)}
-                  lang="ES"
+                  lang={e.lang.toUpperCase()}
                   colors={colors}
                 />
               ))}

@@ -26,7 +26,7 @@ export const Main: React.FC = () => {
   useEffect(() => {
     mounted.current = true;
     api.on("downloading:chapter", (_e, { rid, inf }) => {
-      toast(toastMessageFormat(inf.substring(0, inf.indexOf("S"))), {
+      toast(toastMessageFormat(inf), {
         id: "download:" + rid,
         duration: Infinity,
       });
@@ -83,10 +83,6 @@ export const Main: React.FC = () => {
           }}
           home={() => {
             window.location.href = "#/";
-            setClosed((c) => !c);
-          }}
-          forward={() => {
-            window.history.forward();
             setClosed((c) => !c);
           }}
           favorites={() => {

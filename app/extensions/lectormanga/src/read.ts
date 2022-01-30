@@ -34,18 +34,15 @@ function load(parser: Parser, innerHTML: string, url: string) {
     .replace(/\n/g, "");
   const imgs = $("img");
   const pages = imgs.length;
-
   const urls: Read["imgs"] = [];
-
   imgs.each((i, el) => {
     const url = $(el).attr("data-src") || "";
-    urls.push({ url, page: i + 1, free: true });
+    urls.push({ url, page: i + 1 });
   });
-
   return {
     id: id_,
     title,
-    info,
+    info: info.substring(0, info.indexOf("S")) || info,
     pages,
     imgs: urls,
   };

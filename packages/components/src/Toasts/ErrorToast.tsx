@@ -1,11 +1,11 @@
 import React from "react";
 import { toast, Toast, ToastBar } from "react-hot-toast";
-import { Theme } from "utils";
+import { BaseTheme } from "types";
 import { BsXLg } from "react-icons/bs";
 import { Btn } from "../Elements";
 
 interface Props {
-  colors: Theme["dark"];
+  colors: BaseTheme;
   toast: Toast;
 }
 

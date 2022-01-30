@@ -1,2 +1,2 @@
 export * from "./ThemeProvider";
-export * from "./LangProider";
+export * from "./LangProvider";

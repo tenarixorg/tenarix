@@ -7,7 +7,7 @@ export const _details = (content: GetContent, parser: Parser) => {
     const { innerHTML } = await content(url, { scripts: true });
     const $ = parser(innerHTML);
     const chapters: Chapter[] = [];
-    const genders: string[] = [];
+    const genres: string[] = [];
 
     const panel = $("table td .listing-chapters_wrap .panel-group");
 
@@ -69,34 +69,25 @@ export const _details = (content: GetContent, parser: Parser) => {
     const status = $(".summary_content .post-status span.label").text().trim();
     const img = $(".summary_image img").attr("data-src")?.trim() || "";
 
-    const a = {
-      type: "",
-      subtitle: "",
-    };
+    let type = "";
 
     $(".summary_content .post-content .post-content_item").each((_i, el) => {
       if ($(el).find(".summary-heading").text().trim().includes("Type")) {
-        a.type = $(el).find(".summary-content").text().trim();
-      }
-      if ($(el).find(".summary-heading").text().trim().includes("Titulo")) {
-        a.subtitle = $(el).find(".summary-content").text().trim();
+        type = $(el).find(".summary-content").text().trim();
       }
     });
 
     $(".genres-content a").each((_, e) => {
-      const gender = $(e).text().trim();
-      genders.push(gender);
+      const genre = $(e).text().trim();
+      genres.push(genre);
     });
     return {
       title,
-      subtitle: a.subtitle,
       description,
       status,
       img,
-      type: a.type,
-      score: "",
-      demography: "",
-      genders,
+      type: type || "Manga",
+      genres,
       chapters: chapters.reverse(),
     };
   };

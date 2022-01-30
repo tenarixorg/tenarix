@@ -1,3 +1,5 @@
+import { Lang, SelectItem, Source } from "types";
+
 export const encodeRoute = (data: string) => {
   return data
     .replace(/=/g, "^")
@@ -18,11 +20,39 @@ export const capitalize = (data: string) =>
   data[0].toUpperCase() + data.slice(1);
 
 export const format_ext = (source: string) =>
-  source.split("_").reduce((acc, curr) => acc + " " + capitalize(curr), "");
+  source
+    .split("_")
+    .reduce((acc, curr) => acc + " " + capitalize(curr), "")
+    .trim();
+
+export const sourcesFilter =
+  (pinnedOnly: boolean, query: string, slangs: SelectItem[]) => (u: Source) => {
+    const txt = format_ext(u.ext).toLowerCase().includes(query.toLowerCase());
+    const lang = !!slangs.find((k) => k.value === u.lang);
+    const cond0 = txt && u.pinned;
+    const cond1 = cond0 && lang;
+    const cond2 = txt && lang;
+    if (slangs.length > 0) {
+      return pinnedOnly ? (cond1 ? u : undefined) : cond2 ? u : undefined;
+    } else {
+      return pinnedOnly ? (cond0 ? u : undefined) : txt ? u : undefined;
+    }
+  };
+
+export const langs2SelectOptions = (langs: Lang[]): SelectItem[] => {
+  const res = langs.map((lang) => {
+    return {
+      value: lang.id,
+      label: lang.name,
+    };
+  });
+  return res;
+};
 
 export const getAllExt = (baseExt: object, check: (ext: string) => boolean) =>
   Object.keys(baseExt).map((ext_) => ({
     ext: ext_,
+    lang: (baseExt as any)[ext_].lang,
     pinned: check(ext_),
   }));
 
@@ -31,12 +61,7 @@ export const matchSystemLang = (
   systemLang: string,
   defaultLang: string
 ) => {
-  const index = systemLang.indexOf("-");
-  const slang = langs.find((lg) =>
-    lg.includes(
-      systemLang.substring(0, index === -1 ? systemLang.length : index)
-    )
-  );
+  const slang = langs.find((lg) => systemLang.toLowerCase().includes(lg));
   return slang || defaultLang;
 };
 
@@ -50,5 +75,3 @@ export const toastMessageFormat = (msg: string): string => {
   }
   return msg;
 };
-
-export * from "./theme";

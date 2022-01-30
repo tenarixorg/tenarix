@@ -1,11 +1,14 @@
 import fs from "fs";
 import lang from "./language";
 import baseExt from "./extension";
+import Ajv from "ajv";
 import { ipcMain, BrowserWindow, app, nativeTheme, session } from "electron";
-import { matchSystemLang, theme, getAllExt } from "utils";
-import { decryptChapter, downloadEncrypt } from "./helper";
+import { matchSystemLang, getAllExt, format_ext } from "utils";
 import { resolve } from "path";
 import { getHash } from "workers";
+import { theme } from "context-providers";
+import { settingsSchema, themeSchema } from "schemas";
+import { SettingsStore, Theme } from "types";
 import {
   getCache,
   setCache,
@@ -24,15 +27,27 @@ import {
   getAllExtDownloads,
   getSettings,
   setSettings,
+  getAllReadPercentage,
+  getReadPercentage,
+  setReadPersentage,
+  getCurrentSources,
+  setCurrentSource,
 } from "../store";
+import {
+  decryptChapter,
+  downloadEncrypt,
+  initFolders,
+  loadLocalFile,
+} from "./helper";
 
 export const handler = (win?: BrowserWindow) => {
-  let currentSourceName = "inmanga";
-  const slang = matchSystemLang(Object.keys(lang), app.getLocale(), "en-EN");
-  let currentLangId = slang || "en-EN";
-  let currentSource = baseExt[currentSourceName];
+  let currentExtName = "inmanga";
+  const slang = matchSystemLang(Object.keys(lang), app.getLocale(), "en");
+  let currentLangId = slang;
+  let currentExt = baseExt[currentExtName];
   let currentLang = lang[currentLangId];
-  let currentTheme: "dark" | "light" = nativeTheme.shouldUseDarkColors
+  let customTheme = { ...theme };
+  let currentThemeSchema: "dark" | "light" = nativeTheme.shouldUseDarkColors
     ? "dark"
     : "light";
 
@@ -40,21 +55,61 @@ export const handler = (win?: BrowserWindow) => {
     urls: ["*://*/*"],
   };
 
+  const themeFolder = resolve(app.getPath("home") + "/.tenarix/themes");
+  const settingsPath = resolve(
+    app.getPath("home") + "/.tenarix/config/settings.json"
+  );
+  const downloadFolder = resolve(
+    app.getPath("home") + "/.tenarix" + "/.dreader"
+  );
+
   const maxDowns = 2;
   let currentDowns = 0;
+
+  win?.on("ready-to-show", async () => {
+    win?.show();
+    const basePath = resolve(app.getPath("home") + "/.tenarix");
+    await initFolders(basePath, [
+      { name: ".dreader" },
+      {
+        name: "themes",
+        files: [
+          { name: "basic.json", content: JSON.stringify(theme, null, "\t") },
+        ],
+      },
+      {
+        name: "config",
+        files: [
+          {
+            name: "settings.json",
+            content: JSON.stringify(
+              {
+                app: {
+                  lang: slang,
+                  theme: {
+                    schema: currentThemeSchema,
+                    file: "basic.json",
+                  },
+                },
+              },
+              null,
+              "\t"
+            ),
+          },
+        ],
+      },
+    ]);
+  });
 
   session.defaultSession.webRequest.onBeforeSendHeaders(filter, (det, cb) => {
     const url = new URL(det.url);
     det.requestHeaders["Origin"] = url.origin;
-    if (currentSource.opts) {
-      for (const key of Object.keys(currentSource.opts.headers)) {
-        if (
-          key.toLowerCase() === "referer" &&
-          !!currentSource.opts.refererRule
-        ) {
-          det.requestHeaders[key] = currentSource.opts.refererRule(url.href);
+    if (currentExt.opts) {
+      for (const key of Object.keys(currentExt.opts.headers)) {
+        if (key.toLowerCase() === "referer" && !!currentExt.opts.refererRule) {
+          det.requestHeaders[key] = currentExt.opts.refererRule(url.href);
         } else {
-          det.requestHeaders[key] = currentSource.opts.headers[key];
+          det.requestHeaders[key] = currentExt.opts.headers[key];
         }
       }
     }
@@ -79,20 +134,229 @@ export const handler = (win?: BrowserWindow) => {
     }
   });
 
-  /** App theme */
-
-  ipcMain.on("get:theme", (e) => {
-    e.reply("change:theme", theme[getSettings()?.theme || currentTheme]);
+  win?.on("resize", () => {
+    if (win?.isNormal()) {
+      win.webContents.send("resize", false);
+    } else {
+      win?.webContents.send("resize", true);
+    }
+    win?.webContents.send("close:sidebar", true);
   });
 
-  ipcMain.on("toggle:theme", (e) => {
-    currentTheme = currentTheme === "dark" ? "light" : "dark";
+  win?.on("move", () => {
+    win?.webContents.send("close:sidebar", true);
+  });
+
+  /** App theme */
+
+  ipcMain.on("get:theme", async (e) => {
+    const file = getSettings()?.theme.file || "basic.json";
+    const schema = getSettings()?.theme.schema || currentThemeSchema;
+    try {
+      const theme_ = await loadLocalFile<Theme>(
+        resolve(themeFolder + "/" + file),
+        "object"
+      );
+      customTheme = theme_;
+      e.reply("change:theme", customTheme[schema]);
+    } catch (error) {
+      e.reply("change:theme", theme[schema]);
+    }
+  });
+
+  ipcMain.on("get:theme:schema", (e) => {
+    const file = getSettings()?.theme.file || "basic.json";
+    const schema = getSettings()?.theme.schema || currentThemeSchema;
+    const res = {
+      schema,
+      themeName: {
+        label: format_ext(file.replace(/\.json/gi, "")),
+        value: file,
+      },
+    };
+
+    e.reply("res:theme:schema", res);
+  });
+
+  ipcMain.on("change:theme:schema", async (e, { schema }) => {
+    currentThemeSchema = schema;
     setSettings({
       lang: getSettings()?.lang || currentLangId,
-      theme: currentTheme,
+      theme: {
+        schema: currentThemeSchema || getSettings()?.theme.schema,
+        file: getSettings()?.theme.file || "basic.json",
+      },
     });
-    e.reply("change:theme", theme[currentTheme]);
-    e.reply("res:toggle:theme", currentTheme);
+    const file = getSettings()?.theme.file || "basic.json";
+    e.reply("change:theme", customTheme[currentThemeSchema]);
+    try {
+      const theme_ = await loadLocalFile<Theme>(
+        resolve(themeFolder + "/" + file),
+        "object"
+      );
+      customTheme = theme_;
+      e.reply("change:theme", customTheme[currentThemeSchema]);
+    } catch (error) {
+      e.reply("change:theme", theme[currentThemeSchema]);
+    }
+    e.reply("res:theme:schema", {
+      schema,
+      themeName: {
+        label: format_ext(file.replace(/\.json/gi, "")),
+        value: file,
+      },
+    });
+  });
+
+  ipcMain.on("get:external:themes", async (e) => {
+    const files = fs.readdirSync(themeFolder);
+    const res: { label: string; value: string }[] = [];
+    for (const file of files) {
+      res.push({
+        label: format_ext(file.replace(/\.json/gi, "")),
+        value: file,
+      });
+    }
+    e.reply("res:external:themes", res);
+  });
+
+  ipcMain.on("get:external:themes:files", async (e) => {
+    const files = fs.readdirSync(themeFolder);
+    e.reply("res:external:themes:files", files);
+  });
+
+  ipcMain.on("set:external:theme", async (e, { file }) => {
+    const basePath = resolve(themeFolder + "/" + file);
+    try {
+      const newTheme = await loadLocalFile<Theme>(basePath, "object");
+      customTheme = newTheme;
+    } catch (err: any) {
+      e.reply("res:error", { error: err.message });
+    }
+    setSettings({
+      lang: getSettings()?.lang || currentLangId,
+      theme: {
+        schema: getSettings()?.theme.schema || currentThemeSchema,
+        file,
+      },
+    });
+    const file_ = getSettings()?.theme.file || "basic.json";
+    const schema = getSettings()?.theme.schema || currentThemeSchema;
+    e.reply("change:theme", customTheme[schema]);
+    e.reply("res:theme:schema", {
+      schema,
+      themeName: {
+        label: format_ext(file_.replace(/\.json/gi, "")),
+        value: file_,
+      },
+    });
+  });
+
+  ipcMain.on("save:external:theme", (e, { filename, data, schema }) => {
+    const basePath = themeFolder;
+    const file = fs.createWriteStream(resolve(basePath + "/" + filename));
+    file.write(
+      JSON.stringify({ ...customTheme, [schema]: data }, null, "\t"),
+      (err) => {
+        file.close();
+        if (err) {
+          e.reply("res:error", { error: err.message });
+        } else {
+          currentThemeSchema = schema;
+          customTheme[currentThemeSchema] = data;
+          setSettings({
+            lang: getSettings()?.lang || currentLangId,
+            theme: {
+              file: filename,
+              schema: currentThemeSchema,
+            },
+          });
+          e.reply("change:theme", customTheme[currentThemeSchema]);
+          e.reply("res:theme:schema", {
+            schema,
+            themeName: {
+              label: format_ext(filename.replace(/\.json/gi, "")),
+              value: filename,
+            },
+          });
+          const files = fs.readdirSync(basePath);
+          const res: { label: string; value: string }[] = [];
+          for (const file of files) {
+            res.push({
+              label: format_ext(file.replace(/\.json/gi, "")),
+              value: file,
+            });
+          }
+          e.reply("res:external:themes", res);
+        }
+      }
+    );
+  });
+
+  ipcMain.on("save:full:settings", async (e, { data }) => {
+    const base_ = JSON.parse(data) as { app: SettingsStore };
+    const files = fs.readdirSync(themeFolder);
+    const ajv = new Ajv();
+    const validator = ajv.compile(settingsSchema(files));
+    const valid = validator(base_);
+    if (valid) {
+      setSettings(base_.app);
+      e.reply(
+        "res:lang",
+        lang[getSettings()?.lang || currentLangId] || currentLang
+      );
+      const file_ = getSettings()?.theme.file || "basic.json";
+      const schema = getSettings()?.theme.schema || currentThemeSchema;
+      const theme_ = await loadLocalFile<Theme>(
+        resolve(themeFolder + "/" + file_),
+        "object"
+      );
+      customTheme = theme_;
+      e.reply("change:theme", customTheme[schema]);
+      e.reply("res:theme:schema", {
+        schema,
+        themeName: {
+          label: format_ext(file_.replace(/\.json/gi, "")),
+          value: file_,
+        },
+      });
+    } else {
+      e.reply("res:error", { error: ajv.errorsText(validator.errors) });
+    }
+  });
+
+  ipcMain.on("save:full:external:theme", (e, { filename, data }) => {
+    try {
+      const base_ = JSON.parse(data) as Theme;
+      const ajv = new Ajv();
+      const validator = ajv.compile(themeSchema);
+      const valid = validator(base_);
+      if (!valid) {
+        e.reply("res:error", { error: ajv.errorsText(validator.errors) });
+      } else {
+        const basePath = themeFolder;
+        const file = fs.createWriteStream(resolve(basePath + "/" + filename));
+        file.write(data, (err) => {
+          file.close();
+          if (err) {
+            e.reply("res:error", { error: err.message });
+          } else {
+            e.reply("res:error", { error: "Theme saved" });
+            customTheme = base_;
+            setSettings({
+              lang: getSettings()?.lang || currentLangId,
+              theme: {
+                file: filename,
+                schema: currentThemeSchema,
+              },
+            });
+            e.reply("change:theme", customTheme[currentThemeSchema]);
+          }
+        });
+      }
+    } catch (err: any) {
+      e.reply("res:error", { error: err.message });
+    }
   });
 
   /** App language */
@@ -110,7 +374,10 @@ export const handler = (win?: BrowserWindow) => {
     currentLang = lang[id];
     setSettings({
       lang: currentLangId,
-      theme: getSettings()?.theme || currentTheme,
+      theme: {
+        file: getSettings()?.theme.file || "basic.json",
+        schema: getSettings()?.theme.schema || currentThemeSchema,
+      },
     });
     e.reply("res:lang", currentLang);
   });
@@ -124,9 +391,9 @@ export const handler = (win?: BrowserWindow) => {
   /** App extension source */
 
   ipcMain.on("change:source", (e, { source }) => {
-    const c = currentSourceName;
-    currentSource = baseExt[source];
-    currentSourceName = source;
+    const c = currentExtName;
+    currentExt = baseExt[source];
+    currentExtName = source;
     e.reply("res:change:source", { c, n: source });
   });
 
@@ -138,15 +405,11 @@ export const handler = (win?: BrowserWindow) => {
       if (currentDowns < maxDowns) {
         currentDowns++;
         const _rid = (rid as string).includes("=") ? await getHash(rid) : rid;
-        const main =
-          resolve(app.getPath("home") + "/.tenarix") +
-          "/.dreader" +
-          `/${await getHash(root)}`;
+        const main = downloadFolder + `/${await getHash(root)}`;
         const base = main + `/${_rid}`;
         if (!fs.existsSync(main)) fs.mkdirSync(main, { recursive: true });
         if (!fs.existsSync(base)) fs.mkdirSync(base, { recursive: true });
-        const source = ext || currentSourceName;
-
+        const source = ext || currentExtName;
         setDownload(rid, source, {
           data: { title, info, pages, id, rid: rid },
           done: false,
@@ -162,9 +425,9 @@ export const handler = (win?: BrowserWindow) => {
             base,
             `./${id}_`,
             imgs,
-            currentSource.opts?.refererRule
-              ? { Referer: currentSource.opts.refererRule(imgs[0].url) }
-              : currentSource.opts?.headers
+            currentExt.opts?.refererRule
+              ? { Referer: currentExt.opts.refererRule(imgs[0].url) }
+              : currentExt.opts?.headers
           );
           win?.webContents.send("downloading:chapter:done", {
             rid,
@@ -190,7 +453,7 @@ export const handler = (win?: BrowserWindow) => {
   );
 
   ipcMain.on("get:downloaded", (e, { ext }) => {
-    const res = getAllExtDownloads(ext || currentSourceName);
+    const res = getAllExtDownloads(ext || currentExtName);
     e.reply("res:downloaded", res);
   });
 
@@ -198,11 +461,11 @@ export const handler = (win?: BrowserWindow) => {
 
   ipcMain.on("get:home", async (e) => {
     try {
-      if (hasCache(currentSourceName, "home")) {
-        e.reply("res:home", getCache(currentSourceName, "home"));
+      if (hasCache(currentExtName, "home")) {
+        e.reply("res:home", getCache(currentExtName, "home"));
       } else {
-        const res = await currentSource.home();
-        setCache(currentSourceName, "home", res);
+        const res = await currentExt.home();
+        setCache(currentExtName, "home", res);
         e.reply("res:home", res);
       }
     } catch (error: any) {
@@ -222,19 +485,19 @@ export const handler = (win?: BrowserWindow) => {
         return;
       }
       const key = "details" + route;
-      if (hasFavorite(currentSourceName, route)) {
+      if (hasFavorite(currentExtName, route)) {
         e.reply("res:details", {
-          res: getFavorite(currentSourceName, route),
+          res: getFavorite(currentExtName, route),
           fav: true,
         });
-      } else if (hasCache(currentSourceName, key)) {
+      } else if (hasCache(currentExtName, key)) {
         e.reply("res:details", {
-          res: getCache(currentSourceName, key),
+          res: getCache(currentExtName, key),
           fav: false,
         });
       } else {
-        const res = await currentSource.details(route);
-        setCache(currentSourceName, key, res);
+        const res = await currentExt.details(route);
+        setCache(currentExtName, key, res);
         e.reply("res:details", { res, fav: false });
       }
     } catch (error: any) {
@@ -248,11 +511,11 @@ export const handler = (win?: BrowserWindow) => {
     const key =
       "library" + page + JSON.stringify(filters).replace(/({|}|,|"|:)/g, "");
     try {
-      if (hasCache(currentSourceName, key)) {
-        e.reply("res:library", getCache(currentSourceName, key));
+      if (hasCache(currentExtName, key)) {
+        e.reply("res:library", getCache(currentExtName, key));
       } else {
-        const res = await currentSource.library(page, filters);
-        setCache(currentSourceName, key, res.items);
+        const res = await currentExt.library(page, filters);
+        setCache(currentExtName, key, res.items);
         e.reply("res:library", res.items);
       }
     } catch (error: any) {
@@ -264,15 +527,15 @@ export const handler = (win?: BrowserWindow) => {
 
   ipcMain.on("get:read:init", async (e, { id, ext }) => {
     const key = "read" + id;
-    const source = ext || currentSourceName;
-    currentSource = baseExt[source];
+    const source = ext || currentExtName;
+    currentExt = baseExt[source];
     try {
       if (hasDownload(id, source) && getDownload(id, source)?.done) {
         e.reply("res:read:init", getDownload(id, source)?.data);
       } else if (hasCache(source, key)) {
         e.reply("res:read:init", getCache(source, key));
       } else {
-        const res = await currentSource.read(id);
+        const res = await currentExt.read(id);
         setCache(source, key, res);
         e.reply("res:read:init", res);
       }
@@ -281,14 +544,24 @@ export const handler = (win?: BrowserWindow) => {
     }
   });
 
-  ipcMain.on("get:read:page", async (e, { img }) => {
-    // Passthrough == delay
-    e.reply("res:read:page", img);
-  });
+  ipcMain.on(
+    "get:read:page",
+    async (e, { img, page, total, ext, route, id }) => {
+      const percentage = (page / total) * 100;
+      const stored = getReadPercentage(ext || currentExtName, route, id);
+      if (!stored?.percentage || stored.percentage < percentage) {
+        setReadPersentage(ext || currentExtName, route, id, {
+          percentage: (page / total) * 100,
+          lastPage: page,
+        });
+      }
+      e.reply("res:read:page", img);
+    }
+  );
 
   ipcMain.on("get:read:local", async (e, { rid, root, id, total, ext }) => {
     const _rid = (rid as string).includes("=") ? await getHash(rid) : rid;
-    if (getDownload(rid, ext || currentSourceName)?.inProgress) {
+    if (getDownload(rid, ext || currentExtName)?.inProgress) {
       e.reply("res:read:local", false);
       return;
     }
@@ -316,14 +589,16 @@ export const handler = (win?: BrowserWindow) => {
 
   /** App favorites */
 
-  ipcMain.on("set:favorite", (_e, { route, data }) => {
-    if (hasFavorite(currentSourceName, route)) return;
-    setFavorite(currentSourceName, route, data);
+  ipcMain.on("set:favorite", (e, { route, data }) => {
+    if (hasFavorite(currentExtName, route)) return;
+    setFavorite(currentExtName, route, data);
+    e.reply("res:favorite", true);
   });
 
-  ipcMain.on("remove:favorite", (_e, { route, ext }) => {
-    const _ext = ext || currentSource;
+  ipcMain.on("remove:favorite", (e, { route, ext }) => {
+    const _ext = ext || currentExt;
     removeFavorite(_ext, route);
+    e.reply("res:favorite", false);
   });
 
   ipcMain.on("get:favorites", (e) => {
@@ -348,5 +623,73 @@ export const handler = (win?: BrowserWindow) => {
     removePinExt(ext);
     const res = getAllExt(baseExt, hasPinExt);
     e.reply("res:exts", res);
+  });
+
+  /* App read percentage */
+
+  ipcMain.on("get:read:percentage", (e, { ext, route }) => {
+    e.reply(
+      "res:read:percentage",
+      getAllReadPercentage(ext || currentExtName, route)
+    );
+  });
+
+  ipcMain.on(
+    "set:read:percentage",
+    (e, { ext, route, id, percentage, page, check }) => {
+      if (check) {
+        const stored =
+          getReadPercentage(ext || currentExtName, route, id)?.percentage || -1;
+        if (stored !== -1 && stored < percentage)
+          setReadPersentage(ext || currentExtName, route, id, {
+            percentage,
+            lastPage: page,
+          });
+      } else {
+        setReadPersentage(ext || currentExtName, route, id, {
+          percentage,
+          lastPage: page,
+        });
+      }
+      e.reply(
+        "res:read:percentage",
+        getAllReadPercentage(ext || currentExtName, route)
+      );
+    }
+  );
+
+  ipcMain.on("get:read:percentage:page", (e, { route, ext, id }) => {
+    const lastPage =
+      getReadPercentage(ext || currentExtName, route, id)?.lastPage || 1;
+    e.reply("res:read:percentage:page", lastPage);
+  });
+
+  /* App Editor */
+
+  ipcMain.on("load:editor", async (e, { src, data }) => {
+    if (src === "theme") {
+      const themePath = resolve(themeFolder + "/" + data.filename);
+      const res = await loadLocalFile(themePath, "string");
+      e.reply("res:load:editor", res);
+    } else if (src === "setup") {
+      const res = await loadLocalFile(settingsPath, "string");
+      e.reply("res:load:editor", res);
+    }
+  });
+
+  /* App chapter current source*/
+
+  ipcMain.on(
+    "set:current:chapter:source",
+    (e, { ext, route, chapter, current }) => {
+      setCurrentSource(ext || currentExtName, route, chapter, current);
+      const res = getCurrentSources(ext || currentExtName, route);
+      e.reply("res:current:chapters:sources", res);
+    }
+  );
+
+  ipcMain.on("get:current:chapters:sources", (e, { ext, route }) => {
+    const res = getCurrentSources(ext || currentExtName, route);
+    e.reply("res:current:chapters:sources", res);
   });
 };

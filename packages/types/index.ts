@@ -6,6 +6,13 @@ export interface ChapterInfo {
   id: string;
 }
 
+export interface PageBase {
+  img: string;
+  title: string;
+  type: string;
+  route: string;
+}
+
 export interface Chapter {
   title: string;
   links: ChapterInfo[];
@@ -13,41 +20,20 @@ export interface Chapter {
 
 export interface Details {
   title: string;
-  subtitle: string;
   description: string;
   status: string;
   img: string;
   type: string;
-  score: string;
-  demography: string;
-  genders: string[];
+  genres: string[];
   chapters: Chapter[];
 }
 
-export interface LibItem {
-  img: string;
-  title: string;
-  score: string;
-  type: string;
-  demography: string;
-  route: string;
-}
-
 export interface Library {
-  items: LibItem[];
+  items: PageBase[];
 }
 
 export interface Filters {
   title?: string;
-  filterBy?: string;
-  type?: string;
-  demography?: string;
-  status?: string;
-  translationStatus?: string;
-  webcomic?: string;
-  yonkoma?: string;
-  amateur?: string;
-  erotic?: string;
 }
 
 export interface Page {
@@ -57,7 +43,6 @@ export interface Page {
 interface Img {
   url: string;
   page: number;
-  free: boolean;
 }
 
 export interface Read {
@@ -68,25 +53,8 @@ export interface Read {
   imgs: Img[];
 }
 
-export interface HomeBase {
-  img: string;
-  title: string;
-  score: string;
-  type: string;
-  demography: string;
-  route: string;
-}
-
-export interface HomeBase2 {
-  img: string;
-  title: string;
-  type: string;
-  route: string;
-  chapter: string;
-}
-
 export interface Home {
-  popular: HomeBase[];
+  popular: PageBase[];
 }
 
 export interface AppContent {
@@ -110,6 +78,7 @@ export interface Content {
 export interface Opts {
   action?: (page: BPage) => Promise<void>;
   scripts?: boolean;
+  imgs?: boolean;
   headers?: Record<string, string>;
 }
 
@@ -119,15 +88,49 @@ export type Parser = typeof load;
 
 export type Extension = (content: GetContent, parser: Parser) => AppContent;
 
+export interface Lang {
+  id: string;
+  name: string;
+}
+
 export interface Source {
   ext: string;
   pinned: boolean;
+  lang: string;
 }
 
 export interface FavHome {
   route: string;
   ext: string;
   data: Details;
+}
+
+export interface BaseTheme {
+  primary: string;
+  secondary: string;
+  background1: string;
+  background2: string;
+  fontPrimary: string;
+  fontSecondary: string;
+  navbar: {
+    background: string;
+    buttons: {
+      background: string;
+      color: string;
+      hover: string;
+    };
+  };
+  buttons: {
+    background: string;
+    hover: string;
+    color: string;
+    border: string;
+  };
+}
+
+export interface Theme {
+  dark: BaseTheme;
+  light: BaseTheme;
 }
 
 export interface Language {
@@ -145,6 +148,7 @@ export interface Language {
   extensions: {
     pin_option_text: string;
     search_placeholder: string;
+    select_title: string;
   };
   details: {
     genders: string;
@@ -157,8 +161,15 @@ export interface Language {
       appearance: {
         option_text: string;
         content: {
-          btn_text: string;
           head_text: string;
+          sub_text1: string;
+          radios: {
+            text1: string;
+            text2: string;
+          };
+          sub_text2: string;
+          btn_text1: string;
+          btn_text2: string;
         };
       };
       advanced: {
@@ -168,6 +179,7 @@ export interface Language {
         option_text: string;
         content: {
           head_text: string;
+          sub_text: string;
         };
       };
     };
@@ -181,13 +193,20 @@ export interface DetailsState {
   show: boolean;
   loading: boolean;
   fav: boolean;
+  reverse: boolean;
+  ids: string[];
+  sources: { chapter: string; id: string }[];
+  percentages: ReadPercentage[];
 }
 
 export interface DetailsAction {
   type:
     | "setData"
+    | "setIds"
+    | "setPercentages"
     | "reverseChapter"
     | "setDowns"
+    | "setSources"
     | "toggleOrder"
     | "toggleShow"
     | "setLoading"
@@ -200,10 +219,23 @@ export interface ExtensionsState {
   pinnedOnly: boolean;
   loading: boolean;
   query: string;
+  langs: Lang[];
+  slangs: SelectItem[];
+}
+
+export interface SelectItem {
+  value: string;
+  label: string;
 }
 
 export interface ExtensionsAction {
-  type: "setSources" | "setLoading" | "setPinnedOnly" | "setQuery";
+  type:
+    | "setSources"
+    | "setLangs"
+    | "setSlangs"
+    | "setLoading"
+    | "setPinnedOnly"
+    | "setQuery";
   payload?: any;
 }
 
@@ -245,6 +277,7 @@ export interface LibraryAction {
 
 export interface ReadAction {
   type:
+    | "reset"
     | "setData"
     | "setImg"
     | "setCurrent"
@@ -254,7 +287,12 @@ export interface ReadAction {
     | "setLoading2"
     | "setRemote"
     | "setCascade"
-    | "setLocalImgs";
+    | "toggleCascade"
+    | "setLocalImgs"
+    | "setImgWidth"
+    | "setIds"
+    | "setReverse"
+    | "setChapterIndex";
   payload?: any;
 }
 
@@ -266,16 +304,80 @@ export interface ReadState {
   loading2: boolean;
   remote: boolean;
   cascade: boolean;
+  imgWidth: string;
   localImgs: string[];
+  ids: string[];
+  reverse: boolean;
+  chapterIndex: number;
+}
+
+export interface AppearanceAction {
+  type:
+    | "setShowFileCard"
+    | "toggleShowFileCard"
+    | "setLoading"
+    | "setCurrent"
+    | "setFilename"
+    | "setValues"
+    | "setOptions"
+    | "setNewColors"
+    | "setPrimary"
+    | "setBackground1"
+    | "setBackground2"
+    | "setNavBackground"
+    | "setNavBtnsColors"
+    | "setFontPrimary"
+    | "setFontSecondary"
+    | "setSecondary";
+  payload?: any;
+}
+
+export interface AppearanceState {
+  showFileCard: boolean;
+  current: string;
+  loading: boolean;
+  filename: string;
+  values: SelectItem[];
+  options: SelectItem[];
+  newColors: BaseTheme;
+}
+
+export interface DownloadItem {
+  title: string;
+  info: string;
+  pages: number;
+  id: string;
+  rid: string;
 }
 
 export interface DownloadStore {
-  data: { title: string; info: string; pages: number; id: string; rid: string };
+  data: DownloadItem;
   done: boolean;
   inProgress: boolean;
 }
 
 export interface SettingsStore {
-  theme: "dark" | "light";
   lang: string;
+  theme: {
+    schema: "dark" | "light";
+    file: string;
+  };
+}
+
+export interface ReadPercentageStore {
+  percentage: number;
+  lastPage: number;
+}
+
+export interface ReadPercentage {
+  id: string;
+  percetage: number;
+}
+
+export interface Folder {
+  name: string;
+  files?: {
+    name: string;
+    content: string;
+  }[];
 }

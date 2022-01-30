@@ -1,4 +1,4 @@
-import { Filters, GetContent, LibItem, Library, Parser } from "types";
+import { Filters, GetContent, PageBase, Library, Parser } from "types";
 import { encodeRoute } from "utils";
 
 const libraryParams = (page: string, filters?: Filters) => {
@@ -11,7 +11,7 @@ export const _library = (content: GetContent, parser: Parser) => {
   return async (page: string, filters?: Filters): Promise<Library> => {
     const { innerHTML } = await content(libraryParams(page, filters));
     const $ = parser(innerHTML);
-    const items: LibItem[] = [];
+    const items: PageBase[] = [];
     $(".container .row .col-md-8 .container .card").each((_i, el) => {
       const title = $(el).find(".row .col-8 h2").text().trim();
       const img = $(el).find(".row .col-4 a img").attr("src")?.trim() || "";
@@ -21,8 +21,6 @@ export const _library = (content: GetContent, parser: Parser) => {
         img,
         route: encodeRoute(route),
         type: "Manga",
-        demography: "",
-        score: "",
       });
     });
     return {

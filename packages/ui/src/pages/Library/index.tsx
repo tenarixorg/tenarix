@@ -88,9 +88,7 @@ export const Library: React.FC = () => {
                     navigation(`/details/${e.route}`);
                   }}
                   type={e.type}
-                  demography={e.demography}
                   title={e.title}
-                  score={e.score}
                 />
               ))}
           </Grid>

@@ -1,6 +1,6 @@
 {
   "name": "tenarix",
-  "version": "0.1.0-alpha",
+  "version": "0.1.0-alpha.3",
   "description": "Destop manga reader alternative.",
   "main": "dist/main/index.cjs",
   "private": true,
@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/Akuqt/tenarix#readme",
   "dependencies": {
+    "ajv": "^8.9.0",
     "assets": "*",
     "cheerio": "^1.0.0-rc.10",
     "components": "*",
@@ -43,6 +44,7 @@
     "types": "*",
     "ui": "*",
     "utils": "*",
+    "schemas": "*",
     "workers": "*"
   },
   "devDependencies": {

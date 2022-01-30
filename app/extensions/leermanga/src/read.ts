@@ -37,7 +37,7 @@ export const _read = (content: GetContent, parser: Parser) => {
         $(el)
           .attr("src")
           ?.replace(/preview/g, "full") || "";
-      urls.push({ url: url_, free: true, page: i + 1 });
+      urls.push({ url: url_, page: i + 1 });
     });
     const pages = imgs.length;
     return {

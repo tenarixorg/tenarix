@@ -1,7 +1,7 @@
 import { Language } from "types";
 
 const lang: Language = {
-  id: "es-ES",
+  id: "es",
   name: "Español",
   home: {
     head: "Populares",
@@ -20,6 +20,7 @@ const lang: Language = {
   extensions: {
     pin_option_text: "Solo Anclados",
     search_placeholder: "Buscar...",
+    select_title: "Idioma",
   },
   settings: {
     options_1: {
@@ -30,13 +31,21 @@ const lang: Language = {
         option_text: "Idioma",
         content: {
           head_text: "Idioma",
+          sub_text: "Elige un idioma",
         },
       },
       appearance: {
         option_text: "Apariencia",
         content: {
-          btn_text: "Cambiar tema",
+          sub_text1: "Tema",
+          sub_text2: "Personalizar",
+          btn_text1: "Guardar",
+          btn_text2: "Editar",
           head_text: "Apariencia",
+          radios: {
+            text1: "Oscuro",
+            text2: "Claro",
+          },
         },
       },
       head: "Ajustes de la aplicación",

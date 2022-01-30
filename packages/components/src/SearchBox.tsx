@@ -1,15 +1,15 @@
 import React from "react";
 import styled from "styled-components";
-import { Theme } from "utils";
+import { BaseTheme } from "types";
 
-const Container = styled.div`
+const Container = styled.div<{ m: string }>`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   width: 100%;
   padding: 0px 10px;
-  margin-top: 30px;
+  margin: ${(p) => p.m};
 `;
 
 const InputContainer = styled.div<{ color: string }>`
@@ -48,15 +48,16 @@ const Input = styled.input<{ color1: string; color2: string }>`
 `;
 
 interface Props {
-  onChange: (v: string) => void;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   value: string;
-  colors: Theme["dark"];
+  colors: BaseTheme;
   placeholder: string;
+  m: string;
 }
 
 export const SearchBox: React.FC<Props> = (props) => {
   return (
-    <Container>
+    <Container m={props.m}>
       <InputContainer color={props.colors.primary}>
         <Input
           onInvalid={(e) => {
@@ -70,7 +71,7 @@ export const SearchBox: React.FC<Props> = (props) => {
           color1={props.colors.fontPrimary}
           color2={props.colors.fontPrimary}
           value={props.value}
-          onChange={(e) => props.onChange(e.target.value)}
+          onChange={props.onChange}
         />
         <span></span>
       </InputContainer>

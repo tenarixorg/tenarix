@@ -9,7 +9,7 @@ import {
   RiCheckboxBlankLine,
 } from "react-icons/ri";
 import { AiOutlineMenu } from "react-icons/ai";
-import { Theme } from "utils";
+import { BaseTheme } from "types";
 
 const { api } = window.bridge;
 
@@ -101,7 +101,7 @@ interface Props {
   minimize: () => void;
   maximize: () => void;
   sidebar: () => void;
-  colors: Theme["dark"];
+  colors: BaseTheme;
   sideAni?: boolean;
 }
 export const Navbar = React.forwardRef<HTMLButtonElement, Props>(

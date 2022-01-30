@@ -5,6 +5,8 @@ export const initialState: ExtensionsState = {
   pinnedOnly: false,
   query: "",
   sources: [],
+  langs: [],
+  slangs: [],
 };
 
 export const reducer = (
@@ -14,6 +16,10 @@ export const reducer = (
   switch (action.type) {
     case "setSources":
       return { ...state, sources: action.payload };
+    case "setLangs":
+      return { ...state, langs: action.payload };
+    case "setSlangs":
+      return { ...state, slangs: action.payload };
     case "setLoading":
       return { ...state, loading: action.payload };
     case "setPinnedOnly":

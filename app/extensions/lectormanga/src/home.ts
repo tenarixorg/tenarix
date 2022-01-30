@@ -1,4 +1,4 @@
-import { Home, GetContent, Parser, HomeBase } from "types";
+import { Home, GetContent, Parser, PageBase } from "types";
 import { encodeRoute } from "utils";
 
 export const _home = (content: GetContent, parser: Parser) => {
@@ -7,10 +7,8 @@ export const _home = (content: GetContent, parser: Parser) => {
       "https://lectormanga.com/library?title=&order_field=title&order_item=likes_count&order_dir=desc&type=&demography=&webcomic=&yonkoma=&amateur=&erotic="
     );
     const $ = parser(innerHTML);
-
-    const popular: HomeBase[] = [];
-
-    $("#app .container .row .col-12 .card").each((_i, el) => {
+    const popular: PageBase[] = [];
+    $("#app .container .row div.col-12.col-lg-8 .card").each((_i, el) => {
       const title = $(el).find(".card-header a").text().trim();
       const route =
         $(el)
@@ -19,21 +17,14 @@ export const _home = (content: GetContent, parser: Parser) => {
           ?.trim()
           .split("/library/")[1] || "";
       const img = $(el).find(".card-body img").attr("src")?.trim() || "";
-      const score = $(el)
-        .find(".card-footer span.float-left small")
-        .text()
-        .trim();
       const type = $(el).find(".card-footer span.float-right").text().trim();
       popular.push({
         title,
         route: encodeRoute(route),
         img,
-        score,
         type,
-        demography: "",
       });
     });
-
     return {
       popular,
     };

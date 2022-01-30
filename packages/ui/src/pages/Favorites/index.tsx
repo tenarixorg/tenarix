@@ -60,8 +60,17 @@ export const Favorites: React.FC = () => {
                 <Card
                   colors={colors}
                   pointer
-                  showFav
-                  favorite
+                  options={{
+                    favorite: true,
+                    showFav: true,
+                    setFavorite: () => {
+                      api.send("remove:favorite", {
+                        route: e.route,
+                        ext: e.ext,
+                      });
+                      api.send("get:favorites");
+                    },
+                  }}
                   key={i}
                   img={e.data.img}
                   onClick={() => {
@@ -71,10 +80,6 @@ export const Favorites: React.FC = () => {
                   }}
                   type={e.data.type}
                   title={e.data.title}
-                  setFavorite={() => {
-                    api.send("remove:favorite", { route: e.route, ext: e.ext });
-                    api.send("get:favorites");
-                  }}
                 />
               ))}
           </Grid>

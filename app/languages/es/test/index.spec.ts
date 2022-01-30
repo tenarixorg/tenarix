@@ -1,6 +1,6 @@
 import lang from "../src";
 
-describe("Language: es-ES", () => {
+describe("Language: es", () => {
   test("should be a valid language", () => {
     expect(lang.home.head.length).toBeGreaterThan(1);
     expect(lang.library.head.length).toBeGreaterThan(1);
@@ -10,18 +10,37 @@ describe("Language: es-ES", () => {
     expect(lang.details.status.length).toBeGreaterThan(1);
     expect(lang.extensions.pin_option_text.length).toBeGreaterThan(1);
     expect(lang.extensions.search_placeholder.length).toBeGreaterThan(1);
+    expect(lang.extensions.select_title.length).toBeGreaterThan(1);
     expect(lang.settings.options_1.head.length).toBeGreaterThan(1);
     expect(
-      lang.settings.options_1.appearance.content.btn_text.length
+      lang.settings.options_1.appearance.content.btn_text1.length
+    ).toBeGreaterThan(1);
+    expect(
+      lang.settings.options_1.appearance.content.btn_text2.length
+    ).toBeGreaterThan(1);
+    expect(
+      lang.settings.options_1.appearance.content.sub_text1.length
+    ).toBeGreaterThan(1);
+    expect(
+      lang.settings.options_1.appearance.content.sub_text2.length
     ).toBeGreaterThan(1);
     expect(
       lang.settings.options_1.appearance.content.head_text.length
+    ).toBeGreaterThan(1);
+    expect(
+      lang.settings.options_1.appearance.content.radios.text1.length
+    ).toBeGreaterThan(1);
+    expect(
+      lang.settings.options_1.appearance.content.radios.text2.length
     ).toBeGreaterThan(1);
     expect(
       lang.settings.options_1.appearance.option_text.length
     ).toBeGreaterThan(1);
     expect(
       lang.settings.options_1.language.content.head_text.length
+    ).toBeGreaterThan(1);
+    expect(
+      lang.settings.options_1.language.content.sub_text.length
     ).toBeGreaterThan(1);
     expect(lang.settings.options_1.language.option_text.length).toBeGreaterThan(
       1

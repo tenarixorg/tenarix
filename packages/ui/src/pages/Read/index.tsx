@@ -1,19 +1,19 @@
 import React, { useEffect, useRef, useCallback, useReducer } from "react";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
+import { initialState, nextChapter, reducer } from "./helper";
 import { SpinnerDotted, SpinnerInfinity } from "spinners-react";
-import { useParams, useLocation } from "react-router-dom";
-import { initialState, reducer } from "./helper";
+import { LazyImage, ReadPagination } from "components";
 import { BsChevronBarExpand } from "react-icons/bs";
 import { useTheme } from "context-providers";
 import {
-  BtnAni,
-  Container,
-  Loading,
-  ReadImg,
-  ReadNav,
+  CP,
   Txt,
   Btn,
-  CP,
+  BtnAni,
+  ReadNav,
+  Loading,
+  Container,
 } from "components/src/Elements";
 
 const { api } = window.bridge;
@@ -21,24 +21,75 @@ const { api } = window.bridge;
 export const Read: React.FC = () => {
   const params = useParams();
   const mounted = useRef(false);
+  const navigation = useNavigate();
   const { colors } = useTheme();
   const { state: URLstate } = useLocation();
   const [
-    { remote, loading2, loading, img, cascade, current, data, localImgs },
+    {
+      ids,
+      img,
+      data,
+      remote,
+      loading,
+      cascade,
+      current,
+      reverse,
+      loading2,
+      imgWidth,
+      localImgs,
+      chapterIndex,
+    },
     dispatch,
   ] = useReducer(reducer, initialState);
 
-  const getNext = useCallback(() => {
-    if (current <= 1) dispatch({ type: "setCurrent", payload: 1 });
-    if (current >= data.pages)
+  const getNextChapter = useCallback(() => {
+    const ext_ = (URLstate as any)?.ext || "";
+    nextChapter(
+      reverse,
+      current,
+      chapterIndex,
+      data.pages,
+      ids,
+      ext_,
+      params.route || "",
+      navigation,
+      () => {
+        dispatch({ type: "reset" });
+      }
+    );
+  }, [
+    ids,
+    current,
+    reverse,
+    URLstate,
+    data.pages,
+    navigation,
+    chapterIndex,
+    params.route,
+  ]);
+
+  const getNextPage = useCallback(() => {
+    if (current < 1) {
+      dispatch({ type: "setCurrent", payload: 1 });
+    }
+
+    if (current > data.pages && data.pages > 0) {
       dispatch({ type: "setCurrent", payload: data.pages });
-    if (data.id)
+    }
+    if (data.id) {
       if (remote) {
-        if (data.imgs.length > 0) {
+        if (data.imgs && data.imgs.length > 0) {
           dispatch({ type: "setLoading", payload: true });
           const im = data.imgs[current - 1];
           if (im) {
-            api.send("get:read:page", { img: im.url });
+            api.send("get:read:page", {
+              img: im.url,
+              page: current,
+              total: data.pages,
+              ext: (URLstate as any)?.ext || "",
+              route: params.route,
+              id: params.id,
+            });
           }
         }
       } else {
@@ -46,7 +97,14 @@ export const Read: React.FC = () => {
         if (localImgs.length > 0) {
           const im = localImgs[current - 1];
           if (im) {
-            api.send("get:read:page", { img: im });
+            api.send("get:read:page", {
+              img: im,
+              page: current,
+              total: data.pages,
+              ext: (URLstate as any)?.ext || "",
+              route: params.route,
+              id: params.id,
+            });
           }
         } else {
           api.send("get:read:local", {
@@ -59,19 +117,64 @@ export const Read: React.FC = () => {
           });
         }
       }
+    }
   }, [
-    params.id,
-    params.route,
-    data.pages,
-    current,
-    data.id,
-    data.imgs,
     remote,
-    localImgs,
+    data.id,
+    current,
     URLstate,
+    params.id,
+    localImgs,
+    data.imgs,
+    data.pages,
+    params.route,
   ]);
 
+  const handleWheel = useCallback(
+    (e: WheelEvent) => {
+      if (e.ctrlKey) {
+        let width = parseInt(imgWidth.substring(0, imgWidth.indexOf("%")));
+        width -= e.deltaY / 10;
+        dispatch({ type: "setImgWidth", payload: width + "%" });
+      }
+    },
+    [imgWidth]
+  );
+
+  const observeCascadeImgs = useCallback(() => {
+    if (cascade) {
+      const observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const page_ = entry.target.getAttribute("data-saved");
+            let page = 1;
+            if (page_) {
+              page = parseInt(page_);
+            }
+            api.send("set:read:percentage", {
+              route: params.route,
+              id: params.id,
+              ext: (URLstate as any)?.ext,
+              percentage: (page / data.pages) * 100,
+              page,
+              check: true,
+            });
+          }
+        }
+      });
+
+      const imgs_ = document.querySelectorAll(".percentage-image");
+      for (const img_ of imgs_) {
+        observer.observe(img_);
+      }
+    }
+  }, [cascade, data.pages, URLstate, params.id, params.route]);
+
   useEffect(() => {
+    const chaps = (URLstate as any)?.chapters;
+    const rever = (URLstate as any)?.reverse;
+    const casc = (URLstate as any)?.cascade;
+
     api.on("res:read:local", (_e, res) => {
       if (typeof res === "boolean" && !res) {
         dispatch({ type: "setRemote", payload: true });
@@ -99,8 +202,24 @@ export const Read: React.FC = () => {
       if (mounted.current) {
         dispatch({ type: "setData", payload: res });
         dispatch({ type: "setLoading2", payload: false });
+        api.on("res:read:percentage:page", (_e, res) => {
+          const n = res === -1 ? res.pages : res;
+          dispatch({ type: "setCurrent", payload: n });
+        });
+        api.send("get:read:percentage:page", {
+          route: params.route,
+          ext: (URLstate as any)?.ext || "",
+          id: params.id,
+        });
       }
     });
+
+    if (chaps) {
+      dispatch({ type: "setIds", payload: chaps });
+      dispatch({ type: "setChapterIndex", payload: chaps.indexOf(params.id) });
+    }
+    dispatch({ type: "setReverse", payload: !!rever });
+    dispatch({ type: "setCascade", payload: !!casc });
 
     api.send("get:read:init", {
       id: params.id,
@@ -114,11 +233,26 @@ export const Read: React.FC = () => {
       api.removeAllListeners("res:read:page");
       api.removeAllListeners("res:read:local");
     };
-  }, [params.id, URLstate]);
+  }, [params.id, URLstate, params.route]);
 
   useEffect(() => {
-    getNext();
-  }, [getNext]);
+    document.addEventListener("wheel", handleWheel);
+    return () => {
+      document.removeEventListener("wheel", handleWheel);
+    };
+  }, [handleWheel]);
+
+  useEffect(() => {
+    getNextPage();
+  }, [getNextPage]);
+
+  useEffect(() => {
+    getNextChapter();
+  }, [getNextChapter]);
+
+  useEffect(() => {
+    observeCascadeImgs();
+  }, [observeCascadeImgs]);
 
   return (
     <Container
@@ -126,27 +260,64 @@ export const Read: React.FC = () => {
       bg={colors.background1}
       scrollColor={colors.primary}
     >
-      {!cascade && (
-        <ReadNav>
-          <BtnAni
-            onClick={() => {
+      <ReadNav>
+        <BtnAni
+          onClick={() => {
+            if (cascade) {
+              const ext_ = (URLstate as any)?.ext || "";
+              nextChapter(
+                reverse,
+                current,
+                chapterIndex,
+                data.pages,
+                ids,
+                ext_,
+                params.route || "",
+                navigation,
+                () => {
+                  dispatch({ type: "reset" });
+                },
+                true,
+                "left"
+              );
+            } else {
               dispatch({ type: "decrementCurrent", payload: 1 });
-            }}
-            disabled={loading || current <= 1}
-          >
-            <RiArrowLeftSLine size={60} color={colors.primary} />
-          </BtnAni>
-          <BtnAni
-            right
-            onClick={() => {
+            }
+          }}
+          disabled={loading || loading2}
+        >
+          <RiArrowLeftSLine size={60} color={colors.primary} />
+        </BtnAni>
+        <BtnAni
+          right
+          onClick={() => {
+            if (cascade) {
+              const ext_ = (URLstate as any)?.ext || "";
+              nextChapter(
+                reverse,
+                current,
+                chapterIndex,
+                data.pages,
+                ids,
+                ext_,
+                params.route || "",
+                navigation,
+                () => {
+                  dispatch({ type: "reset" });
+                },
+                true,
+                "right"
+              );
+            } else {
               dispatch({ type: "incrementCurrent", payload: 1 });
-            }}
-            disabled={loading || current >= data.pages}
-          >
-            <RiArrowRightSLine size={60} color={colors.primary} />
-          </BtnAni>
-        </ReadNav>
-      )}
+            }
+          }}
+          disabled={loading || loading2}
+        >
+          <RiArrowRightSLine size={60} color={colors.primary} />
+        </BtnAni>
+      </ReadNav>
+
       {loading2 ? (
         <SpinnerInfinity
           size={80}
@@ -169,19 +340,47 @@ export const Read: React.FC = () => {
                   : ""
               }` || "Title"}
           </Txt>
-          <Txt margin="0px 0px 4px 0px" fs="20px" color={colors.fontPrimary}>
-            {data.info.substring(0, data.info.indexOf("S")) || data.info}
-            {cascade ? "" : " - " + current + "/" + data.pages}
-          </Txt>
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Txt margin="0px 40px 0px 0px" fs="20px" color={colors.fontPrimary}>
+              {data.info}
+            </Txt>
+            {!cascade && (
+              <ReadPagination
+                selectedItemColor={colors.secondary}
+                listScrollColor={colors.primary}
+                listBg={colors.background2}
+                max={data.pages}
+                min={1}
+                value={current}
+                color={colors.fontPrimary}
+                listColor={colors.fontPrimary}
+                fs="20px"
+                onChange={(n) => {
+                  dispatch({ type: "setCurrent", payload: n });
+                }}
+              />
+            )}
+          </div>
 
-          <Btn onClick={() => dispatch({ type: "setCascade" })}>
+          <Btn
+            onClick={() => dispatch({ type: "toggleCascade" })}
+            style={{ margin: "10px 0px" }}
+          >
             <CP rot={cascade}>
               <BsChevronBarExpand color={colors.primary} size={30} />
             </CP>
           </Btn>
         </>
       )}
-      {loading ? (
+      {loading || loading2 ? (
         <Loading>
           <SpinnerDotted
             size={100}
@@ -196,20 +395,138 @@ export const Read: React.FC = () => {
             <>
               {cascade && data.imgs && data.imgs.length > 0 ? (
                 data.imgs.map((im, ix) => (
-                  <ReadImg src={im.url} key={ix} alt="img" draggable={false} />
+                  <LazyImage
+                    className="percentage-image"
+                    data={ix + 1}
+                    src={im.url}
+                    key={ix}
+                    alt="img"
+                    imgWidth={imgWidth}
+                    containerStyle={{
+                      position: "relative",
+                      width: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                    loadingContainerStyle={{
+                      width: "100%",
+                      height: "70vh",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                    Loading={() => (
+                      <SpinnerDotted
+                        size={100}
+                        thickness={180}
+                        speed={100}
+                        color={colors.secondary}
+                      />
+                    )}
+                  />
                 ))
               ) : (
-                <ReadImg src={img} alt="img" draggable={false} />
+                <LazyImage
+                  src={img}
+                  alt="img"
+                  imgWidth={imgWidth}
+                  containerStyle={{
+                    position: "relative",
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                  loadingContainerStyle={{
+                    width: "100%",
+                    height: "70vh",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                  Loading={() => (
+                    <SpinnerDotted
+                      size={100}
+                      thickness={180}
+                      speed={100}
+                      color={colors.secondary}
+                    />
+                  )}
+                />
               )}
             </>
           ) : (
             <>
               {cascade && localImgs.length > 0 ? (
                 localImgs.map((im, ix) => (
-                  <ReadImg src={im} key={ix} alt="img" draggable={false} />
+                  <LazyImage
+                    src={im}
+                    className="percentage-image"
+                    data={ix + 1}
+                    key={ix}
+                    alt="img"
+                    imgWidth={imgWidth}
+                    containerStyle={{
+                      position: "relative",
+                      width: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                    loadingContainerStyle={{
+                      width: "100%",
+                      height: "70vh",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                    Loading={() => (
+                      <SpinnerDotted
+                        size={100}
+                        thickness={180}
+                        speed={100}
+                        color={colors.secondary}
+                      />
+                    )}
+                  />
                 ))
               ) : (
-                <ReadImg src={img} alt="img" draggable={false} />
+                <LazyImage
+                  src={img}
+                  alt="img"
+                  imgWidth={imgWidth}
+                  containerStyle={{
+                    position: "relative",
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                  loadingContainerStyle={{
+                    width: "100%",
+                    height: "70vh",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                  Loading={() => (
+                    <SpinnerDotted
+                      size={100}
+                      thickness={180}
+                      speed={100}
+                      color={colors.secondary}
+                    />
+                  )}
+                />
               )}
             </>
           )}

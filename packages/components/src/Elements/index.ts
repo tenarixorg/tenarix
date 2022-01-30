@@ -4,15 +4,18 @@ export const Container = styled.div<{
   bg: string;
   scrollColor: string;
   padding?: string;
+  noScroll?: boolean;
 }>`
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
   background-color: ${(p) => p.bg};
-  overflow-y: scroll;
   height: 100vh;
   padding: ${(p) => p.padding || "0px"};
+  ${(p) =>
+    !p.noScroll
+      ? `overflow-y: scroll;
   scroll-behavior: smooth;
   ::-webkit-scrollbar {
     width: 6px;
@@ -24,13 +27,15 @@ export const Container = styled.div<{
   }
 
   ::-webkit-scrollbar-thumb {
-    background: ${(p) => p.scrollColor};
+    background: ${p.scrollColor};
     border-radius: 30px;
+    height: 50px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: ${(p) => p.scrollColor};
-  }
+    background: ${p.scrollColor};
+  }`
+      : ""};
 `;
 
 export const Txt = styled.p<{
@@ -49,6 +54,29 @@ export const Txt = styled.p<{
   width: fit-content;
 `;
 
+export const Description = styled.p<{
+  pointer?: boolean;
+  fs: string;
+  bold?: boolean;
+  color: string;
+  margin?: string;
+  padding?: string;
+}>`
+  cursor: ${(p) => (p.pointer ? "pointer" : "default")};
+  margin: ${(p) => p.margin || "0px"};
+  font-size: ${(p) => p.fs};
+  font-weight: ${(p) => (p.bold ? "600" : "normal")};
+  color: ${(p) => p.color};
+  overflow: hidden;
+  width: 100%;
+  max-height: 200px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  overflow: hidden;
+`;
+
 export const Grid = styled.div<{ margin?: string; bg?: string }>`
   display: grid;
   grid-gap: 10px;
@@ -58,7 +86,7 @@ export const Grid = styled.div<{ margin?: string; bg?: string }>`
   background-color: ${(p) => p.bg || "transparent"};
   margin: ${(p) => p.margin || "0px"};
   z-index: 2;
-  @media (max-width: 850px) {
+  @media (max-width: 1250px) {
     grid-template-columns: repeat(3, 1fr);
   }
 `;
@@ -87,6 +115,7 @@ export const InfoContainer = styled.div`
   justify-content: flex-start;
   width: 100%;
   padding: 10px;
+  max-height: 450px;
 `;
 
 export const GenderContainer = styled.div`
@@ -100,7 +129,7 @@ export const CardInfo = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: 25%;
+  width: 300px;
 `;
 
 export const Main = styled.div<{ width: string }>`
@@ -124,12 +153,13 @@ export const ChaptersHeader = styled.div<{ bg: string }>`
   top: -1px;
   background-color: ${(p) => p.bg};
   width: 100%;
+  z-index: 10;
 `;
 
 export const Info = styled.div`
   display: flex;
   flex-direction: column;
-  width: 75%;
+  width: calc(100% - 300px);
   padding: 0px 20px;
 `;
 
@@ -191,9 +221,9 @@ export const ReadNav = styled.div`
   z-index: 2;
 `;
 
-export const ReadImg = styled.img`
-  width: 80%;
-  margin-top: 10px;
+export const ReadImg = styled.img<{ width: string }>`
+  width: ${(p) => p.width};
+  transition: width 400ms ease-in-out;
 `;
 
 export const Opts = styled.div`
@@ -385,5 +415,24 @@ export const CustomScroll = styled.div<{ scrollColor: string }>`
 
   ::-webkit-scrollbar-thumb:hover {
     background: ${(p) => p.scrollColor};
+  }
+`;
+
+export const Fav = styled.button`
+  position: absolute;
+  top: 22px;
+  left: calc(100% - 50px);
+  border: none;
+  outline: none;
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  z-index: 12;
+  cursor: pointer;
+  transition: transform 300ms ease-in-out;
+  &:hover {
+    transform: translateY(-2px);
   }
 `;

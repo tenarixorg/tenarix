@@ -1,22 +1,25 @@
-import React, { useCallback, useEffect, useReducer, useRef } from "react";
+import React, { useEffect, useReducer, useRef } from "react";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { BsSortNumericDown, BsSortNumericUpAlt } from "react-icons/bs";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Chapter, Status, GenderBadge, Card } from "components";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
-import { initialState, reducer } from "./helper";
+import { getSource, initialState, reducer } from "./helper";
+import { IoHeartOutline, IoHeartSharp } from "react-icons/io5";
+import { CustomScrollbarsVirtualList } from "./CustomScroll";
 import { useLang, useTheme } from "context-providers";
 import { SpinnerDotted } from "spinners-react";
 import { FixedSizeList } from "react-window";
 import {
   Btn,
   Txt,
+  Fav,
   Main,
   Info,
   Loading,
   CardInfo,
   Container,
-  CustomScroll,
+  Description,
   InfoContainer,
   ChaptersHeader,
   GenderContainer,
@@ -25,42 +28,6 @@ import {
 
 const { api } = window.bridge;
 
-const CustomScrollbars: React.FC<{
-  onScroll?: React.UIEventHandler<HTMLDivElement>;
-  forwardedRef?: any;
-  style?: React.CSSProperties;
-}> = ({ onScroll, forwardedRef, style, children }) => {
-  const { colors } = useTheme();
-
-  const refSetter = useCallback(
-    (scrollbarsRef) => {
-      if (scrollbarsRef) {
-        forwardedRef(scrollbarsRef.view);
-      } else {
-        forwardedRef(null);
-      }
-    },
-    [forwardedRef]
-  );
-
-  return (
-    <CustomScroll
-      ref={refSetter}
-      scrollColor={colors.secondary}
-      style={{
-        ...style,
-      }}
-      onScroll={onScroll}
-    >
-      {children}
-    </CustomScroll>
-  );
-};
-
-const CustomScrollbarsVirtualList = React.forwardRef((props, ref) => (
-  <CustomScrollbars {...props} forwardedRef={ref} />
-));
-
 export const Details: React.FC = () => {
   const mounted = useRef(false);
   const navigation = useNavigate();
@@ -68,10 +35,21 @@ export const Details: React.FC = () => {
   const { colors } = useTheme();
   const { lang } = useLang();
   const { state: URLstate } = useLocation();
-  const [{ show, order, data, loading, fav, downs }, dispatch] = useReducer(
-    reducer,
-    initialState
-  );
+  const [
+    {
+      show,
+      order,
+      data,
+      loading,
+      fav,
+      downs,
+      ids,
+      reverse,
+      percentages,
+      sources,
+    },
+    dispatch,
+  ] = useReducer(reducer, initialState);
 
   useEffect(() => {
     mounted.current = true;
@@ -85,6 +63,15 @@ export const Details: React.FC = () => {
     api.on("res:downloaded", (_e, res) => {
       if (mounted.current) dispatch({ type: "setDowns", payload: res });
     });
+    api.on("res:favorite", (_e, res) => {
+      if (mounted.current) dispatch({ type: "setFav", payload: res });
+    });
+    api.on("res:read:percentage", (_e, res) => {
+      if (mounted.current) dispatch({ type: "setPercentages", payload: res });
+    });
+    api.on("res:current:chapters:sources", (_e, res) => {
+      if (mounted.current) dispatch({ type: "setSources", payload: res });
+    });
     api.send("get:details", {
       route: params.route,
       ext: (URLstate as any)?.ext || "",
@@ -92,9 +79,20 @@ export const Details: React.FC = () => {
     api.send("get:downloaded", {
       ext: (URLstate as any)?.ext || "",
     });
+    api.send("get:read:percentage", {
+      ext: (URLstate as any)?.ext || "",
+      route: params.route,
+    });
+    api.send("get:current:chapters:sources", {
+      ext: (URLstate as any)?.ext || "",
+      route: params.route,
+    });
     return () => {
       api.removeAllListeners("res:details");
       api.removeAllListeners("res:downloaded");
+      api.removeAllListeners("res:favorite");
+      api.removeAllListeners("res:read:percentage");
+      api.removeAllListeners("res:current:chapters:sources");
       mounted.current = false;
     };
   }, [params.route, URLstate]);
@@ -103,7 +101,7 @@ export const Details: React.FC = () => {
     <Container
       bg={colors.background1}
       scrollColor={colors.primary}
-      padding="0px 0px 20px 0px"
+      padding="0px 0px 30px 0px"
     >
       {loading ? (
         <Loading>
@@ -118,27 +116,30 @@ export const Details: React.FC = () => {
         <>
           {data && (
             <InfoContainer>
+              <Fav
+                onClick={() => {
+                  if (!fav) {
+                    api.send("set:favorite", { route: params.route, data });
+                  } else {
+                    api.send("remove:favorite", {
+                      route: params.route,
+                      ext: (URLstate as any)?.ext || "",
+                    });
+                  }
+                }}
+              >
+                {fav ? (
+                  <IoHeartSharp color={"red"} size={30} />
+                ) : (
+                  <IoHeartOutline color={"red"} size={30} />
+                )}
+              </Fav>
               <CardInfo>
                 <Card
                   colors={colors}
                   disabled
                   img={data.img}
                   type={data.type}
-                  score={data.score}
-                  demography={data.demography}
-                  showFav
-                  favorite={fav}
-                  setFavorite={(f) => {
-                    dispatch({ type: "setFav", payload: f });
-                    if (f) {
-                      api.send("set:favorite", { route: params.route, data });
-                    } else {
-                      api.send("remove:favorite", {
-                        route: params.route,
-                        ext: (URLstate as any)?.ext || "",
-                      });
-                    }
-                  }}
                 />
               </CardInfo>
               <Info>
@@ -147,24 +148,24 @@ export const Details: React.FC = () => {
                   fs="35px"
                   bold
                   color={colors.fontPrimary}
-                  style={{ width: "95%" }}
+                  style={{
+                    width: "95%",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                  }}
                 >
                   {data.title}
                 </Txt>
-                <Txt
+                <Description
                   fs="16px"
-                  margin="0px 0px 4px 0px"
+                  margin="20px 0px 10px 0px"
                   color={colors.fontSecondary}
-                  style={{
-                    margin: "20px 0px 10px 0px",
-                    textIndent: 10,
-                    lineHeight: 1.4,
-                  }}
                 >
                   {data.description}
-                </Txt>
+                </Description>
 
-                {data.genders.length > 0 && (
+                {data.genres.length > 0 && (
                   <Txt
                     fs="24px"
                     bold
@@ -176,7 +177,7 @@ export const Details: React.FC = () => {
                   </Txt>
                 )}
                 <GenderContainer>
-                  {data.genders.map((e, i) => (
+                  {data.genres.map((e, i) => (
                     <GenderBadge colors={colors} text={e} key={i + e} />
                   ))}
                 </GenderContainer>
@@ -240,28 +241,88 @@ export const Details: React.FC = () => {
                     {({ index, style }) => (
                       <div style={style}>
                         <Chapter
-                          downloaded={
+                          colors={colors}
+                          chapter={data.chapters[index]}
+                          currentSource={getSource(
+                            sources,
+                            data.chapters[index].title
+                          )}
+                          percentage={(curr) => {
+                            const notFound = {
+                              id: curr,
+                              percetage: 0,
+                            };
+                            const per = percentages.find((u) => u.id === curr);
+                            return per ? per : notFound;
+                          }}
+                          handlePercentage={(per) => {
+                            if (per.percetage < 100) {
+                              api.send("set:read:percentage", {
+                                route: params.route,
+                                ext: (URLstate as any)?.ext || "",
+                                id: per.id,
+                                percentage: 100,
+                                page: -1,
+                              });
+                            } else {
+                              api.send("set:read:percentage", {
+                                route: params.route,
+                                ext: (URLstate as any)?.ext || "",
+                                id: per.id,
+                                percentage: 0,
+                                page: 1,
+                              });
+                            }
+                          }}
+                          handleDownload={(rid) => {
+                            api.on("res:read:init", (_e, res) => {
+                              api.removeAllListeners("res:read:init");
+                              api.send("download", {
+                                rid,
+                                root: params.route,
+                                id: res.id,
+                                imgs: res.imgs,
+                                title: res.title,
+                                pages: res.pages,
+                                info: res.info,
+                                ext: (URLstate as any)?.ext || "",
+                              });
+                            });
+                            api.send("get:read:init", {
+                              id: rid,
+                              ext: (URLstate as any)?.ext || "",
+                            });
+                          }}
+                          downloaded={(curr) =>
                             !!downs.find(
                               (u) =>
-                                u.data.rid ===
-                                  data.chapters[index].links[0].id && u.done
+                                curr !== "" && u.data.rid === curr && u.done
                             )
                           }
-                          downloading={
+                          downloading={(curr) =>
                             !!downs.find(
                               (u) =>
-                                u.data.rid ===
-                                  data.chapters[index].links[0].id &&
+                                curr !== "" &&
+                                u.data.rid === curr &&
                                 u.inProgress
                             )
                           }
-                          colors={colors}
-                          root={params.route || ""}
-                          chapter={data.chapters[index]}
-                          ext={(URLstate as any)?.ext || ""}
-                          handler={(id) => {
+                          onSourceChange={(id_) => {
+                            api.send("set:current:chapter:source", {
+                              ext: (URLstate as any)?.ext,
+                              route: params.route,
+                              chapter: data.chapters[index].title,
+                              current: id_,
+                            });
+                          }}
+                          handleRead={(id) => {
                             navigation(`/read/${params.route}/${id}`, {
-                              state: { ext: (URLstate as any)?.ext || "" },
+                              state: {
+                                ext: (URLstate as any)?.ext || "",
+                                chapters: ids,
+                                reverse,
+                                cascade: false,
+                              },
                             });
                           }}
                         />
