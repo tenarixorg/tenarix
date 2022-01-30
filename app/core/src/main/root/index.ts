@@ -683,13 +683,13 @@ export const handler = (win?: BrowserWindow) => {
     "set:current:chapter:source",
     (e, { ext, route, chapter, current }) => {
       setCurrentSource(ext || currentExtName, route, chapter, current);
-      const res = getCurrentSources(ext, route);
+      const res = getCurrentSources(ext || currentExtName, route);
       e.reply("res:current:chapters:sources", res);
     }
   );
 
   ipcMain.on("get:current:chapters:sources", (e, { ext, route }) => {
-    const res = getCurrentSources(ext, route);
+    const res = getCurrentSources(ext || currentExtName, route);
     e.reply("res:current:chapters:sources", res);
   });
 };
