@@ -14,9 +14,7 @@ describe("Library", () => {
     expect(res.items[0].title).toBeDefined();
     expect(res.items[0].img).toBeDefined();
     expect(res.items[0].type).toBeDefined();
-    expect(res.items[0].score).toBeDefined();
     expect(res.items[0].route).toBeDefined();
-    expect(res.items[0].demography).toBeDefined();
     expect(res.items[0].title.length).toBeGreaterThan(0);
     expect(res.items[0].img.length).toBeGreaterThan(0);
     expect(res.items[0].route.length).toBeGreaterThan(0);

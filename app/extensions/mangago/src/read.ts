@@ -19,7 +19,6 @@ export const _read = (content: GetContent, parser: Parser) => {
     $("body #pic_container img[id^=page]").each((i, el) => {
       const url = $(el).attr("src")?.trim() || "";
       imgs.push({
-        free: true,
         page: i + 1,
         url,
       });

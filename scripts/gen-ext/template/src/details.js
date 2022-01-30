@@ -7,14 +7,11 @@ export const _details = (content: GetContent, parser: Parser) => {
 
     return {
       title: "",
-      subtitle: "",
       description: "",
       status: "",
       img: "",
       type: "",
-      score: "",
-      demography: "",
-      genders: [],
+      genres: [],
       chapters: [],
     };
   };

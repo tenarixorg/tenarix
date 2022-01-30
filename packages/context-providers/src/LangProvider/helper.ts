@@ -27,6 +27,7 @@ export const baseLang: Language = {
       language: {
         content: {
           head_text: "",
+          sub_text: "",
         },
         option_text: "",
       },

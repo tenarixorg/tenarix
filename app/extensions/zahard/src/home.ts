@@ -1,11 +1,11 @@
-import { Home, GetContent, Parser, HomeBase } from "types";
+import { Home, GetContent, Parser, PageBase } from "types";
 import { encodeRoute } from "utils";
 
 export const _home = (content: GetContent, parser: Parser) => {
   return async (): Promise<Home> => {
     const { innerHTML } = await content("https://zahard.xyz/manga-list");
     const $ = parser(innerHTML);
-    const popular: HomeBase[] = [];
+    const popular: PageBase[] = [];
     $(
       "body .container-fluid .row:nth-child(3) .col-sm-8 .col-sm-12 .type-content .row .content .media"
     ).each((_i, el) => {
@@ -18,11 +18,8 @@ export const _home = (content: GetContent, parser: Parser) => {
         title,
         route: encodeRoute(route),
         type: "Manga",
-        score: "",
-        demography: "",
       });
     });
-
     return {
       popular,
     };

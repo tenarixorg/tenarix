@@ -1,12 +1,11 @@
-import { Home, GetContent, Parser, HomeBase } from "types";
+import { Home, GetContent, Parser, PageBase } from "types";
 import { encodeRoute } from "utils";
 
 export const _home = (content: GetContent, parser: Parser) => {
   return async (): Promise<Home> => {
     const { innerHTML } = await content("https://www.readmng.com/hot-manga");
     const $ = parser(innerHTML);
-    const popular: HomeBase[] = [];
-
+    const popular: PageBase[] = [];
     $(".content .container .col-left .row .content-list .style-list .box").each(
       (_i, el) => {
         const title = $(el).find(".title h2 a").text().trim();
@@ -22,9 +21,7 @@ export const _home = (content: GetContent, parser: Parser) => {
         popular.push({
           img,
           title,
-          score: "",
-          type: "",
-          demography: "",
+          type: "Manga",
           route: encodeRoute(route),
         });
       }

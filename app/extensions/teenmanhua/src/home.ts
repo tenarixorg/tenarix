@@ -1,4 +1,4 @@
-import { Home, GetContent, Parser, HomeBase } from "types";
+import { Home, GetContent, Parser, PageBase } from "types";
 import axios from "axios";
 import { encodeRoute } from "utils";
 
@@ -24,7 +24,7 @@ export const _home = (_content: GetContent, parser: Parser) => {
       }
     );
     const $ = parser(res.data);
-    const popular: HomeBase[] = [];
+    const popular: PageBase[] = [];
     $(".c-tabs-item__content").each((_i, el) => {
       const base1 = $(el).find(".col-4 a");
       const img = base1.find("img").attr("src")?.trim() || "";
@@ -35,8 +35,6 @@ export const _home = (_content: GetContent, parser: Parser) => {
         title,
         route: encodeRoute(route),
         type: "Manga",
-        demography: "",
-        score: "",
       });
     });
     return {

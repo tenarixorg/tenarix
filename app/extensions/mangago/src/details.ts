@@ -6,7 +6,7 @@ export const _details = (content: GetContent, parser: Parser) => {
     const url = "https://www.mangago.me/" + decodeRoute(route);
     const { innerHTML } = await content(url);
     const $ = parser(innerHTML);
-    const genders: string[] = [];
+    const genres: string[] = [];
     const chapters: Chapter[] = [];
     const base = $("#page .people-panel");
     const title = base.find(".w-title h1").text().trim();
@@ -20,7 +20,7 @@ export const _details = (content: GetContent, parser: Parser) => {
       .trim();
     $(".manga_right table.left tr:nth-child(3) td a").each((_i, el) => {
       const gender = $(el).text().trim();
-      genders.push(gender);
+      genres.push(gender);
     });
     base1.find("#chapter_table tr").each((_i, el) => {
       const base_ = $(el).find("td:first-child h4 a");
@@ -42,11 +42,8 @@ export const _details = (content: GetContent, parser: Parser) => {
       status,
       type: "Manga",
       description,
-      genders,
+      genres,
       chapters,
-      score: "",
-      demography: "",
-      subtitle: "",
     };
   };
 };

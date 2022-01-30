@@ -1,11 +1,11 @@
-import { HomeBase, Home, GetContent, Parser } from "types";
+import { PageBase, Home, GetContent, Parser } from "types";
 import { encodeRoute } from "utils";
 
 export const _home =
   (content: GetContent, parser: Parser) => async (): Promise<Home> => {
     const { innerHTML } = await content("https://lectortmo.com/populars");
     const $ = parser(innerHTML);
-    const popular: HomeBase[] = [];
+    const popular: PageBase[] = [];
     $("main .element a").each((_, e) => {
       const route = $(e).attr("href")?.trim().split("/library/")[1] || "";
       const title = $(e).find(".thumbnail-title h4").text().trim();
@@ -13,15 +13,11 @@ export const _home =
         .split("('")[1]
         .split("')")[0]
         .trim();
-      const score = $(e).find(".score").text().trim();
       const type = $(e).find(".book-type").text().trim();
-      const demography = $(e).find(".demography").text().trim();
       popular.push({
         img,
         title,
-        score,
         type,
-        demography,
         route: encodeRoute(route),
       });
     });

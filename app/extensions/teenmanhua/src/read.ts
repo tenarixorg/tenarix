@@ -20,7 +20,6 @@ export const _read = (content: GetContent, parser: Parser) => {
       const url = $(el).attr("src")?.trim() || "";
       imgs.push({
         url,
-        free: true,
         page: i + 1,
       });
     });

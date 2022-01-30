@@ -3,8 +3,6 @@ import { decodeRoute } from "utils";
 
 export const _read = (content: GetContent, parser: Parser) => {
   return async (id: string): Promise<Read> => {
-    console.log(id);
-
     const url = "https://zahard.xyz/" + decodeRoute(id);
     const { innerHTML } = await content(url, {
       scripts: true,
@@ -35,7 +33,6 @@ export const _read = (content: GetContent, parser: Parser) => {
         imgs.push({
           page: i + 1,
           url,
-          free: true,
         });
       }
     );

@@ -3,12 +3,10 @@ import { decodeRoute, encodeRoute } from "utils";
 
 export const _details = (content: GetContent, parser: Parser) => {
   return async (route: string): Promise<Details> => {
-    console.log(route);
-
     const url = "https://zahard.xyz/" + decodeRoute(route);
     const { innerHTML } = await content(url);
     const $ = parser(innerHTML);
-    const genders: string[] = [];
+    const genres: string[] = [];
     const chapters: Chapter[] = [];
     const base = $("body .container-fluid .row:nth-of-type(2) .col-sm-12");
     const base1 = base.find(".row:first-of-type");
@@ -21,8 +19,8 @@ export const _details = (content: GetContent, parser: Parser) => {
       .text()
       .trim();
     base2.find("dd a[href*=category]").each((_i, el) => {
-      const gender = $(el).text().trim();
-      genders.push(gender);
+      const genre = $(el).text().trim();
+      genres.push(genre);
     });
     base
       .find(".row:nth-of-type(4) .col-lg-12 ul.chapters li h5 a")
@@ -45,11 +43,8 @@ export const _details = (content: GetContent, parser: Parser) => {
       status,
       type: "Manga",
       description,
-      genders,
+      genres,
       chapters,
-      score: "",
-      subtitle: "",
-      demography: "",
     };
   };
 };

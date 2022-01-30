@@ -16,11 +16,11 @@ export const _details = (content: GetContent, parser: Parser) => {
       .find(".row .col-8 p[itemprop=description]")
       .text()
       .trim();
-    const genders: string[] = [];
+    const genres: string[] = [];
     const chapters: Chapter[] = [];
     base.find(".row .col-12 table td a").each((_i, el) => {
-      const gender = $(el).find("span").text().trim();
-      genders.push(gender);
+      const genre = $(el).find("span").text().trim();
+      genres.push(genre);
     });
     $("#chaptersTable a").each((_i, el) => {
       const ctitle = $(el).text().trim();
@@ -32,14 +32,11 @@ export const _details = (content: GetContent, parser: Parser) => {
     });
     return {
       title,
-      subtitle: "",
       description,
       status,
       img,
       type: "",
-      score: "",
-      demography: "",
-      genders,
+      genres,
       chapters: chapters.reverse(),
     };
   };

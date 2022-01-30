@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Filters, GetContent, LibItem, Library, Parser } from "types";
+import { Filters, GetContent, PageBase, Library, Parser } from "types";
 import { encodeRoute } from "utils";
 
 axios.defaults.adapter = require("axios/lib/adapters/http");
@@ -11,7 +11,7 @@ const libraryParams = (_page: string, filters?: Filters) => {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const _library = (_content: GetContent, _parser: Parser) => {
   return async (page: string, filters?: Filters): Promise<Library> => {
-    const items: LibItem[] = [];
+    const items: PageBase[] = [];
     const res_ = await axios.get<{
       suggestions: { value: string; data: string }[];
     }>(libraryParams(page, filters));
@@ -25,8 +25,6 @@ export const _library = (_content: GetContent, _parser: Parser) => {
         title,
         type: "Manga",
         route: encodeRoute(route),
-        score: "",
-        demography: "",
       });
     }
     return {

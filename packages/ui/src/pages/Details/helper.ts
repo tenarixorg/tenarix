@@ -59,13 +59,10 @@ export const reducer = (
 export const initialState: DetailsState = {
   data: {
     chapters: [],
-    demography: "",
     description: "",
-    genders: [],
+    genres: [],
     img: "",
-    score: "",
     status: "",
-    subtitle: "",
     title: "",
     type: "",
   },
