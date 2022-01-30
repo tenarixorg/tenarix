@@ -165,7 +165,7 @@ export const Details: React.FC = () => {
                   {data.description}
                 </Description>
 
-                {data.genders.length > 0 && (
+                {data.genres.length > 0 && (
                   <Txt
                     fs="24px"
                     bold
@@ -177,7 +177,7 @@ export const Details: React.FC = () => {
                   </Txt>
                 )}
                 <GenderContainer>
-                  {data.genders.map((e, i) => (
+                  {data.genres.map((e, i) => (
                     <GenderBadge colors={colors} text={e} key={i + e} />
                   ))}
                 </GenderContainer>

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Filters, GetContent, LibItem, Library, Parser } from "types";
+import { Filters, GetContent, PageBase, Library, Parser } from "types";
 import { encodeRoute } from "utils";
 
 axios.defaults.adapter = require("axios/lib/adapters/http");
@@ -29,7 +29,7 @@ export const _library = (_content: GetContent, parser: Parser) => {
 
     const $ = parser(res_.data);
 
-    const items: LibItem[] = [];
+    const items: PageBase[] = [];
     $("a.manga-result").each((_, el) => {
       const route = $(el).attr("href")?.trim() || "";
       const title = $(el).find(".list-group h4.ellipsed-text").text().trim();
@@ -43,9 +43,7 @@ export const _library = (_content: GetContent, parser: Parser) => {
         route: encodeRoute(route),
         img,
         title,
-        score: "",
         type: type.substring(0, type.length - 2),
-        demography: "",
       });
     });
     return {

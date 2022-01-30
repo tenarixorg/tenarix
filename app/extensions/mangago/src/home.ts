@@ -1,4 +1,4 @@
-import { Home, GetContent, Parser, HomeBase } from "types";
+import { Home, GetContent, Parser, PageBase } from "types";
 import { encodeRoute } from "utils";
 
 export const _home = (content: GetContent, parser: Parser) => {
@@ -7,7 +7,7 @@ export const _home = (content: GetContent, parser: Parser) => {
       "https://www.mangago.me/list/new/all/1/"
     );
     const $ = parser(innerHTML);
-    const popular: HomeBase[] = [];
+    const popular: PageBase[] = [];
     $("body #page .left #search_list li").each((_i, el) => {
       const img = $(el).find(".left a img").attr("src")?.trim() || "";
       const base_ = $(el).find(".left .row-1 span.tit h2 a");
@@ -18,8 +18,6 @@ export const _home = (content: GetContent, parser: Parser) => {
         img,
         type: "Manga",
         route: encodeRoute(route),
-        demography: "",
-        score: "",
       });
     });
     return {

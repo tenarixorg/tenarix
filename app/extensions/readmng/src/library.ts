@@ -1,4 +1,4 @@
-import { Filters, GetContent, LibItem, Library, Parser } from "types";
+import { Filters, GetContent, PageBase, Library, Parser } from "types";
 import axios from "axios";
 import { encodeRoute } from "utils";
 
@@ -23,18 +23,13 @@ export const _library = (_content: GetContent, parser: Parser) => {
         },
       }
     );
-
     const $ = parser(res.data);
-
-    const items: LibItem[] = [];
-
+    const items: PageBase[] = [];
     $(".style-list .box").each((_i, el) => {
       const base = $(el).find(".title h2 a");
       const title = base.text().trim();
       const route = base.attr("href")?.trim().split(".com")[1] || "";
-
       const base2 = $(el).find(".body");
-
       const img =
         base2
           .find(".left a img")
@@ -43,15 +38,12 @@ export const _library = (_content: GetContent, parser: Parser) => {
           .split("thumb/")
           .join("") || "";
       items.push({
-        demography: "",
         img,
         route: encodeRoute(route),
-        score: "",
         title,
-        type: "",
+        type: "Manga",
       });
     });
-
     return {
       items,
     };

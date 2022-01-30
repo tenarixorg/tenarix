@@ -7,7 +7,7 @@ export const _details = (content: GetContent, parser: Parser) => {
     const { innerHTML } = await content(url);
     const $ = parser(innerHTML);
     const chapters: Chapter[] = [];
-    const genders: string[] = [];
+    const genres: string[] = [];
     const img =
       $("#app .row .container .col-12 img.img-fluid").attr("src")?.trim() || "";
     const title = $("#app .row .container .col-12 h1.text-dark").text().trim();
@@ -20,10 +20,9 @@ export const _details = (content: GetContent, parser: Parser) => {
       .text()
       .trim();
     $("#app .row .container .col-12 a.badge").each((_i, el) => {
-      const gender = $(el).text().trim();
-      genders.push(gender);
+      const genre = $(el).text().trim();
+      genres.push(genre);
     });
-
     const ctitles: string[] = [];
     $("#app .row .col-12 #chapters .row .col-10 h4").each((_i, el) => {
       const ctitle = $(el).text().trim();
@@ -50,21 +49,16 @@ export const _details = (content: GetContent, parser: Parser) => {
         });
       clinks.push(links_);
     });
-
     for (let i = 0; i < ctitles.length; i++) {
       chapters.push({ title: ctitles[i], links: clinks[i] });
     }
-
     return {
       title,
-      subtitle: "",
       description,
       status,
       img,
       type,
-      score: "",
-      demography: "",
-      genders,
+      genres,
       chapters,
     };
   };

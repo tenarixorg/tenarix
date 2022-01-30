@@ -1,4 +1,4 @@
-import { Filters, GetContent, LibItem, Library, Parser } from "types";
+import { Filters, GetContent, PageBase, Library, Parser } from "types";
 import { encodeRoute } from "utils";
 
 const libraryParams = (page: string, filters?: Filters) => {
@@ -9,8 +9,7 @@ export const _library = (content: GetContent, parser: Parser) => {
   return async (page: string, filters?: Filters): Promise<Library> => {
     const { innerHTML } = await content(libraryParams(page, filters));
     const $ = parser(innerHTML);
-    const items: LibItem[] = [];
-
+    const items: PageBase[] = [];
     $(
       ".container-fluid .row .container .row .novel-grid .row:nth-of-type(2) .novel-item .novel-wrap"
     ).each((_i, el) => {
@@ -24,11 +23,8 @@ export const _library = (content: GetContent, parser: Parser) => {
         title,
         type: "Manga",
         route: encodeRoute(route),
-        score: "",
-        demography: "",
       });
     });
-
     return {
       items,
     };

@@ -7,7 +7,7 @@ export const _details = (content: GetContent, parser: Parser) => {
     const { innerHTML } = await content(url);
     const $ = parser(innerHTML);
     const chapters: Chapter[] = [];
-    const genders: string[] = [];
+    const genres: string[] = [];
     const base = $(".container-fluid .row .container .row");
     const base1 = base.find(
       ".col-12:nth-of-type(3) .novel-info .col-12 .row:first-of-type "
@@ -25,7 +25,7 @@ export const _details = (content: GetContent, parser: Parser) => {
       .trim();
     base2.find(".novel-categories a span").each((_i, el) => {
       const gender = $(el).text().trim();
-      genders.push(gender);
+      genres.push(gender);
     });
     const base3 = base.find(
       ".col-12:nth-of-type(4) .tab-content .tab-pane .chapter-list-item .row"
@@ -53,11 +53,8 @@ export const _details = (content: GetContent, parser: Parser) => {
       description,
       status,
       type: "Manga",
-      genders,
+      genres,
       chapters,
-      score: "",
-      subtitle: "",
-      demography: "",
     };
   };
 };

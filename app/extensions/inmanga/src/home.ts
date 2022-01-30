@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Home, GetContent, Parser, HomeBase } from "types";
+import { Home, GetContent, Parser, PageBase } from "types";
 import { encodeRoute } from "utils";
 
 axios.defaults.adapter = require("axios/lib/adapters/http");
@@ -7,7 +7,7 @@ axios.defaults.adapter = require("axios/lib/adapters/http");
 export const _home = (_content: GetContent, parser: Parser) => {
   return async (): Promise<Home> => {
     const baseUrl = "https://inmanga.com";
-    const popular: HomeBase[] = [];
+    const popular: PageBase[] = [];
 
     const res_ = await axios.post(
       baseUrl + "/manga/getMangasConsultResult",
@@ -38,9 +38,7 @@ export const _home = (_content: GetContent, parser: Parser) => {
         route: encodeRoute(route),
         img,
         title,
-        score: "",
         type: type.substring(0, type.length - 2),
-        demography: "",
       });
     });
     return {

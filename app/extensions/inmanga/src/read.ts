@@ -25,7 +25,6 @@ export const _read = (content: GetContent, parser: Parser) => {
       const _id = $(el).attr("id");
       const url = img_base + `${title_}/chapter/${cap}/page/${i + 1}/${_id}`;
       imgs.push({
-        free: true,
         page: i + 1,
         url,
       });

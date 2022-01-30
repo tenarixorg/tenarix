@@ -14,6 +14,7 @@ export const _details = (content: GetContent, parser: Parser) => {
     });
     const $ = parser(innerHTML);
     const chapters: Chapter[] = [];
+    const genres: string[] = [];
     const img =
       baseUrl +
       "/thumbnails" +
@@ -21,6 +22,10 @@ export const _details = (content: GetContent, parser: Parser) => {
     const title = $(".panel-heading h1").text().trim();
     const description = $(".panel-body").text().trim();
     const status = $(".list-group a span").first().text().trim();
+    $(".panel-heading span").each((_i, el) => {
+      const genre = $(el).text().trim();
+      genres.push(genre);
+    });
     $("#ChaptersContainer a").each((_, el) => {
       if ($(el).attr("id") !== "noSearchResultElement") {
         const title = $(el)
@@ -38,14 +43,11 @@ export const _details = (content: GetContent, parser: Parser) => {
     });
     return {
       title,
-      subtitle: title,
       description,
       status,
       img,
       type: "Manga",
-      score: "",
-      demography: "",
-      genders: [],
+      genres,
       chapters,
     };
   };

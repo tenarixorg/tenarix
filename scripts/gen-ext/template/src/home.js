@@ -8,9 +8,7 @@ export const _home = (content: GetContent, parser: Parser) => {
         {
           img: "",
           title: "",
-          score: "",
           type: "",
-          demography: "",
           route: "",
         },
       ],

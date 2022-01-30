@@ -1,12 +1,11 @@
-import { Home, GetContent, Parser, HomeBase } from "types";
+import { Home, GetContent, Parser, PageBase } from "types";
 import { encodeRoute } from "utils";
 
 export const _home = (content: GetContent, parser: Parser) => {
   return async (): Promise<Home> => {
     const { innerHTML } = await content("https://manga1s.com/search?q=");
     const $ = parser(innerHTML);
-    const popular: HomeBase[] = [];
-
+    const popular: PageBase[] = [];
     $(
       ".container-fluid .row .container .row .novel-grid .row:nth-of-type(2) .novel-item .novel-wrap"
     ).each((_i, el) => {
@@ -20,11 +19,8 @@ export const _home = (content: GetContent, parser: Parser) => {
         title,
         type: "Manga",
         route: encodeRoute(route),
-        score: "",
-        demography: "",
       });
     });
-
     return {
       popular,
     };

@@ -6,7 +6,7 @@ export const _details = (content: GetContent, parser: Parser) => {
     const url = "https://teenmanhua.com/" + decodeRoute(route);
     const { innerHTML } = await content(url);
     const $ = parser(innerHTML);
-    const genders: string[] = [];
+    const genres: string[] = [];
     const chapters: Chapter[] = [];
     const base = $("body .wrap .body-wrap .site-content");
     const base1 = base.find(".profile-manga .container .row .col-12");
@@ -27,7 +27,7 @@ export const _details = (content: GetContent, parser: Parser) => {
       .trim();
     base2.find(".post-content .genres-content a").each((_i, el) => {
       const gender = $(el).text().trim();
-      genders.push(gender);
+      genres.push(gender);
     });
     base3
       .find(".page-content-listing .listing-chapters_wrap ul li")
@@ -51,11 +51,8 @@ export const _details = (content: GetContent, parser: Parser) => {
       status,
       description,
       type: "Manga",
-      genders,
+      genres,
       chapters,
-      score: "",
-      subtitle: "",
-      demography: "",
     };
   };
 };

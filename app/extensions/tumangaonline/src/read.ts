@@ -27,14 +27,11 @@ function load(parser: Parser, innerHTML: string) {
     .replace(/\n/g, " ");
   const imgs = $("img");
   const pages = imgs.length;
-
   const urls: Read["imgs"] = [];
-
   imgs.each((i, el) => {
     const url = $(el).attr("data-src") || "";
-    urls.push({ url, page: i + 1, free: false });
+    urls.push({ url, page: i + 1 });
   });
-
   return {
     id: id_,
     title,

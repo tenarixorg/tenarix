@@ -8,7 +8,7 @@ const lang: Language = {
   },
   details: {
     chapters: "Chapters",
-    genders: "Genders",
+    genders: "Genres",
     status: "Status",
   },
   library: {

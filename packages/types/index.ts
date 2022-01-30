@@ -6,6 +6,13 @@ export interface ChapterInfo {
   id: string;
 }
 
+export interface PageBase {
+  img: string;
+  title: string;
+  type: string;
+  route: string;
+}
+
 export interface Chapter {
   title: string;
   links: ChapterInfo[];
@@ -13,41 +20,20 @@ export interface Chapter {
 
 export interface Details {
   title: string;
-  subtitle: string;
   description: string;
   status: string;
   img: string;
   type: string;
-  score: string;
-  demography: string;
-  genders: string[];
+  genres: string[];
   chapters: Chapter[];
 }
 
-export interface LibItem {
-  img: string;
-  title: string;
-  score: string;
-  type: string;
-  demography: string;
-  route: string;
-}
-
 export interface Library {
-  items: LibItem[];
+  items: PageBase[];
 }
 
 export interface Filters {
   title?: string;
-  filterBy?: string;
-  type?: string;
-  demography?: string;
-  status?: string;
-  translationStatus?: string;
-  webcomic?: string;
-  yonkoma?: string;
-  amateur?: string;
-  erotic?: string;
 }
 
 export interface Page {
@@ -57,7 +43,6 @@ export interface Page {
 interface Img {
   url: string;
   page: number;
-  free: boolean;
 }
 
 export interface Read {
@@ -68,25 +53,8 @@ export interface Read {
   imgs: Img[];
 }
 
-export interface HomeBase {
-  img: string;
-  title: string;
-  score: string;
-  type: string;
-  demography: string;
-  route: string;
-}
-
-export interface HomeBase2 {
-  img: string;
-  title: string;
-  type: string;
-  route: string;
-  chapter: string;
-}
-
 export interface Home {
-  popular: HomeBase[];
+  popular: PageBase[];
 }
 
 export interface AppContent {
@@ -374,8 +342,16 @@ export interface AppearanceState {
   newColors: BaseTheme;
 }
 
+export interface DownloadItem {
+  title: string;
+  info: string;
+  pages: number;
+  id: string;
+  rid: string;
+}
+
 export interface DownloadStore {
-  data: { title: string; info: string; pages: number; id: string; rid: string };
+  data: DownloadItem;
   done: boolean;
   inProgress: boolean;
 }
