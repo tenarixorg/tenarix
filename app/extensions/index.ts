@@ -8,6 +8,7 @@ import readmng from "./readmng";
 import mangago from "./mangago";
 import teenmanhua from "./teenmanhua";
 import zahard from "./zahard";
+import manga1s from "./manga1s";
 
 export const extensions: Extension[] = [
   tumangaonline,
@@ -19,4 +20,5 @@ export const extensions: Extension[] = [
   mangago,
   teenmanhua,
   zahard,
+  manga1s,
 ];
