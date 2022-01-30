@@ -39,7 +39,7 @@ export const Extensions: React.FC = () => {
     <Container
       bg={colors.background1}
       scrollColor={colors.primary}
-      padding="0px 34px"
+      padding="0px 34px 40px 34px"
     >
       {loading ? (
         <Loading>
