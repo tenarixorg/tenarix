@@ -1,6 +1,6 @@
 {
   "name": "tenarix",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "description": "Destop manga reader alternative.",
   "main": "dist/main/index.cjs",
   "private": true,
