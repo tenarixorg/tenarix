@@ -2,3 +2,4 @@
 * text=auto
 *.* text eol=lf
 *.* conflict-marker-size=10
+*.png binary
