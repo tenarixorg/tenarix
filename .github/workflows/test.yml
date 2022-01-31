@@ -2,7 +2,7 @@ name: Test
 
 on:
   pull_request:
-    branches: [main, preview]
+    branches: [main]
 concurrency:
   group: ci-${{ github.head_ref }}
   cancel-in-progress: true
@@ -10,6 +10,9 @@ concurrency:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
+
+    environment: DEV
+
     strategy:
       matrix:
         node: [16.x]

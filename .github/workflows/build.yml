@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [main, preview]
+    branches: [main]
 
 concurrency:
   group: ci-${{ github.head_ref }}
@@ -12,6 +12,9 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
 
+    environment: PROD
+    needs: DEV
+
     strategy:
       matrix:
         node: [16.x]
@@ -19,9 +22,9 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
       USE_HARD_LINKS: false
-    
+
     name: Build - ${{ matrix.os }}
-    
+
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node }}
