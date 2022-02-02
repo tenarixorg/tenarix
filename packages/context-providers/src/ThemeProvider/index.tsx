@@ -1,13 +1,13 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { BaseTheme } from "types";
-import { theme } from "./helper";
+import { initialTheme } from "app-constants";
 
-const themeContext = createContext<BaseTheme>(theme.dark);
+const themeContext = createContext<BaseTheme>(initialTheme.dark);
 
 const { api } = window.bridge;
 
 export const ThemeProvider: React.FC = ({ children }) => {
-  const [colors, setColors] = useState<BaseTheme>(theme.dark);
+  const [colors, setColors] = useState<BaseTheme>(initialTheme.dark);
 
   useEffect(() => {
     api.on("change:theme", (_e, res) => {
@@ -28,5 +28,3 @@ export const useTheme = () => {
   const colors = useContext(themeContext);
   return { colors };
 };
-
-export * from "./helper";

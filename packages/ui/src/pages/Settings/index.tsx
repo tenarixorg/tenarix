@@ -22,17 +22,16 @@ export const Settings: React.FC = () => {
   const navigation = useNavigate();
   const { colors } = useTheme();
   const { lang } = useLang();
-  const [prevUrl, setPrevUrl] = useState("");
-  const [chsource, setChsource] = useState({ c: "", n: "" });
+  const [lastRoute, setLastRoute] = useState("");
 
   useEffect(() => {
     mounted.current = true;
-    api.on("res:change:source", (_e, res) => {
-      if (mounted.current) setChsource(res);
+    api.on("res:last:route", (_e, res) => {
+      if (mounted.current) setLastRoute(res);
     });
-    setPrevUrl(window.history.state.prev);
+    api.send("get:last:route");
     return () => {
-      api.removeAllListeners("res:change:source");
+      api.removeAllListeners("res:last:route");
       mounted.current = false;
     };
   }, []);
@@ -99,11 +98,7 @@ export const Settings: React.FC = () => {
           bg="transparent"
           margin="0px 0px 0px 10px"
           onClick={() => {
-            if (chsource.c !== chsource.n) {
-              window.location.href = "#/";
-            } else {
-              window.location.href = prevUrl;
-            }
+            navigation(lastRoute);
           }}
         >
           <RiCloseLine size={25} color={colors.buttons.color} />

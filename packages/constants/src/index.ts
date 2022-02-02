@@ -1,4 +1,6 @@
-export const theme = {
+import { Theme } from "types";
+
+export const initialTheme: Theme = {
   dark: {
     primary: "#2076ee",
     secondary: "#e81c6f",
@@ -44,3 +46,34 @@ export const theme = {
     },
   },
 };
+
+export const initialFolders = (slang: string, currentThemeSchema: string) => [
+  { name: ".dreader" },
+  {
+    name: "themes",
+    files: [
+      { name: "basic.json", content: JSON.stringify(initialTheme, null, "\t") },
+    ],
+  },
+  {
+    name: "config",
+    files: [
+      {
+        name: "settings.json",
+        content: JSON.stringify(
+          {
+            app: {
+              lang: slang,
+              theme: {
+                schema: currentThemeSchema,
+                file: "basic.json",
+              },
+            },
+          },
+          null,
+          "\t"
+        ),
+      },
+    ],
+  },
+];

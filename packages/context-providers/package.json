@@ -5,6 +5,7 @@
   "types": "src/index.tsx",
   "dependencies": {
     "config": "*",
+    "app-constants": "*",
     "react": "^17.0.2"
   },
   "devDependencies": {
