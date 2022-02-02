@@ -90,11 +90,9 @@ export const Main: React.FC = () => {
             setClosed((c) => !c);
           }}
           settings={() => {
-            window.history.pushState(
-              { prev: window.location.href },
-              "",
-              "#/settings/appearance"
-            );
+            api.send("set:last:route", {
+              route: window.location.href.split("#")[1] || "/",
+            });
             window.location.href = "#/settings/appearance";
             setClosed((c) => !c);
           }}

@@ -4,11 +4,11 @@ import baseExt from "./extension";
 import Ajv from "ajv";
 import { ipcMain, BrowserWindow, app, nativeTheme, session } from "electron";
 import { matchSystemLang, getAllExt, format_ext } from "utils";
-import { resolve } from "path";
-import { getHash } from "workers";
-import { theme } from "context-providers";
 import { settingsSchema, themeSchema } from "schemas";
 import { SettingsStore, Theme } from "types";
+import { resolve } from "path";
+import { getHash } from "workers";
+import { initialFolders, initialTheme } from "app-constants";
 import {
   getCache,
   setCache,
@@ -42,11 +42,12 @@ import {
 
 export const handler = (win?: BrowserWindow) => {
   let currentExtName = "inmanga";
+  let lastRoute = "/";
   const slang = matchSystemLang(Object.keys(lang), app.getLocale(), "en");
   let currentLangId = slang;
   let currentExt = baseExt[currentExtName];
   let currentLang = lang[currentLangId];
-  let customTheme = { ...theme };
+  let customTheme = { ...initialTheme };
   let currentThemeSchema: "dark" | "light" = nativeTheme.shouldUseDarkColors
     ? "dark"
     : "light";
@@ -69,36 +70,7 @@ export const handler = (win?: BrowserWindow) => {
   win?.on("ready-to-show", async () => {
     win?.show();
     const basePath = resolve(app.getPath("home") + "/.tenarix");
-    await initFolders(basePath, [
-      { name: ".dreader" },
-      {
-        name: "themes",
-        files: [
-          { name: "basic.json", content: JSON.stringify(theme, null, "\t") },
-        ],
-      },
-      {
-        name: "config",
-        files: [
-          {
-            name: "settings.json",
-            content: JSON.stringify(
-              {
-                app: {
-                  lang: slang,
-                  theme: {
-                    schema: currentThemeSchema,
-                    file: "basic.json",
-                  },
-                },
-              },
-              null,
-              "\t"
-            ),
-          },
-        ],
-      },
-    ]);
+    await initFolders(basePath, initialFolders(slang, currentThemeSchema));
   });
 
   session.defaultSession.webRequest.onBeforeSendHeaders(filter, (det, cb) => {
@@ -160,7 +132,7 @@ export const handler = (win?: BrowserWindow) => {
       customTheme = theme_;
       e.reply("change:theme", customTheme[schema]);
     } catch (error) {
-      e.reply("change:theme", theme[schema]);
+      e.reply("change:theme", initialTheme[schema]);
     }
   });
 
@@ -197,7 +169,7 @@ export const handler = (win?: BrowserWindow) => {
       customTheme = theme_;
       e.reply("change:theme", customTheme[currentThemeSchema]);
     } catch (error) {
-      e.reply("change:theme", theme[currentThemeSchema]);
+      e.reply("change:theme", initialTheme[currentThemeSchema]);
     }
     e.reply("res:theme:schema", {
       schema,
@@ -390,11 +362,9 @@ export const handler = (win?: BrowserWindow) => {
 
   /** App extension source */
 
-  ipcMain.on("change:source", (e, { source }) => {
-    const c = currentExtName;
+  ipcMain.on("change:source", (_e, { source }) => {
     currentExt = baseExt[source];
     currentExtName = source;
-    e.reply("res:change:source", { c, n: source });
   });
 
   /** App downloads */
@@ -691,5 +661,15 @@ export const handler = (win?: BrowserWindow) => {
   ipcMain.on("get:current:chapters:sources", (e, { ext, route }) => {
     const res = getCurrentSources(ext || currentExtName, route);
     e.reply("res:current:chapters:sources", res);
+  });
+
+  /* App routes */
+
+  ipcMain.on("set:last:route", (_e, { route }) => {
+    lastRoute = route;
+  });
+
+  ipcMain.on("get:last:route", (e) => {
+    e.reply("res:last:route", lastRoute);
   });
 };

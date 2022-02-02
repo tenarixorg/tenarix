@@ -45,6 +45,7 @@
     "ui": "*",
     "utils": "*",
     "schemas": "*",
+    "app-constants": "*",
     "workers": "*"
   },
   "devDependencies": {
