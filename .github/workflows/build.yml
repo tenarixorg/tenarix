@@ -13,7 +13,6 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     environment: PROD
-    needs: DEV
 
     strategy:
       matrix:
