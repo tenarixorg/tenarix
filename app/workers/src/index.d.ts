@@ -1,19 +1,10 @@
 import { Parser, GetContent, Folder } from "types";
-import { Readable } from "stream";
 
 declare const content: GetContent;
 
 declare const parser: Parser;
 
 declare const getHash: (data: string) => Promise<string>;
-
-declare const decrypt: (password: string, inputPath: string) => Buffer;
-
-declare const encrypt: (
-  password: string,
-  outputPath: string,
-  input: Readable
-) => Promise<boolean>;
 
 declare const getImg: (
   url: string,
