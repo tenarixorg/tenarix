@@ -3,7 +3,12 @@ import { encodeRoute } from "utils";
 
 export const _home = (content: GetContent, parser: Parser) => {
   return async (): Promise<Home> => {
-    const { innerHTML } = await content("https://manga1s.com/search?q=");
+    const { innerHTML } = await content("https://manga1s.com/search?q=", {
+      scripts: true,
+      action: async (page) => {
+        await page.waitForTimeout(6000);
+      },
+    });
     const $ = parser(innerHTML);
     const popular: PageBase[] = [];
     $(

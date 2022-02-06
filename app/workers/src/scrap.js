@@ -32,7 +32,7 @@ const content = async (url, opts) => {
     } else if (
       (req.resourceType() === "script" ||
         req.resourceType() === "xhr" ||
-        (req.resourceType() === "image" && opts?.imgs)) &&
+        req.resourceType() === "image") &&
       opts?.scripts
     ) {
       /* istanbul ignore next */
@@ -70,36 +70,12 @@ const getImg = async (url, headers) => {
   const page_ = await browser.newPage();
   await page_.setUserAgent(UA);
   await page_.setExtraHTTPHeaders(headers || {});
-  await page_.setRequestInterception(true);
-  /* istanbul ignore next */
-  page_.on("request", (req) => {
-    if (req.resourceType() !== "document" && req.resourceType() !== "image") {
-      req.abort();
-    } else {
-      req.continue();
-    }
+  let img;
+  page_.on("response", async (response) => {
+    const data = await response.buffer();
+    img = data;
   });
   await page_.goto(url, { waitUntil: "networkidle2" });
-  await page_.waitForSelector("img", { timeout: 30000 });
-  await page_.setViewport({ height: 4320, width: 7680, deviceScaleFactor: 1 });
-  const image = await page_.$("img");
-  const box = await image?.boundingBox();
-  const x = box?.x;
-  const y = box?.y;
-  const w = box?.width;
-  const h = box?.height;
-  let img;
-  try {
-    img = await page_.screenshot({
-      encoding: "binary",
-      clip: { x, y, width: w, height: h },
-      type: "jpeg",
-      quality: 100,
-    });
-  } catch (err) {
-    /* istanbul ignore next */
-    img = null;
-  }
   await browser.close();
   return img;
 };

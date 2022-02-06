@@ -4,7 +4,12 @@ import { decodeRoute, encodeRoute } from "utils";
 export const _details = (content: GetContent, parser: Parser) => {
   return async (route: string): Promise<Details> => {
     const url = "https://manga1s.com" + decodeRoute(route);
-    const { innerHTML } = await content(url);
+    const { innerHTML } = await content(url, {
+      scripts: true,
+      action: async (page) => {
+        await page.waitForTimeout(6000);
+      },
+    });
     const $ = parser(innerHTML);
     const chapters: Chapter[] = [];
     const genres: string[] = [];

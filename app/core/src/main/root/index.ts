@@ -1,49 +1,68 @@
 import fs from "fs";
+import Ajv from "ajv";
 import lang from "./language";
 import baseExt from "./extension";
-import Ajv from "ajv";
-import { ipcMain, BrowserWindow, app, nativeTheme, session } from "electron";
 import { matchSystemLang, getAllExt, format_ext } from "utils";
+import { initialFolders, initialTheme } from "app-constants";
 import { settingsSchema, themeSchema } from "schemas";
 import { SettingsStore, Theme } from "types";
 import { resolve } from "path";
 import { getHash } from "workers";
-import { initialFolders, initialTheme } from "app-constants";
+import {
+  app,
+  session,
+  ipcMain,
+  protocol,
+  nativeTheme,
+  BrowserWindow,
+} from "electron";
+import {
+  loadChapter,
+  initFolders,
+  loadLocalFile,
+  downloadEncrypt,
+} from "./helper";
 import {
   getCache,
   setCache,
   hasCache,
-  hasFavorite,
-  setFavorite,
-  removeFavorite,
-  getFavorite,
-  getAllFavs,
   hasPinExt,
   setPinExt,
-  removePinExt,
+  getAllFavs,
+  hasFavorite,
+  getFavorite,
+  setFavorite,
   setDownload,
   hasDownload,
   getDownload,
-  getAllExtDownloads,
   getSettings,
   setSettings,
-  getAllReadPercentage,
-  getReadPercentage,
-  setReadPersentage,
-  getCurrentSources,
+  removePinExt,
+  removeFavorite,
   setCurrentSource,
+  setReadPersentage,
+  getReadPercentage,
+  getCurrentSources,
+  getAllExtDownloads,
+  getAllReadPercentage,
 } from "../store";
-import {
-  decryptChapter,
-  downloadEncrypt,
-  initFolders,
-  loadLocalFile,
-} from "./helper";
 
 export const handler = (win?: BrowserWindow) => {
+  const slang = matchSystemLang(Object.keys(lang), app.getLocale(), "en");
+  const themeFolder = resolve(app.getPath("home") + "/.tenarix/themes");
+  const settingsPath = resolve(
+    app.getPath("home") + "/.tenarix/config/settings.json"
+  );
+  const downloadFolder = resolve(
+    app.getPath("home") + "/.tenarix" + "/.dreader"
+  );
+  const URLfilter = {
+    urls: ["*://*/*"],
+  };
+  const maxDowns = 2;
+  let currentDowns = 0;
   let currentExtName = "inmanga";
   let lastRoute = "/";
-  const slang = matchSystemLang(Object.keys(lang), app.getLocale(), "en");
   let currentLangId = slang;
   let currentExt = baseExt[currentExtName];
   let currentLang = lang[currentLangId];
@@ -52,40 +71,36 @@ export const handler = (win?: BrowserWindow) => {
     ? "dark"
     : "light";
 
-  const filter = {
-    urls: ["*://*/*"],
-  };
-
-  const themeFolder = resolve(app.getPath("home") + "/.tenarix/themes");
-  const settingsPath = resolve(
-    app.getPath("home") + "/.tenarix/config/settings.json"
-  );
-  const downloadFolder = resolve(
-    app.getPath("home") + "/.tenarix" + "/.dreader"
-  );
-
-  const maxDowns = 2;
-  let currentDowns = 0;
-
   win?.on("ready-to-show", async () => {
     win?.show();
     const basePath = resolve(app.getPath("home") + "/.tenarix");
     await initFolders(basePath, initialFolders(slang, currentThemeSchema));
   });
 
-  session.defaultSession.webRequest.onBeforeSendHeaders(filter, (det, cb) => {
-    const url = new URL(det.url);
-    det.requestHeaders["Origin"] = url.origin;
-    if (currentExt.opts) {
-      for (const key of Object.keys(currentExt.opts.headers)) {
-        if (key.toLowerCase() === "referer" && !!currentExt.opts.refererRule) {
-          det.requestHeaders[key] = currentExt.opts.refererRule(url.href);
-        } else {
-          det.requestHeaders[key] = currentExt.opts.headers[key];
+  session.defaultSession.webRequest.onBeforeSendHeaders(
+    URLfilter,
+    (det, cb) => {
+      const url = new URL(det.url);
+      det.requestHeaders["Origin"] = url.origin;
+      if (currentExt.opts) {
+        for (const key of Object.keys(currentExt.opts.headers)) {
+          if (
+            key.toLowerCase() === "referer" &&
+            !!currentExt.opts.refererRule
+          ) {
+            det.requestHeaders[key] = currentExt.opts.refererRule(url.href);
+          } else {
+            det.requestHeaders[key] = currentExt.opts.headers[key];
+          }
         }
       }
+      cb({ cancel: false, requestHeaders: det.requestHeaders });
     }
-    cb({ cancel: false, requestHeaders: det.requestHeaders });
+  );
+
+  protocol.registerFileProtocol("file", (request, callback) => {
+    const pathname = decodeURI(request.url.replace("file:///", ""));
+    callback(pathname);
   });
 
   /** App windowing */
@@ -550,9 +565,10 @@ export const handler = (win?: BrowserWindow) => {
       return;
     }
     try {
-      const res = await decryptChapter(base, `/${id}_`, total);
+      const res = await loadChapter(base, `/${id}_`, total);
       e.reply("res:read:local", res);
     } catch (error: any) {
+      e.reply("res:read:local", false);
       e.reply("res:error", { error: error.message });
     }
   });

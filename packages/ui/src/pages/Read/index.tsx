@@ -179,14 +179,8 @@ export const Read: React.FC = () => {
       if (typeof res === "boolean" && !res) {
         dispatch({ type: "setRemote", payload: true });
       } else {
-        const imgs_: string[] = [];
-        for (const buff of res) {
-          const blob = new Blob([buff as Buffer]);
-          const im = URL.createObjectURL(blob);
-          imgs_.push(im);
-        }
         if (mounted.current) {
-          dispatch({ type: "setLocalImgs", payload: imgs_ });
+          dispatch({ type: "setLocalImgs", payload: res });
         }
       }
     });

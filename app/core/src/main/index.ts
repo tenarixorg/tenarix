@@ -26,6 +26,7 @@ async function mainWin() {
     webPreferences: {
       preload: join(__dirname, "../preload/index.cjs"),
       nodeIntegration: true,
+      webSecurity: false,
     },
   });
 

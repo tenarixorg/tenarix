@@ -10,8 +10,8 @@ export const downloadEncrypt = async (
   const res = await worker<boolean>(
     `
     const {workerData, parentPort} = require("worker_threads");
-    const {Readable} = require("stream");
     const {resolve, join} = require("path");
+    const fs = require("fs");
     
     const [base, prefix, imgs, headers, env] = workerData;
     
@@ -26,17 +26,16 @@ export const downloadEncrypt = async (
       return module;
     }
     
-    const {getImg, encrypt} = dynamicRequire("workers");
+    const {getImg} = dynamicRequire("workers");
 
     (async()=>{
       for (const img of imgs) {
         const data = await getImg(img.url, headers);
-        const stream = Readable.from(data);
-        await encrypt(
-          "some random password",
-          resolve(base, prefix + img.page),
-          stream
-        );
+        const file = fs.createWriteStream(resolve(base, prefix + img.page) + ".jpeg");
+        file.write(data, (err)=>{
+          if(err) throw err;
+          file.close();
+        });
         parentPort.postMessage({done: false,data: "downloaded " + img.page});
       }
       parentPort.postMessage({done: true, data: true});
@@ -51,7 +50,7 @@ export const downloadEncrypt = async (
   return res;
 };
 
-export const decryptChapter = async (
+export const loadChapter = async (
   base: string,
   prefix: string,
   total: number
@@ -59,32 +58,20 @@ export const decryptChapter = async (
   const res = await worker<Buffer[]>(
     `
     const {workerData, parentPort} = require("worker_threads");
-    const {join} = require("path");
+    const fs = require("fs");
     
     const [base, prefix, total, env] = workerData;
-    
-    const getNodeModulesPath = (moduleName) =>
-      env === "development"
-        ? moduleName
-        : join(process.cwd(), "resources/app.asar.unpacked/node_modules/" + moduleName);
-    
-    const dynamicRequire = (moduleName) => {
-      const modulePath = getNodeModulesPath(moduleName);
-      const module = require(modulePath);
-      return module;
-    }
-    
-    const {decrypt} = dynamicRequire("workers");
 
-    (async()=>{
-      const res = [];
-      for (let i = 0; i < total; i++) {
-        const file = base + prefix + (i+1);
-        const res_ = await decrypt("some random password", file);
-        res.push(res_);
-      }
-      parentPort.postMessage({done: true, data: res});
-    })();
+    const files = fs.readdirSync(base);
+    const res = [];
+    for (let i = 0; i < total; i++) {
+      const file = prefix + (i+1) + ".jpeg";
+      if(!!files.find(u => u === file.replace("/","")))
+        res.push(base+file);
+      else 
+        res.push("");
+    }
+    parentPort.postMessage({done: true, data: res});
   `,
     base,
     prefix,

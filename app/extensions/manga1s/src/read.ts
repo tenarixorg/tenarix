@@ -4,7 +4,12 @@ import { decodeRoute } from "utils";
 export const _read = (content: GetContent, parser: Parser) => {
   return async (id: string): Promise<Read> => {
     const url = "https://manga1s.com" + decodeRoute(id);
-    const { innerHTML } = await content(url);
+    const { innerHTML } = await content(url, {
+      scripts: true,
+      action: async (page) => {
+        await page.waitForTimeout(6000);
+      },
+    });
     const $ = parser(innerHTML);
     const imgs: Read["imgs"] = [];
     const base = $(
