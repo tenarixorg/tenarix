@@ -7,7 +7,7 @@ const read = _read(content, parser);
 jest.setTimeout(40000);
 
 describe("Read", () => {
-  test("should get Read info", async () => {
+  test.skip("should get Read info", async () => {
     const res = await read(readId);
     expect(res.imgs).toBeInstanceOf(Array);
     expect(res.info).toBeDefined();
