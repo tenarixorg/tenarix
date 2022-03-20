@@ -9,19 +9,16 @@ const UA =
 
 puppeteer.use(StealthPlugin());
 
-const getChromiumExecPath = () => {
-  return puppeteer.executablePath();
-};
-
 /**
  * @param {string} url
+ * @param {string} execPath
  * @param {{action?: (page: import("puppeteer").Page) => Promise<void>;scripts?: boolean;imgs?: boolean;headers?: Record<string, string>;}} opts
  * @returns {Promise<{innerHTML:string, current_url:string}>}
  */
-const content = async (url, opts) => {
+const content = async (url, execPath, opts) => {
   const browser = await puppeteer.launch({
     headless: true,
-    executablePath: getChromiumExecPath(),
+    executablePath: execPath,
     args: ["--no-sandbox", "--disabled-setupid-sandbox"],
   });
   const page = await browser.newPage();
@@ -59,13 +56,14 @@ const content = async (url, opts) => {
 /**
  *
  * @param {string} url
+ * @param {string} execPath
  * @param {Record<string,string>} headers
  * @returns {Promise<Buffer>}
  */
-const getImg = async (url, headers) => {
+const getImg = async (url, execPath, headers) => {
   const browser = await puppeteer.launch({
     headless: true,
-    executablePath: getChromiumExecPath(),
+    executablePath: execPath,
   });
   const page_ = await browser.newPage();
   await page_.setUserAgent(UA);
