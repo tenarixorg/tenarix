@@ -1,15 +1,18 @@
 import fs from "fs";
 import Ajv from "ajv";
 import lang from "./language";
+import assert from "assert";
 import baseExt from "./extension";
+import { initialFolders, initialTheme, chromiumMirror } from "app-constants";
 import { matchSystemLang, getAllExt, format_ext } from "utils";
-import { initialFolders, initialTheme } from "app-constants";
 import { settingsSchema, themeSchema } from "schemas";
 import { SettingsStore, Theme } from "types";
+import { platform } from "os";
 import { resolve } from "path";
 import { getHash } from "workers";
 import {
   app,
+  dialog,
   session,
   ipcMain,
   protocol,
@@ -17,10 +20,13 @@ import {
   BrowserWindow,
 } from "electron";
 import {
-  loadChapter,
+  getContent,
   initFolders,
+  loadChapter,
+  downloadItem,
   loadLocalFile,
-  downloadEncrypt,
+  downloadChapter,
+  extractLocalFiles,
 } from "./helper";
 import {
   getCache,
@@ -47,15 +53,13 @@ import {
   getAllReadPercentage,
 } from "../store";
 
-export const handler = (win?: BrowserWindow) => {
+export const handler = (win: BrowserWindow) => {
   const slang = matchSystemLang(Object.keys(lang), app.getLocale(), "en");
-  const themeFolder = resolve(app.getPath("home") + "/.tenarix/themes");
-  const settingsPath = resolve(
-    app.getPath("home") + "/.tenarix/config/settings.json"
-  );
-  const downloadFolder = resolve(
-    app.getPath("home") + "/.tenarix" + "/.dreader"
-  );
+  const chromium = chromiumMirror(platform());
+  const appFolder = resolve(app.getPath("home") + "/.tenarix");
+  const themeFolder = resolve(appFolder + "/themes");
+  const settingsPath = resolve(appFolder + "/config/settings.json");
+  const downloadFolder = resolve(appFolder + "/.dreader");
   const URLfilter = {
     urls: ["*://*/*"],
   };
@@ -67,14 +71,14 @@ export const handler = (win?: BrowserWindow) => {
   let currentExt = baseExt[currentExtName];
   let currentLang = lang[currentLangId];
   let customTheme = { ...initialTheme };
+  let chromiumExec = resolve(appFolder + chromium.folder + chromium.exec);
   let currentThemeSchema: "dark" | "light" = nativeTheme.shouldUseDarkColors
     ? "dark"
     : "light";
 
   win?.on("ready-to-show", async () => {
     win?.show();
-    const basePath = resolve(app.getPath("home") + "/.tenarix");
-    await initFolders(basePath, initialFolders(slang, currentThemeSchema));
+    await initFolders(appFolder, initialFolders(slang, currentThemeSchema));
   });
 
   session.defaultSession.webRequest.onBeforeSendHeaders(
@@ -387,34 +391,36 @@ export const handler = (win?: BrowserWindow) => {
   ipcMain.on(
     "download",
     async (e, { rid, root, id, imgs, title, info, pages, ext }) => {
+      const _rid = (rid as string).includes("=") ? await getHash(rid) : rid;
+      const main = downloadFolder + `/${await getHash(root)}`;
+      const base = main + `/${_rid}`;
+      if (!fs.existsSync(main)) fs.mkdirSync(main, { recursive: true });
+      if (!fs.existsSync(base)) fs.mkdirSync(base, { recursive: true });
+      const source = ext || currentExtName;
+      setDownload(rid, source, {
+        data: { title, info, pages, id, rid: rid },
+        done: false,
+        inProgress: true,
+      });
+      e.reply("res:downloaded", getAllExtDownloads(source));
+      e.reply("downloading:chapter", {
+        rid,
+        inf: title + " | " + info,
+      });
+
       if (currentDowns < maxDowns) {
         currentDowns++;
-        const _rid = (rid as string).includes("=") ? await getHash(rid) : rid;
-        const main = downloadFolder + `/${await getHash(root)}`;
-        const base = main + `/${_rid}`;
-        if (!fs.existsSync(main)) fs.mkdirSync(main, { recursive: true });
-        if (!fs.existsSync(base)) fs.mkdirSync(base, { recursive: true });
-        const source = ext || currentExtName;
-        setDownload(rid, source, {
-          data: { title, info, pages, id, rid: rid },
-          done: false,
-          inProgress: true,
-        });
-        e.reply("res:downloaded", getAllExtDownloads(source));
         try {
-          win?.webContents.send("downloading:chapter", {
-            rid,
-            inf: title + " | " + info,
-          });
-          await downloadEncrypt(
-            base,
-            `./${id}_`,
-            imgs,
-            currentExt.opts?.refererRule
-              ? { Referer: currentExt.opts.refererRule(imgs[0].url) }
-              : currentExt.opts?.headers
-          );
-          win?.webContents.send("downloading:chapter:done", {
+          const headers_ = currentExt.opts?.headers;
+          const refererRule = currentExt.opts?.refererRule;
+          const headers = refererRule
+            ? { ...headers_, referer: refererRule(imgs[0].url) }
+            : headers_;
+          if (headers && headers.Referer) {
+            delete headers.Referer;
+          }
+          await downloadChapter(chromiumExec, base, `./${id}_`, imgs, headers);
+          e.reply("downloading:chapter:done", {
             rid,
           });
           setDownload(rid, source, {
@@ -449,7 +455,7 @@ export const handler = (win?: BrowserWindow) => {
       if (hasCache(currentExtName, "home")) {
         e.reply("res:home", getCache(currentExtName, "home"));
       } else {
-        const res = await currentExt.home();
+        const res = await currentExt.home(chromiumExec);
         setCache(currentExtName, "home", res);
         e.reply("res:home", res);
       }
@@ -481,7 +487,7 @@ export const handler = (win?: BrowserWindow) => {
           fav: false,
         });
       } else {
-        const res = await currentExt.details(route);
+        const res = await currentExt.details(route, chromiumExec);
         setCache(currentExtName, key, res);
         e.reply("res:details", { res, fav: false });
       }
@@ -499,7 +505,7 @@ export const handler = (win?: BrowserWindow) => {
       if (hasCache(currentExtName, key)) {
         e.reply("res:library", getCache(currentExtName, key));
       } else {
-        const res = await currentExt.library(page, filters);
+        const res = await currentExt.library(page, chromiumExec, filters);
         setCache(currentExtName, key, res.items);
         e.reply("res:library", res.items);
       }
@@ -520,7 +526,7 @@ export const handler = (win?: BrowserWindow) => {
       } else if (hasCache(source, key)) {
         e.reply("res:read:init", getCache(source, key));
       } else {
-        const res = await currentExt.read(id);
+        const res = await currentExt.read(id, chromiumExec);
         setCache(source, key, res);
         e.reply("res:read:init", res);
       }
@@ -687,5 +693,48 @@ export const handler = (win?: BrowserWindow) => {
 
   ipcMain.on("get:last:route", (e) => {
     e.reply("res:last:route", lastRoute);
+  });
+
+  /* TEST */
+
+  ipcMain.on("get:chromium", async () => {
+    const path = resolve(appFolder + "/chromium.zip");
+    await downloadItem(
+      win,
+      chromium.url,
+      path,
+      async (_, __, webContents) => {
+        await extractLocalFiles(path, appFolder);
+        webContents.send("res:navigate", true);
+      },
+      (_, state, webContents, item) => {
+        if (state === "progressing") {
+          webContents.send("res:error", {
+            error: (item.getReceivedBytes() / item.getTotalBytes()) * 100,
+          });
+        }
+      }
+    );
+  });
+
+  ipcMain.on("use:installed:browser", async (e) => {
+    const f = dialog.showOpenDialogSync(win) || [""];
+    if (f[0] !== "") {
+      const url = "https://example.com/";
+      chromiumExec = f[0];
+      try {
+        const { current_url, innerHTML } = await getContent(url, chromiumExec);
+        assert.strictEqual(current_url, url);
+        assert.ok(innerHTML.length > 1);
+        e.reply("res:navigate", true);
+      } catch (error) {
+        console.log(error);
+        e.reply("res:navigate", false);
+        e.reply("res:error", { error: "Invalid Browser" });
+      }
+    } else {
+      e.reply("res:navigate", false);
+      e.reply("res:error", { error: "Invalid Browser" });
+    }
   });
 };
