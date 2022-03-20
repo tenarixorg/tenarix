@@ -11,7 +11,11 @@ const libraryParams = (query: string, page: number) => {
 };
 
 export const _library = (_content: GetContent, parser: Parser) => {
-  return async (page: string, filters?: Filters): Promise<Library> => {
+  return async (
+    page: string,
+    _execPath: string,
+    filters?: Filters
+  ): Promise<Library> => {
     const baseUrl = "https://inmanga.com";
     const res_ = await axios.post(
       "https://inmanga.com/manga/getMangasConsultResult",

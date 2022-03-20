@@ -10,7 +10,11 @@ const libraryParams = (_page: string, filters?: Filters) => {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const _library = (_content: GetContent, _parser: Parser) => {
-  return async (page: string, filters?: Filters): Promise<Library> => {
+  return async (
+    page: string,
+    _execPath: string,
+    filters?: Filters
+  ): Promise<Library> => {
     const items: PageBase[] = [];
     const res_ = await axios.get<{
       suggestions: { value: string; data: string }[];

@@ -6,8 +6,15 @@ const libraryParams = (query: string) => {
 };
 
 export const _library = (content: GetContent, parser: Parser) => {
-  return async (_page: string, filters?: Filters): Promise<Library> => {
-    const { innerHTML } = await content(libraryParams(filters?.title || ""));
+  return async (
+    _page: string,
+    execPath: string,
+    filters?: Filters
+  ): Promise<Library> => {
+    const { innerHTML } = await content(
+      libraryParams(filters?.title || ""),
+      execPath
+    );
     const $ = parser(innerHTML);
     const items: PageBase[] = [];
     $(".c-tabs-item__content").each((_, e) => {

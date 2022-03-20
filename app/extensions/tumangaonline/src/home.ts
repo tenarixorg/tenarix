@@ -1,9 +1,12 @@
 import { PageBase, Home, GetContent, Parser } from "types";
 import { encodeRoute } from "utils";
 
-export const _home =
-  (content: GetContent, parser: Parser) => async (): Promise<Home> => {
-    const { innerHTML } = await content("https://lectortmo.com/populars");
+export const _home = (content: GetContent, parser: Parser) => {
+  return async (execPath: string): Promise<Home> => {
+    const { innerHTML } = await content(
+      "https://lectortmo.com/populars",
+      execPath
+    );
     const $ = parser(innerHTML);
     const popular: PageBase[] = [];
     $("main .element a").each((_, e) => {
@@ -25,3 +28,4 @@ export const _home =
       popular,
     };
   };
+};

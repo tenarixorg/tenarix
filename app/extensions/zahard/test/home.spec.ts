@@ -7,7 +7,7 @@ jest.setTimeout(40000);
 
 describe("Home", () => {
   test("should get Home page", async () => {
-    const res = await home();
+    const res = await home(process.env.CHROME || "");
     expect(res.popular).toBeInstanceOf(Array);
     expect(res.popular.length).toBeGreaterThan(1);
     expect(res.popular[0].title).toBeDefined();

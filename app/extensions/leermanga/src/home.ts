@@ -2,8 +2,11 @@ import { Home, GetContent, Parser, PageBase } from "types";
 import { encodeRoute } from "utils";
 
 export const _home = (content: GetContent, parser: Parser) => {
-  return async (): Promise<Home> => {
-    const { innerHTML } = await content("https://r1.leermanga.xyz/list?page=1");
+  return async (execPath: string): Promise<Home> => {
+    const { innerHTML } = await content(
+      "https://r1.leermanga.xyz/list?page=1",
+      execPath
+    );
     const $ = parser(innerHTML);
     const popular: PageBase[] = [];
     $(".container .row .col-md-8 .container .card").each((_i, el) => {

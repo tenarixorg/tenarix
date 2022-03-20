@@ -1,9 +1,9 @@
 import { PageBase, Home, GetContent, Parser } from "types";
 import { encodeRoute } from "utils";
 
-export const _home =
-  (content: GetContent, parser: Parser) => async (): Promise<Home> => {
-    const { innerHTML } = await content("https://heavenmanga.com");
+export const _home = (content: GetContent, parser: Parser) => {
+  return async (execPath: string): Promise<Home> => {
+    const { innerHTML } = await content("https://heavenmanga.com", execPath);
     const $ = parser(innerHTML);
     const popular: PageBase[] = [];
     $(
@@ -24,3 +24,4 @@ export const _home =
       popular,
     };
   };
+};

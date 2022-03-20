@@ -2,9 +2,9 @@ import { Chapter, Details, GetContent, Parser } from "types";
 import { decodeRoute, encodeRoute } from "utils";
 
 export const _details = (content: GetContent, parser: Parser) => {
-  return async (route: string): Promise<Details> => {
+  return async (route: string, execPath: string): Promise<Details> => {
     const url = "https://r1.leermanga.xyz" + decodeRoute(route);
-    const { innerHTML } = await content(url);
+    const { innerHTML } = await content(url, execPath);
     const $ = parser(innerHTML);
     const base = $(".container .row .col-md-8 .container .card");
     const img = base.find(".row .col-4 a img").attr("src")?.trim() || "";

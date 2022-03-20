@@ -2,9 +2,10 @@ import { Home, GetContent, Parser, PageBase } from "types";
 import { encodeRoute } from "utils";
 
 export const _home = (content: GetContent, parser: Parser) => {
-  return async (): Promise<Home> => {
+  return async (execPath: string): Promise<Home> => {
     const { innerHTML } = await content(
-      "https://lectormanga.com/library?title=&order_field=title&order_item=likes_count&order_dir=desc&type=&demography=&webcomic=&yonkoma=&amateur=&erotic="
+      "https://lectormanga.com/library?title=&order_field=title&order_item=likes_count&order_dir=desc&type=&demography=&webcomic=&yonkoma=&amateur=&erotic=",
+      execPath
     );
     const $ = parser(innerHTML);
     const popular: PageBase[] = [];

@@ -2,10 +2,10 @@ import { Chapter, Details, GetContent, Parser } from "types";
 import { encodeRoute, decodeRoute } from "utils";
 
 export const _details = (content: GetContent, parser: Parser) => {
-  return async (route: string): Promise<Details> => {
+  return async (route: string, execPath: string): Promise<Details> => {
     const baseUrl = "https://inmanga.com";
     const url = baseUrl + decodeRoute(route);
-    const { innerHTML } = await content(url, {
+    const { innerHTML } = await content(url, execPath, {
       scripts: true,
       imgs: true,
       action: async (page) => {
