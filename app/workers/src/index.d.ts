@@ -8,6 +8,7 @@ declare const getHash: (data: string) => Promise<string>;
 
 declare const getImg: (
   url: string,
+  execPath: string,
   headers?: Record<string, string>
 ) => Promise<Buffer>;
 

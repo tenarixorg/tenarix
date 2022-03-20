@@ -60,10 +60,14 @@ export interface Home {
 export interface AppContent {
   name: string;
   lang: string;
-  home: () => Promise<Home>;
-  details: (route: string) => Promise<Details>;
-  library: (page: string, filters: Filters) => Promise<Library>;
-  read: (id: string) => Promise<Read>;
+  home: (execPath: string) => Promise<Home>;
+  details: (route: string, execPath: string) => Promise<Details>;
+  library: (
+    page: string,
+    execPath: string,
+    filters?: Filters
+  ) => Promise<Library>;
+  read: (id: string, execPath: string) => Promise<Read>;
   opts?: {
     headers: Record<string, string>;
     refererRule?: (r: string) => string;
@@ -82,7 +86,11 @@ export interface Opts {
   headers?: Record<string, string>;
 }
 
-export type GetContent = (url: string, opts?: Opts) => Promise<Content>;
+export type GetContent = (
+  url: string,
+  execPath: string,
+  opts?: Opts
+) => Promise<Content>;
 
 export type Parser = typeof load;
 

@@ -2,9 +2,9 @@ import { Chapter, Details, GetContent, Parser } from "types";
 import { decodeRoute, encodeRoute } from "utils";
 
 export const _details = (content: GetContent, parser: Parser) => {
-  return async (route: string): Promise<Details> => {
+  return async (route: string, execPath: string): Promise<Details> => {
     const url = "https://www.readmng.com" + decodeRoute(route);
-    const { innerHTML } = await content(url);
+    const { innerHTML } = await content(url, execPath);
     const $ = parser(innerHTML);
     const base1 = $(
       ".content .container .col-single .row .content-list .movie-meta .panel .panel-heading"

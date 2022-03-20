@@ -6,13 +6,21 @@ const libraryParams = (page: string, filters?: Filters) => {
 };
 
 export const _library = (content: GetContent, parser: Parser) => {
-  return async (page: string, filters?: Filters): Promise<Library> => {
-    const { innerHTML } = await content(libraryParams(page, filters), {
-      scripts: true,
-      action: async (page) => {
-        await page.waitForTimeout(6000);
-      },
-    });
+  return async (
+    page: string,
+    execPath: string,
+    filters?: Filters
+  ): Promise<Library> => {
+    const { innerHTML } = await content(
+      libraryParams(page, filters),
+      execPath,
+      {
+        scripts: true,
+        action: async (page) => {
+          await page.waitForTimeout(6000);
+        },
+      }
+    );
     const $ = parser(innerHTML);
     const items: PageBase[] = [];
     $(

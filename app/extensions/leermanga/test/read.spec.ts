@@ -8,7 +8,7 @@ jest.setTimeout(40000);
 
 describe("Read", () => {
   test.skip("should get Read info", async () => {
-    const res = await read(readId);
+    const res = await read(readId, process.env.CHROME || "");
     expect(res.imgs).toBeInstanceOf(Array);
     expect(res.info).toBeDefined();
     expect(res.pages).toBeDefined();

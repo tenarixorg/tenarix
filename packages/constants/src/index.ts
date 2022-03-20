@@ -77,3 +77,26 @@ export const initialFolders = (slang: string, currentThemeSchema: string) => [
     ],
   },
 ];
+
+export const chromiumMirror = (os: NodeJS.Platform) => {
+  switch (os) {
+    case "win32":
+      return {
+        url: "https://commondatastorage.googleapis.com/chromium-browser-snapshots/Win_x64/967618/chrome-win.zip",
+        folder: "chrome-win",
+        exec: "chrome.exe",
+      };
+    case "darwin":
+      return {
+        url: "https://commondatastorage.googleapis.com/chromium-browser-snapshots/Mac/967618/chrome-mac.zip",
+        folder: "chrome-mac",
+        exec: "Chromium.app/Contents/MacOS/Chromium",
+      };
+    default:
+      return {
+        url: "https://commondatastorage.googleapis.com/chromium-browser-snapshots/Linux_x64/967619/chrome-linux.zip",
+        folder: "chrome-linux",
+        exec: "chrome",
+      };
+  }
+};

@@ -11,7 +11,11 @@ const libraryParams = (_page: string, filters?: Filters) => {
 };
 
 export const _library = (_content: GetContent, parser: Parser) => {
-  return async (page: string, filters?: Filters): Promise<Library> => {
+  return async (
+    page: string,
+    _execPath: string,
+    filters?: Filters
+  ): Promise<Library> => {
     const res = await axios.post(
       "https://www.readmng.com/service/advanced_search",
       libraryParams(page, filters),

@@ -1,9 +1,9 @@
 import { GetContent, Parser, Read } from "types";
 
 export const _read = (content: GetContent, parser: Parser) => {
-  return async (id: string): Promise<Read> => {
+  return async (id: string, execPath: string): Promise<Read> => {
     const url = "https://lectormanga.com/view_uploads/" + id;
-    const { current_url, innerHTML } = await content(url, {
+    const { current_url, innerHTML } = await content(url, execPath, {
       headers: {
         Referer: "https://lectormanga.com",
       },
@@ -11,6 +11,7 @@ export const _read = (content: GetContent, parser: Parser) => {
     if (current_url.includes("paginated")) {
       const newR = await content(
         current_url.split("/paginated/")[0] + "/cascade",
+        execPath,
         {
           headers: {
             Referer: current_url,

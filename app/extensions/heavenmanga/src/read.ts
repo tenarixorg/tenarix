@@ -2,12 +2,12 @@ import { GetContent, Parser, Read } from "types";
 import { decodeRoute } from "utils";
 
 export const _read = (content: GetContent, parser: Parser) => {
-  return async (id: string): Promise<Read> => {
+  return async (id: string, execPath: string): Promise<Read> => {
     const url = `https://heavenmanga.com/${decodeRoute(id)}`;
-    const { innerHTML: baseHTML } = await content(url);
+    const { innerHTML: baseHTML } = await content(url, execPath);
     const $ = parser(baseHTML);
     const newUrl = $("#leer").attr("href");
-    const { innerHTML } = await content(newUrl || "", {
+    const { innerHTML } = await content(newUrl || "", execPath, {
       action: async (page) => {
         const cascade = await page.waitForSelector(".toggleModeButtons");
         await cascade?.click();

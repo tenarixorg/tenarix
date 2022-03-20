@@ -8,7 +8,7 @@ jest.setTimeout(40000);
 
 describe("Library", () => {
   test("should get Library page", async () => {
-    const res = await library("1", libraryFilters);
+    const res = await library("1", process.env.CHROME || "", libraryFilters);
     expect(res.items).toBeInstanceOf(Array);
     expect(res.items.length).toBeGreaterThan(1);
     expect(res.items[0].title).toBeDefined();

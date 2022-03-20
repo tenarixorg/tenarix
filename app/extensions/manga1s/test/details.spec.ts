@@ -8,7 +8,7 @@ jest.setTimeout(40000);
 
 describe("Details", () => {
   test("should get details", async () => {
-    const res = await details(details_route);
+    const res = await details(details_route, process.env.CHROME || "");
     expect(res.chapters).toBeInstanceOf(Array);
     expect(res.description).toBeDefined();
     expect(res.genres).toBeDefined();

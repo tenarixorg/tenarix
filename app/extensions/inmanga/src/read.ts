@@ -2,10 +2,10 @@ import { GetContent, Parser, Read } from "types";
 import { decodeRoute } from "utils";
 
 export const _read = (content: GetContent, parser: Parser) => {
-  return async (id: string): Promise<Read> => {
+  return async (id: string, execPath: string): Promise<Read> => {
     const baseUrl = "https://inmanga.com";
     const url = baseUrl + decodeRoute(id);
-    const { innerHTML, current_url } = await content(url, {
+    const { innerHTML, current_url } = await content(url, execPath, {
       scripts: true,
       action: async (page) => {
         await page.waitForSelector("img.ImageContainer");

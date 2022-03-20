@@ -1,11 +1,14 @@
 import { GetContent, Parser, Read } from "types";
 
 export const _read = (content: GetContent, parser: Parser) => {
-  return async (id: string): Promise<Read> => {
+  return async (id: string, execPath: string): Promise<Read> => {
     const url = `https://lectortmo.com/view_uploads/${id}`;
-    const { current_url, innerHTML } = await content(url);
+    const { current_url, innerHTML } = await content(url, execPath);
     if (current_url.endsWith("paginated")) {
-      const newR = await content(current_url.replace(/paginated/, "cascade"));
+      const newR = await content(
+        current_url.replace(/paginated/, "cascade"),
+        execPath
+      );
       return load(parser, newR.innerHTML);
     }
     return load(parser, innerHTML);

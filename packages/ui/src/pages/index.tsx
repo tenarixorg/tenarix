@@ -5,6 +5,7 @@ import { Favorites } from "./Favorites";
 import { Settings } from "./Settings";
 import { Library } from "./Library";
 import { Details } from "./Details";
+import { Welcome } from "./Welcome";
 import { Editor } from "./Editor";
 import { Home } from "./Home";
 import { Read } from "./Read";
@@ -29,7 +30,8 @@ export const Pages: React.FC = () => {
   return (
     <HashRouter>
       <Routes>
-        <Route path="/" element={<Extensions />} />
+        <Route path="/" element={<Welcome />} />
+        <Route path="/ext" element={<Extensions />} />
         <Route path="/details/:route" element={<Details />} />
         <Route path="/library/:query" element={<Library />} />
         <Route path="/read/:route/:id" element={<Read />} />

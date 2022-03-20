@@ -2,8 +2,11 @@ import { Home, GetContent, Parser, PageBase } from "types";
 import { encodeRoute } from "utils";
 
 export const _home = (content: GetContent, parser: Parser) => {
-  return async (): Promise<Home> => {
-    const { innerHTML } = await content("https://www.readmng.com/hot-manga");
+  return async (execPath: string): Promise<Home> => {
+    const { innerHTML } = await content(
+      "https://www.readmng.com/hot-manga",
+      execPath
+    );
     const $ = parser(innerHTML);
     const popular: PageBase[] = [];
     $(".content .container .col-left .row .content-list .style-list .box").each(

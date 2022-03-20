@@ -2,8 +2,11 @@ import { Home, GetContent, Parser, PageBase } from "types";
 import { encodeRoute } from "utils";
 
 export const _home = (content: GetContent, parser: Parser) => {
-  return async (): Promise<Home> => {
-    const { innerHTML } = await content("https://zahard.xyz/manga-list");
+  return async (execPath: string): Promise<Home> => {
+    const { innerHTML } = await content(
+      "https://zahard.xyz/manga-list",
+      execPath
+    );
     const $ = parser(innerHTML);
     const popular: PageBase[] = [];
     $(
