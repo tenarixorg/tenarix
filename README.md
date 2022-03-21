@@ -14,7 +14,7 @@ Tenarix is an open source multiplatform desktop manga reader alternative.
 - Online reading from multiple extensions.
 - All content can be downloaded for offline read.
 - Multiple chapter source (if the extensions supports it).
-- Cascade and pagination read modes.
+- Manga and Webtoon read modes.
 - Zoomable reader.
 - Chapter read percentage track.
 - Full theme customization.
@@ -58,10 +58,6 @@ Developers have no affiliation with the available content providers.
 ## Notes
 
 Personal project inspired by [Tachiyomi][tachiyomi].
-
-## Licence
-
-Apache-2.0
 
 [release]: https://github.com/Akuqt/tenarix/releases/latest
 [contributing]: https://github.com/Akuqt/tenarix/blob/main/CONTRIBUTING.md
