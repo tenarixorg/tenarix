@@ -11,13 +11,14 @@ export const Welcome: React.FC = () => {
   const navigation = useNavigate();
 
   useEffect(() => {
+    api.send("can:navigate");
     api.on("res:navigate", (_e, res) => {
       setCanNavigate(res);
     });
     return () => {
       api.removeAllListeners("res:navigate");
     };
-  });
+  }, []);
 
   useEffect(() => {
     if (canNavigate) {
