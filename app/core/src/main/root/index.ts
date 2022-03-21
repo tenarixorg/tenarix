@@ -45,6 +45,8 @@ import {
   setSettings,
   removePinExt,
   removeFavorite,
+  getChromiumPath,
+  setChromiumPath,
   setCurrentSource,
   setReadPersentage,
   getReadPercentage,
@@ -71,7 +73,7 @@ export const handler = (win: BrowserWindow) => {
   let currentExt = baseExt[currentExtName];
   let currentLang = lang[currentLangId];
   let customTheme = { ...initialTheme };
-  let chromiumExec = resolve(appFolder + chromium.folder + chromium.exec);
+  let chromiumExec = resolve(appFolder, chromium.folder, chromium.exec);
   let currentThemeSchema: "dark" | "light" = nativeTheme.shouldUseDarkColors
     ? "dark"
     : "light";
@@ -705,6 +707,7 @@ export const handler = (win: BrowserWindow) => {
       path,
       async (_, __, webContents) => {
         await extractLocalFiles(path, appFolder);
+        setChromiumPath(chromiumExec);
         webContents.send("res:navigate", true);
       },
       (_, state, webContents, item) => {
@@ -726,6 +729,7 @@ export const handler = (win: BrowserWindow) => {
         const { current_url, innerHTML } = await getContent(url, chromiumExec);
         assert.strictEqual(current_url, url);
         assert.ok(innerHTML.length > 1);
+        setChromiumPath(chromiumExec);
         e.reply("res:navigate", true);
       } catch (error) {
         console.log(error);
@@ -735,6 +739,17 @@ export const handler = (win: BrowserWindow) => {
     } else {
       e.reply("res:navigate", false);
       e.reply("res:error", { error: "Invalid Browser" });
+    }
+  });
+
+  ipcMain.on("can:navigate", (e) => {
+    const path = getChromiumPath();
+    console.log(path);
+    if (path) {
+      chromiumExec = path;
+      e.reply("res:navigate", true);
+    } else {
+      e.reply("res:navigate", false);
     }
   });
 };
