@@ -1,6 +1,6 @@
 [![Test][test ci logo]][test ci workflow] [![Build][build ci logo]][build ci workflow] [![PR Welcome][prs logo]][new pr] [![Version][version logo]][version]
 
-# Tenarix (Currently Paused)
+# Tenarix
 
 Tenarix is an open source multiplatform desktop manga reader alternative.
 
