@@ -5,7 +5,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "node ."
+    "clean": "node ."
   },
   "dependencies": {
     "rimraf": "^3.0.2"
