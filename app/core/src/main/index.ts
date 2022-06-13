@@ -1,6 +1,7 @@
 import os from "os";
+import events from "./events";
 import { app, BrowserWindow } from "electron";
-import { handler } from "./root";
+import { AppHandler } from "./handler";
 import { join } from "path";
 
 const isWin7 = os.release().startsWith("6.1");
@@ -30,7 +31,9 @@ async function mainWin() {
     },
   });
 
-  handler(win);
+  const handler = new AppHandler(win);
+
+  handler.init(events);
 
   if (app.isPackaged) {
     win.loadFile(join(__dirname, "../renderer/index.html"));
