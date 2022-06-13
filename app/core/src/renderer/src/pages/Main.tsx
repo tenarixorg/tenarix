@@ -2,12 +2,12 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Navbar, Sidebar, CustomToast } from "components";
 import { toastMessageFormat } from "utils";
 import { useTheme } from "context-providers";
-import { Pages } from "./pages";
+import { Router } from "./Router";
 import { toast } from "react-hot-toast";
 
 const { api } = window.bridge;
 
-export const Main: React.FC = () => {
+export const Pages: React.FC = () => {
   const { colors } = useTheme();
   const [closed, setClosed] = useState(true);
   const mounted = useRef(false);
@@ -97,7 +97,7 @@ export const Main: React.FC = () => {
             setClosed((c) => !c);
           }}
         />
-        <Pages />
+        <Router />
       </main>
       <CustomToast colors={colors} />
     </>

@@ -26,7 +26,7 @@ const NotFound = () => {
   );
 };
 
-export const Pages: React.FC = () => {
+export const Router: React.FC = () => {
   return (
     <HashRouter>
       <Routes>
