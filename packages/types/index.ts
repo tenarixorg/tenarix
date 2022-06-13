@@ -1,4 +1,5 @@
 import { load } from "cheerio";
+import { IpcMainEvent, BrowserWindow } from "electron";
 import { Page as BPage } from "puppeteer";
 
 export interface ChapterInfo {
@@ -388,4 +389,55 @@ export interface Folder {
     name: string;
     content: string;
   }[];
+}
+
+export type OmitLangID = Omit<Language, "id">;
+
+export type OmitExtID = Omit<AppContent, "id">;
+
+export interface AppLangs {
+  [id: string]: OmitLangID;
+}
+
+export interface AppExts {
+  [id: string]: OmitExtID;
+}
+
+export interface AppHandler {
+  languageID: string;
+  extensionID: string;
+  extension: OmitExtID | undefined;
+  language: OmitLangID | undefined;
+  currentDowns: number;
+  lastRoute: string;
+  customTheme: Theme;
+  currentThemeSchema: "dark" | "light";
+  win: BrowserWindow;
+  chromium: ChromiumMeta;
+  chromiumExec: string;
+  appFolder: string;
+  themeFolder: string;
+  settingsPath: string;
+  downloadFolder: string;
+  extensionsFolder: string;
+  extensions: AppExts;
+  languages: AppLangs;
+  maxDownloads: number;
+}
+
+export type EventCallback = (
+  handler: AppHandler,
+  event: IpcMainEvent,
+  ...args: any[]
+) => void;
+
+export interface EventItem {
+  event: string;
+  callback: EventCallback;
+}
+
+export interface ChromiumMeta {
+  url: string;
+  folder: string;
+  exec: string;
 }
