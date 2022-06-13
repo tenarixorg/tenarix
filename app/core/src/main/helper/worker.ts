@@ -80,6 +80,7 @@ export const loadChapter = (base: string, prefix: string, total: number) => {
   return worker<Buffer[]>(
     `
     const {workerData, parentPort} = require("worker_threads");
+    const {join} = require("path");
     const fs = require("fs");
     
     const [base, prefix, total, env] = workerData;
@@ -89,7 +90,7 @@ export const loadChapter = (base: string, prefix: string, total: number) => {
     for (let i = 0; i < total; i++) {
       const file = prefix + (i+1) + ".jpeg";
       if(!!files.find(u => u === file.replace("/","")))
-        res.push(base+file);
+        res.push(join(base,file));
       else 
         res.push("");
     }
