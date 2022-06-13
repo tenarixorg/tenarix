@@ -68,7 +68,7 @@ Personal project inspired by [Tachiyomi][tachiyomi].
 [build ci logo]: https://github.com/tenarixorg/tenarix/actions/workflows/build.yml/badge.svg
 [build ci workflow]: https://github.com/tenarixorg/tenarix/actions/workflows/build.yml
 [prs logo]: https://img.shields.io/badge/PRs-welcome-success.svg?style=flat&logo=GitHub
-[new pr]: https://github.com/Akuqt/tenarixorg/compare
+[new pr]: https://github.com/tenarixorg/tenarix/compare
 [version logo]: https://img.shields.io/github/v/tag/tenarixorg/tenarix?color=success&include_prereleases&label=Version
 [version]: https://github.com/tenarixorg/tenarix/releases/latest
 [images]: https://github.com/tenarixorg/tenarix/tree/main/docs/images
