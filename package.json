@@ -1,73 +1,42 @@
 {
-  "name": "tenarix-repo",
+  "name": "tenarix-monorepo",
   "version": "0.1.0-alpha.4",
   "private": true,
-  "type": "module",
   "workspaces": [
     "app/*",
     "packages/*",
     "scripts/*"
   ],
   "scripts": {
-    "build": "turbo run build",
+    "test": "turbo run test --parallel",
+    "test:staged": "turbo run test:staged --parallel --",
+    "clean": "cd scripts/clean && yarn clean",
+    "build": "cd app/core && yarn build",
     "dev": "turbo run dev --parallel",
-    "test": "turbo run test",
     "lint": "eslint . --ext .js,.ts,.tsx --fix",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "new:ext": "cd scripts/gen-ext && yarn start",
-    "new:lang": "cd scripts/gen-lang && yarn start",
-    "clean": "cd scripts/clean && yarn start"
+    "format": "prettier --write \"**/*.{js,ts,tsx}\"",
+    "prepare": "husky install"
   },
   "devDependencies": {
+    "@commitlint/cli": "^16.2.1",
+    "@commitlint/config-conventional": "^16.2.1",
+    "@react-native-community/eslint-config": "^2.0.0",
     "@typescript-eslint/eslint-plugin": "^5.8.1",
     "@typescript-eslint/parser": "^5.8.1",
-    "eslint": "^8.5.0",
+    "eslint": "8.9.0",
     "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-flowtype": "^8.0.3",
     "eslint-plugin-react": "^7.28.0",
     "eslint-plugin-react-hooks": "^4.3.0",
+    "husky": "^7.0.0",
+    "lint-staged": "^12.3.4",
     "prettier": "^2.5.1",
-    "turbo": "latest"
-  },
-  "author": "Akuqt",
-  "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Akuqt/tenarix.git"
-  },
-  "bugs": {
-    "url": "https://github.com/Akuqt/tenarix/issues"
-  },
-  "homepage": "https://github.com/Akuqt/tenarix#readme",
-  "turbo": {
-    "pipeline": {
-      "build": {
-        "dependsOn": [
-          "^build"
-        ],
-        "outputs": [
-          "dist/**",
-          "release/**"
-        ]
-      },
-      "lint": {
-        "outputs": []
-      },
-      "dev": {
-        "cache": false
-      },
-      "test": {
-        "dependsOn": [
-          "^test"
-        ],
-        "outputs": [
-          "coverage/**"
-        ]
-      }
-    }
+    "turbo": "latest",
+    "typescript": "^4.5.5"
   },
   "engines": {
     "npm": ">=7.0.0",
     "node": ">=14.0.0"
   },
-  "dependencies": {}
+  "packageManager": "yarn@1.22.18"
 }
