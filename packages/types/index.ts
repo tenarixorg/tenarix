@@ -1,6 +1,7 @@
 import { load } from "cheerio";
 import { IpcMainEvent, BrowserWindow } from "electron";
 import { Page as BPage } from "puppeteer";
+import axios from "axios";
 
 export interface ChapterInfo {
   src: string;
@@ -95,7 +96,13 @@ export type GetContent = (
 
 export type Parser = typeof load;
 
-export type Extension = (content: GetContent, parser: Parser) => AppContent;
+export type Http = typeof axios;
+
+export type Extension = (
+  content: GetContent,
+  parser: Parser,
+  http: Http
+) => AppContent;
 
 export interface Lang {
   id: string;
