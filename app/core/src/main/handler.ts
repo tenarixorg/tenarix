@@ -1,4 +1,5 @@
 import fs from "fs";
+import axios from "axios";
 import { chromiumMirror, initialFolders, initialTheme } from "app-constants";
 import { getContent, initFolders } from "./helper";
 import { matchSystemLang } from "utils";
@@ -145,11 +146,11 @@ export class AppHandler {
 
   private async initExtensions() {
     const extensions = fs.readdirSync(this.extensionsFolder);
-
+    axios.defaults.adapter = require("axios/lib/adapters/http");
     for (const extension of extensions) {
       const ext = (await import(join(this.extensionsFolder, extension)))
         .default as Extension;
-      const res = ext(getContent, load);
+      const res = ext(getContent, load, axios);
       this.extensions = {
         ...this.extensions,
         [res.name]: this.removeKey(res, "name"),
