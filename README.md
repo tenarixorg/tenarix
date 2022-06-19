@@ -4,7 +4,7 @@
 
 Tenarix is an open source multiplatform desktop manga reader alternative.
 
-<img src="./docs/images/ext_all.png" alt="ext_all" style="width:80%;"/>
+<img src="./docs/images/ext_all.png" alt="ext_all" style="width:85%;"/>
 
 [More images][images]
 
