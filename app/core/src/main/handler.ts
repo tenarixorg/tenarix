@@ -2,7 +2,7 @@ import fs from "fs";
 import axios from "axios";
 import { chromiumMirror, initialFolders, initialTheme } from "app-constants";
 import { getContent, initFolders } from "./helper";
-import { matchSystemLang } from "utils";
+import { decodeRoute, encodeRoute, matchSystemLang } from "utils";
 import { resolve, join } from "path";
 import { platform } from "os";
 import { load } from "cheerio";
@@ -150,7 +150,7 @@ export class AppHandler {
     for (const extension of extensions) {
       const ext = (await import(join(this.extensionsFolder, extension)))
         .default as Extension;
-      const res = ext(getContent, load, axios);
+      const res = ext(getContent, load, axios, { encodeRoute, decodeRoute });
       this.extensions = {
         ...this.extensions,
         [res.name]: this.removeKey(res, "name"),
