@@ -3,6 +3,8 @@
 const puppeteer = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 const { load } = require("cheerio");
+const axios = require("axios");
+axios.default.defaults.adapter = require("axios/lib/adapters/http");
 
 const UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36 OPR/82.0.4227.50";
@@ -21,7 +23,7 @@ const content = async (url, execPath, opts) => {
     executablePath: execPath,
     args: ["--no-sandbox", "--disabled-setupid-sandbox"],
   });
-  const page = await browser.newPage();
+  const [page] = await browser.pages();
   await page.setRequestInterception(true);
   page.on("request", (req) => {
     if (req.resourceType() === "document") {
@@ -82,4 +84,5 @@ module.exports = {
   getImg,
   content,
   parser: load,
+  http: axios,
 };
