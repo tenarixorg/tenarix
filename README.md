@@ -59,16 +59,16 @@ Developers have no affiliation with the available content providers.
 
 Personal project inspired by [Tachiyomi][tachiyomi].
 
-[release]: https://github.com/Akuqt/tenarix/releases/latest
-[contributing]: https://github.com/Akuqt/tenarix/blob/main/CONTRIBUTING.md
-[issues]: https://github.com/Akuqt/tenarix/issues/new/choose
+[release]: https://github.com/tenarixorg/tenarix/releases
+[contributing]: https://github.com/tenarixorg/tenarix/blob/main/CONTRIBUTING.md
+[issues]: https://github.com/tenarixorg/tenarix/issues/new/choose
 [tachiyomi]: https://github.com/tachiyomiorg/tachiyomi
-[test ci logo]: https://github.com/Akuqt/tenarix/actions/workflows/test.yml/badge.svg
-[test ci workflow]: https://github.com/Akuqt/tenarix/actions/workflows/test.yml
-[build ci logo]: https://github.com/Akuqt/tenarix/actions/workflows/build.yml/badge.svg
-[build ci workflow]: https://github.com/Akuqt/tenarix/actions/workflows/build.yml
+[test ci logo]: https://github.com/tenarixorg/tenarix/actions/workflows/test.yml/badge.svg
+[test ci workflow]: https://github.com/tenarixorg/tenarix/actions/workflows/test.yml
+[build ci logo]: https://github.com/tenarixorg/tenarix/actions/workflows/build.yml/badge.svg
+[build ci workflow]: https://github.com/tenarixorg/tenarix/actions/workflows/build.yml
 [prs logo]: https://img.shields.io/badge/PRs-welcome-success.svg?style=flat&logo=GitHub
-[new pr]: https://github.com/Akuqt/tenarix/compare
-[version logo]: https://img.shields.io/github/v/tag/akuqt/tenarix?color=success&include_prereleases&label=Version
-[version]: https://github.com/Akuqt/tenarix/releases/latest
-[images]: https://github.com/Akuqt/tenarix/tree/main/docs/images
+[new pr]: https://github.com/tenarixorg/tenarix/compare
+[version logo]: https://img.shields.io/github/v/tag/tenarixorg/tenarix?color=success&include_prereleases&label=Version
+[version]: https://github.com/tenarixorg/tenarix/releases/latest
+[images]: https://github.com/tenarixorg/tenarix/tree/main/docs/images
