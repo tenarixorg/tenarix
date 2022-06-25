@@ -12,7 +12,7 @@ export default defineConfig({
       formats: ["cjs"],
     },
     sourcemap: false,
-    minify: false,
+    minify: true,
     emptyOutDir: true,
     rollupOptions: {
       external: [...builtinModules, "electron", "workers"],
