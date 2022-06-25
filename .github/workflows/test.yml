@@ -11,8 +11,6 @@ jobs:
   test:
     runs-on: ${{ matrix.os }}
 
-    environment: DEV
-
     strategy:
       matrix:
         node: [16.x]
