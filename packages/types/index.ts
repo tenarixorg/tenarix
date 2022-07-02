@@ -219,6 +219,7 @@ export interface DetailsState {
   ids: string[];
   sources: { chapter: string; id: string }[];
   percentages: ReadPercentage[];
+  height: number;
 }
 
 export interface DetailsAction {
@@ -232,6 +233,7 @@ export interface DetailsAction {
     | "toggleOrder"
     | "toggleShow"
     | "setLoading"
+    | "setHeight"
     | "setFav";
   payload?: any;
 }
@@ -311,7 +313,6 @@ export interface ReadAction {
     | "setCascade"
     | "toggleCascade"
     | "setLocalImgs"
-    | "setImgWidth"
     | "setIds"
     | "setReverse"
     | "setChapterIndex";
@@ -326,7 +327,6 @@ export interface ReadState {
   loading2: boolean;
   remote: boolean;
   cascade: boolean;
-  imgWidth: string;
   localImgs: string[];
   ids: string[];
   reverse: boolean;
