@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import rimraf from "rimraf";
 import { fileURLToPath } from "url";
 import { join } from "path";
