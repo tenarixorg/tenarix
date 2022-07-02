@@ -1,6 +1,6 @@
 /* eslint-disable react/display-name */
 import React, { useState, forwardRef } from "react";
-import { ReadImg } from "./Elements";
+import { ReadImg, Txt } from "./Elements";
 
 interface Props {
   src: string;
@@ -13,6 +13,11 @@ interface Props {
   onError?: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void;
   className?: string;
   data?: any;
+  indicatorColors?: {
+    txt: string;
+    bg: string;
+  };
+  indicator?: boolean;
 }
 
 export const LazyImage = forwardRef<HTMLImageElement, Props>(
@@ -28,13 +33,39 @@ export const LazyImage = forwardRef<HTMLImageElement, Props>(
       onError,
       className,
       data,
+      indicatorColors,
+      indicator,
     },
     ref
   ) => {
     const [loaded, setLoaded] = useState(false);
     return (
-      <div style={containerStyle}>
+      <div style={{ ...containerStyle, position: "relative" }}>
+        {indicator && (
+          <div
+            style={{
+              position: "absolute",
+              top: 8,
+              left: 8,
+              zIndex: 9,
+              width: "50px",
+              height: "50px",
+              borderRadius: "50%",
+              backgroundColor: indicatorColors?.bg || "transparent",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              padding: 0,
+              margin: 0,
+            }}
+          >
+            <Txt color={indicatorColors?.txt || "black"} fs="32px" bold>
+              {data}
+            </Txt>
+          </div>
+        )}
         <ReadImg
+          id={"img__" + data}
           data-saved={data || ""}
           className={className || ""}
           ref={ref}
