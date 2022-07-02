@@ -2,7 +2,7 @@
 
 By participating in this project, you agree to abide by the tenarix [code of conduct].
 
-[code of conduct]: https://github.com/Akuqt/tenarix/blob/main/CODE_OF_CONDUCT.md
+[code of conduct]: https://github.com/tenarixorg/tenarix/blob/develop/CODE_OF_CONDUCT.md
 
 Fork, then clone the repo:
 
@@ -24,7 +24,7 @@ Make your change and make the lint and tests pass:
 
 Push to your fork and [submit a pull request][pr].
 
-[pr]: https://github.com/Akuqt/tenarix/compare
+[pr]: https://github.com/tenarixorg/tenarix/compare
 
 At this point you're waiting on us. We may suggest
 some changes or improvements or alternatives.
