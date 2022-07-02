@@ -73,7 +73,6 @@ export const initialState: ReadState = {
   loading2: true,
   localImgs: [],
   remote: false,
-  imgWidth: "80%",
   chapterIndex: 0,
 };
 
@@ -109,14 +108,6 @@ export const reducer = (state: ReadState, action: ReadAction): ReadState => {
       return { ...state, current: state.current + action.payload };
     case "decrementCurrent":
       return { ...state, current: state.current - action.payload };
-    case "setImgWidth": {
-      const newWidth = action.payload as string;
-      const width = parseInt(newWidth.substring(0, newWidth.indexOf("%")));
-      return {
-        ...state,
-        imgWidth: width <= 80 && width >= 30 ? action.payload : state.imgWidth,
-      };
-    }
     default:
       return state;
   }
