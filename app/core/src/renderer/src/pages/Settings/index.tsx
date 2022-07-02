@@ -4,14 +4,14 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import { useLang, useTheme } from "context-providers";
 import { RiCloseLine } from "react-icons/ri";
 import {
-  Container,
-  Header2,
   SBtn,
-  SBtnContainer,
-  Setting,
-  SettingOpt,
   SPanel,
+  Setting,
+  Header2,
   SSection,
+  Container,
+  SettingOpt,
+  SBtnContainer,
   SSourceContainer,
 } from "components/src/Elements";
 
@@ -37,7 +37,7 @@ export const Settings: React.FC = () => {
   }, []);
 
   return (
-    <Container bg={colors.background2} scrollColor={colors.primary}>
+    <Container bg={colors.background2} scrollColor={colors.primary} noScroll>
       <SSection>
         <SPanel bg={colors.background1} scrollBg={colors.primary}>
           <Setting noBorder>

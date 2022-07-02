@@ -11,15 +11,16 @@ export const Container = styled.div<{
   align-items: center;
   position: relative;
   background-color: ${(p) => p.bg};
-  height: 100vh;
+  height: calc(100vh - 22px);
   padding: ${(p) => p.padding || "0px"};
   ${(p) =>
     !p.noScroll
       ? `overflow-y: scroll;
   scroll-behavior: smooth;
   ::-webkit-scrollbar {
-    width: 6px;
+    width: 8px;
     height: 0px;
+
   }
 
   ::-webkit-scrollbar-track {
@@ -34,7 +35,8 @@ export const Container = styled.div<{
 
   ::-webkit-scrollbar-thumb:hover {
     background: ${p.scrollColor};
-  }`
+  }
+  `
       : ""};
 `;
 
@@ -80,15 +82,13 @@ export const Description = styled.p<{
 export const Grid = styled.div<{ margin?: string; bg?: string }>`
   display: grid;
   grid-gap: 10px;
-  grid-template-columns: repeat(4, 1fr);
+  width: 100%;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   grid-template-rows: auto;
   justify-items: center;
   background-color: ${(p) => p.bg || "transparent"};
   margin: ${(p) => p.margin || "0px"};
   z-index: 2;
-  @media (max-width: 1250px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
 `;
 
 export const Head = styled.div`
@@ -399,7 +399,7 @@ export const CustomScroll = styled.div<{ scrollColor: string }>`
   margin: 0;
   scroll-behavior: smooth;
   ::-webkit-scrollbar {
-    width: 6px;
+    width: 8px;
     height: 0px;
   }
 

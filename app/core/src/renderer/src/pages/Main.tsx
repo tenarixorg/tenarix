@@ -72,7 +72,7 @@ export const Pages: React.FC = () => {
           api.send("minimizeApp");
         }}
       />
-      <main style={{ marginTop: 22, position: "relative" }}>
+      <main style={{ paddingTop: 22, position: "relative" }}>
         <Sidebar
           ref={sidebarRef}
           closed={closed}
