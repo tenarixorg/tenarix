@@ -22,7 +22,9 @@
   },
   "homepage": "https://github.com/Akuqt/tenarix#readme",
   "dependencies": {
+    "@monaco-editor/react": "^4.3.1",
     "ajv": "^8.9.0",
+    "app-constants": "*",
     "assets": "*",
     "cheerio": "^1.0.0-rc.10",
     "components": "*",
@@ -34,33 +36,32 @@
     "puppeteer-core": "^13.1.3",
     "puppeteer-extra": "^3.2.3",
     "puppeteer-extra-plugin-stealth": "^2.9.0",
-    "react-dom": "^17.0.2",
-    "react-icons": "^4.3.1",
-    "spinners-react": "^1.0.6",
-    "app-constants": "*",
-    "workers": "*",
-    "@monaco-editor/react": "^4.3.1",
     "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "react-hot-toast": "^2.2.0",
+    "react-icons": "^4.3.1",
     "react-router-dom": "^6.2.1",
     "react-virtualized-auto-sizer": "^1.0.6",
     "react-window": "^1.8.6",
+    "react-zoom-pan-pinch": "^2.1.3",
     "schemas": "*",
+    "spinners-react": "^1.0.6",
     "styled-components": "^5.3.3",
     "types": "*",
-    "utils": "*"
+    "utils": "*",
+    "workers": "*"
   },
   "devDependencies": {
     "@types/react": "^17.0.33",
     "@types/react-dom": "^17.0.10",
+    "@types/react-virtualized-auto-sizer": "^1.0.1",
+    "@types/react-window": "^1.8.5",
     "@types/styled-components": "^5.1.18",
     "@vitejs/plugin-react": "^1.0.7",
     "electron": "^15.3.0",
     "electron-builder": "^22.13.1",
     "typescript": "^4.4.4",
-    "vite": "^2.6.13",
-    "@types/react-window": "^1.8.5",
-    "@types/react-virtualized-auto-sizer": "^1.0.1"
+    "vite": "^2.6.13"
   },
   "workspaces": {
     "nohoist": [
