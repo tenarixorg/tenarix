@@ -6,6 +6,7 @@ import { SpinnerDotted, SpinnerInfinity } from "spinners-react";
 import { LazyImage, ReadPagination } from "components";
 import { BsChevronBarExpand } from "react-icons/bs";
 import { useTheme } from "context-providers";
+import { Wrapper } from "./Util";
 import {
   CP,
   Txt,
@@ -21,6 +22,7 @@ const { api } = window.bridge;
 export const Read: React.FC = () => {
   const params = useParams();
   const mounted = useRef(false);
+  const contRef = useRef<HTMLDivElement | null>(null);
   const navigation = useNavigate();
   const { colors } = useTheme();
   const { state: URLstate } = useLocation();
@@ -35,7 +37,6 @@ export const Read: React.FC = () => {
       current,
       reverse,
       loading2,
-      imgWidth,
       localImgs,
       chapterIndex,
     },
@@ -130,38 +131,32 @@ export const Read: React.FC = () => {
     params.route,
   ]);
 
-  const handleWheel = useCallback(
-    (e: WheelEvent) => {
-      if (e.ctrlKey) {
-        let width = parseInt(imgWidth.substring(0, imgWidth.indexOf("%")));
-        width -= e.deltaY / 10;
-        dispatch({ type: "setImgWidth", payload: width + "%" });
-      }
-    },
-    [imgWidth]
-  );
-
   const observeCascadeImgs = useCallback(() => {
     if (cascade) {
-      const observer = new IntersectionObserver((entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            const page_ = entry.target.getAttribute("data-saved");
-            let page = 1;
-            if (page_) {
-              page = parseInt(page_);
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              const page_ = entry.target.getAttribute("data-saved");
+              let page = 1;
+              if (page_) {
+                page = parseInt(page_);
+              }
+              api.send("set:read:percentage", {
+                route: params.route,
+                id: params.id,
+                ext: (URLstate as any)?.ext,
+                percentage: (page / data.pages) * 100,
+                page,
+                check: true,
+              });
             }
-            api.send("set:read:percentage", {
-              route: params.route,
-              id: params.id,
-              ext: (URLstate as any)?.ext,
-              percentage: (page / data.pages) * 100,
-              page,
-              check: true,
-            });
           }
+        },
+        {
+          threshold: 0.1,
         }
-      });
+      );
 
       const imgs_ = document.querySelectorAll(".percentage-image");
       for (const img_ of imgs_) {
@@ -169,6 +164,74 @@ export const Read: React.FC = () => {
       }
     }
   }, [cascade, data.pages, URLstate, params.id, params.route]);
+
+  const handleDirectionkey = useCallback(
+    (direction?: "left" | "right") => {
+      if (cascade) {
+        const ext_ = (URLstate as any)?.ext || "";
+        nextChapter(
+          reverse,
+          current,
+          chapterIndex,
+          data.pages,
+          ids,
+          ext_,
+          params.route || "",
+          navigation,
+          () => {
+            dispatch({ type: "reset" });
+          },
+          true,
+          direction
+        );
+      } else {
+        if (direction === "left") {
+          dispatch({ type: "decrementCurrent", payload: 1 });
+        }
+        if (direction === "right") {
+          dispatch({ type: "incrementCurrent", payload: 1 });
+        }
+      }
+    },
+    [
+      current,
+      cascade,
+      data.pages,
+      URLstate,
+      params.route,
+      chapterIndex,
+      ids,
+      navigation,
+      reverse,
+    ]
+  );
+
+  const handleKeysDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        handleDirectionkey("left");
+      }
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        handleDirectionkey("right");
+      }
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        contRef.current?.scrollBy(0, -100);
+      }
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        contRef.current?.scrollBy(0, 100);
+      }
+      if (e.ctrlKey && e.key === " ") {
+        e.preventDefault();
+        dispatch({ type: "toggleCascade" });
+        contRef.current?.scrollTo(0, 0);
+      }
+    },
+    [handleDirectionkey]
+  );
 
   useEffect(() => {
     const chaps = (URLstate as any)?.chapters;
@@ -230,13 +293,6 @@ export const Read: React.FC = () => {
   }, [params.id, URLstate, params.route]);
 
   useEffect(() => {
-    document.addEventListener("wheel", handleWheel);
-    return () => {
-      document.removeEventListener("wheel", handleWheel);
-    };
-  }, [handleWheel]);
-
-  useEffect(() => {
     getNextPage();
   }, [getNextPage]);
 
@@ -248,35 +304,44 @@ export const Read: React.FC = () => {
     observeCascadeImgs();
   }, [observeCascadeImgs]);
 
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeysDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeysDown);
+    };
+  }, [handleKeysDown]);
+
+  useEffect(() => {
+    api.send("get:read:percentage:page", {
+      route: params.route,
+      ext: (URLstate as any)?.ext || "",
+      id: params.id,
+    });
+    const timer = setTimeout(() => {
+      if (cascade && current > 1) {
+        const img__ = document.querySelector("[data-saved='" + current + "']");
+        if (img__) {
+          img__.scrollIntoView();
+        }
+      }
+    }, 100);
+    return () => {
+      clearTimeout(timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cascade, params.id, params.route, URLstate]);
+
   return (
     <Container
       padding="10px 0px 40px 0px"
       bg={colors.background1}
       scrollColor={colors.primary}
+      ref={contRef}
     >
       <ReadNav>
         <BtnAni
           onClick={() => {
-            if (cascade) {
-              const ext_ = (URLstate as any)?.ext || "";
-              nextChapter(
-                reverse,
-                current,
-                chapterIndex,
-                data.pages,
-                ids,
-                ext_,
-                params.route || "",
-                navigation,
-                () => {
-                  dispatch({ type: "reset" });
-                },
-                true,
-                "left"
-              );
-            } else {
-              dispatch({ type: "decrementCurrent", payload: 1 });
-            }
+            handleDirectionkey("left");
           }}
           disabled={loading || loading2}
         >
@@ -285,26 +350,7 @@ export const Read: React.FC = () => {
         <BtnAni
           right
           onClick={() => {
-            if (cascade) {
-              const ext_ = (URLstate as any)?.ext || "";
-              nextChapter(
-                reverse,
-                current,
-                chapterIndex,
-                data.pages,
-                ids,
-                ext_,
-                params.route || "",
-                navigation,
-                () => {
-                  dispatch({ type: "reset" });
-                },
-                true,
-                "right"
-              );
-            } else {
-              dispatch({ type: "incrementCurrent", payload: 1 });
-            }
+            handleDirectionkey("right");
           }}
           disabled={loading || loading2}
         >
@@ -384,18 +430,152 @@ export const Read: React.FC = () => {
           />
         </Loading>
       ) : (
-        <>
-          {remote ? (
-            <>
-              {cascade && data.imgs && data.imgs.length > 0 ? (
-                data.imgs.map((im, ix) => (
+        <div
+          style={{
+            width: "80%",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Wrapper>
+            {remote ? (
+              <>
+                {cascade && data.imgs && data.imgs.length > 0 ? (
+                  <>
+                    {data.imgs.map((im, ix) => (
+                      <LazyImage
+                        indicator
+                        indicatorColors={{
+                          txt: colors.fontPrimary,
+                          bg: colors.background1,
+                        }}
+                        key={ix}
+                        className="percentage-image"
+                        data={ix + 1}
+                        src={im.url}
+                        alt="img"
+                        imgWidth={"80vw"}
+                        containerStyle={{
+                          position: "relative",
+                          width: "100%",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                        loadingContainerStyle={{
+                          width: "100%",
+                          height: "70vh",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                        Loading={() => (
+                          <SpinnerDotted
+                            size={100}
+                            thickness={180}
+                            speed={100}
+                            color={colors.secondary}
+                          />
+                        )}
+                      />
+                    ))}
+                  </>
+                ) : (
                   <LazyImage
-                    className="percentage-image"
-                    data={ix + 1}
-                    src={im.url}
-                    key={ix}
+                    indicator
+                    indicatorColors={{
+                      txt: colors.fontPrimary,
+                      bg: colors.background1,
+                    }}
+                    src={img}
                     alt="img"
-                    imgWidth={imgWidth}
+                    data={current}
+                    imgWidth={"80vw"}
+                    containerStyle={{
+                      width: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                    loadingContainerStyle={{
+                      width: "100%",
+                      height: "70vh",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                    Loading={() => (
+                      <SpinnerDotted
+                        size={100}
+                        thickness={180}
+                        speed={100}
+                        color={colors.secondary}
+                      />
+                    )}
+                  />
+                )}
+              </>
+            ) : (
+              <>
+                {cascade && localImgs.length > 0 ? (
+                  <>
+                    {localImgs.map((im, ix) => (
+                      <LazyImage
+                        indicator
+                        indicatorColors={{
+                          txt: colors.fontPrimary,
+                          bg: colors.background1,
+                        }}
+                        key={ix}
+                        src={im}
+                        className="percentage-image"
+                        data={ix + 1}
+                        alt="img"
+                        imgWidth={"80vw"}
+                        containerStyle={{
+                          position: "relative",
+                          width: "100%",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                        loadingContainerStyle={{
+                          width: "100%",
+                          height: "70vh",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                        Loading={() => (
+                          <SpinnerDotted
+                            size={100}
+                            thickness={180}
+                            speed={100}
+                            color={colors.secondary}
+                          />
+                        )}
+                      />
+                    ))}
+                  </>
+                ) : (
+                  <LazyImage
+                    indicator
+                    indicatorColors={{
+                      txt: colors.fontPrimary,
+                      bg: colors.background1,
+                    }}
+                    src={img}
+                    alt="img"
+                    data={current}
+                    imgWidth={"80vw"}
                     containerStyle={{
                       position: "relative",
                       width: "100%",
@@ -421,110 +601,11 @@ export const Read: React.FC = () => {
                       />
                     )}
                   />
-                ))
-              ) : (
-                <LazyImage
-                  src={img}
-                  alt="img"
-                  imgWidth={imgWidth}
-                  containerStyle={{
-                    position: "relative",
-                    width: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                  loadingContainerStyle={{
-                    width: "100%",
-                    height: "70vh",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                  Loading={() => (
-                    <SpinnerDotted
-                      size={100}
-                      thickness={180}
-                      speed={100}
-                      color={colors.secondary}
-                    />
-                  )}
-                />
-              )}
-            </>
-          ) : (
-            <>
-              {cascade && localImgs.length > 0 ? (
-                localImgs.map((im, ix) => (
-                  <LazyImage
-                    src={im}
-                    className="percentage-image"
-                    data={ix + 1}
-                    key={ix}
-                    alt="img"
-                    imgWidth={imgWidth}
-                    containerStyle={{
-                      position: "relative",
-                      width: "100%",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                    loadingContainerStyle={{
-                      width: "100%",
-                      height: "70vh",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                    Loading={() => (
-                      <SpinnerDotted
-                        size={100}
-                        thickness={180}
-                        speed={100}
-                        color={colors.secondary}
-                      />
-                    )}
-                  />
-                ))
-              ) : (
-                <LazyImage
-                  src={img}
-                  alt="img"
-                  imgWidth={imgWidth}
-                  containerStyle={{
-                    position: "relative",
-                    width: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                  loadingContainerStyle={{
-                    width: "100%",
-                    height: "70vh",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                  Loading={() => (
-                    <SpinnerDotted
-                      size={100}
-                      thickness={180}
-                      speed={100}
-                      color={colors.secondary}
-                    />
-                  )}
-                />
-              )}
-            </>
-          )}
-        </>
+                )}
+              </>
+            )}
+          </Wrapper>
+        </div>
       )}
     </Container>
   );
