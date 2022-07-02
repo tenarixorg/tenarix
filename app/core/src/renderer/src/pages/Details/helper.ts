@@ -51,6 +51,8 @@ export const reducer = (
       return { ...state, ids: action.payload };
     case "setPercentages":
       return { ...state, percentages: action.payload };
+    case "setHeight":
+      return { ...state, height: action.payload };
     default:
       return state;
   }
@@ -75,4 +77,5 @@ export const initialState: DetailsState = {
   show: true,
   percentages: [],
   sources: [],
+  height: window.innerHeight,
 };

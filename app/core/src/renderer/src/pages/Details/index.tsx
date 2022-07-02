@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useRef } from "react";
+import React, { useCallback, useEffect, useReducer, useRef } from "react";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { BsSortNumericDown, BsSortNumericUpAlt } from "react-icons/bs";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
@@ -47,9 +47,16 @@ export const Details: React.FC = () => {
       reverse,
       percentages,
       sources,
+      height,
     },
     dispatch,
   ] = useReducer(reducer, initialState);
+
+  const resize = useCallback(() => {
+    if (mounted.current) {
+      dispatch({ type: "setHeight", payload: window.innerHeight });
+    }
+  }, []);
 
   useEffect(() => {
     mounted.current = true;
@@ -97,12 +104,15 @@ export const Details: React.FC = () => {
     };
   }, [params.route, URLstate]);
 
+  useEffect(() => {
+    window.addEventListener("resize", resize);
+    return () => {
+      window.removeEventListener("resize", resize);
+    };
+  }, [resize]);
+
   return (
-    <Container
-      bg={colors.background1}
-      scrollColor={colors.primary}
-      padding="0px 0px 30px 0px"
-    >
+    <Container bg={colors.background1} scrollColor={colors.primary}>
       {loading ? (
         <Loading>
           <SpinnerDotted
@@ -234,7 +244,7 @@ export const Details: React.FC = () => {
                   <FixedSizeList
                     itemCount={data.chapters.length}
                     width={width}
-                    height={400}
+                    height={height - 450 < 400 ? 400 : height - 450}
                     itemSize={40}
                     outerElementType={CustomScrollbarsVirtualList}
                   >
