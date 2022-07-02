@@ -84,7 +84,7 @@ events.push(
     if (check) {
       const stored =
         getReadPercentage(ext || extensionID, route, id)?.percentage || -1;
-      if (stored !== -1 && stored < percentage)
+      if (stored !== -1)
         setReadPersentage(ext || extensionID, route, id, {
           percentage,
           lastPage: page,
