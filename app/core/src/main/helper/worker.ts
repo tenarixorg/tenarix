@@ -11,6 +11,7 @@ export const worker = <T>(fn: string, ...data: any[]) => {
       if (msg.done) {
         res(msg.data);
       } else {
+        // eslint-disable-next-line no-console
         console.log(msg.data);
       }
     });
