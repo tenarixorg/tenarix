@@ -26,7 +26,7 @@ export const reducer = (
       return {
         ...state,
         data: action.payload,
-        ids: getIds([...action.payload.chapters]),
+        ids: getIds([...(action.payload?.chapters || [])]),
       };
     case "reverseChapter":
       return {
