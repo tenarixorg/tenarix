@@ -266,4 +266,8 @@ events.push("get:last:route", ({ lastRoute }, e) => {
   e.reply("res:last:route", lastRoute);
 });
 
+events.push("set:internet:mode", (h, _e, { mode }) => {
+  h.offline = !mode;
+});
+
 export default events;

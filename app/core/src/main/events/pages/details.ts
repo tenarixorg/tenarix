@@ -23,7 +23,11 @@ const events = new EventStack();
 
 events.push(
   "get:details",
-  async ({ extensionID, extension, chromiumExec }, e, { route, ext }) => {
+  async (
+    { extensionID, extension, chromiumExec, internet },
+    e,
+    { route, ext }
+  ) => {
     try {
       if (ext) {
         e.reply("res:details", {
@@ -44,6 +48,10 @@ events.push(
           fav: false,
         });
       } else {
+        if (!internet) {
+          e.reply("res:details", { res: null, fav: false });
+          return;
+        }
         const res = await extension?.details(route, chromiumExec);
         setCache(extensionID, key, res);
         e.reply("res:details", { res, fav: false });
@@ -103,6 +111,10 @@ events.push("get:read:percentage", ({ extensionID }, e, { ext, route }) => {
 events.push(
   "download",
   async (h, e, { rid, root, id, imgs, title, info, pages, ext }) => {
+    if (!h.internet) {
+      e.reply("res:error", { error: "No interner connection" });
+      return;
+    }
     const _rid = (rid as string).includes("=") ? await getHash(rid) : rid;
     const main = join(h.downloadFolder, `${await getHash(root)}`);
     const base = join(main, `${_rid}`);

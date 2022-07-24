@@ -1,4 +1,5 @@
 import { Lang, SelectItem, Source } from "types";
+import dns from "dns";
 
 export const encodeRoute = (data: string) => {
   return data
@@ -74,4 +75,18 @@ export const toastMessageFormat = (msg: string): string => {
     );
   }
   return msg;
+};
+
+export const checkInternetConnection = (off?: boolean) => {
+  if (off) return Promise.resolve(false);
+
+  return new Promise<boolean>((res) => {
+    dns.lookup("google.com", { family: 4, hints: 0 }, (err, address) => {
+      if (err && !address) {
+        res(false);
+      } else {
+        res(true);
+      }
+    });
+  });
 };

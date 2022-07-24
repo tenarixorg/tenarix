@@ -2,10 +2,15 @@ import fs from "fs";
 import axios from "axios";
 import { chromiumMirror, initialFolders, initialTheme } from "app-constants";
 import { getContent, initFolders } from "./helper";
-import { decodeRoute, encodeRoute, matchSystemLang } from "utils";
 import { resolve, join } from "path";
 import { platform } from "os";
 import { load } from "cheerio";
+import {
+  decodeRoute,
+  encodeRoute,
+  matchSystemLang,
+  checkInternetConnection,
+} from "utils";
 import {
   app,
   ipcMain,
@@ -68,6 +73,8 @@ export class AppHandler {
 
   public languageID;
   public extensionID;
+  public offline: boolean;
+  public internet: boolean;
   public lastRoute: string;
   public customTheme: Theme;
   public extensions: AppExts;
@@ -92,6 +99,8 @@ export class AppHandler {
     this.downloadFolder = resolve(join(this.appFolder, ".dreader"));
     this.extensionsFolder = resolve(join(this.appFolder, "extensions"));
     this.languagesFolder = resolve(join(this.appFolder, "languages"));
+    this.internet = true;
+    this.offline = false;
     this.currentDowns = 0;
     this.languageID = "en";
     this.extensionID = "inmanga";
@@ -114,6 +123,7 @@ export class AppHandler {
     this.initProtocol();
     this.initLanguages();
     this.initExtensions();
+    this.checkInternet();
   }
 
   private removeKey<K = any, T = any>(obj: K, key: string): T {
@@ -230,10 +240,18 @@ export class AppHandler {
     });
   }
 
+  private async checkInternet() {
+    const interval = setInterval(async () => {
+      this.internet = await checkInternetConnection(this.offline);
+      this.win?.webContents.send("internet:connection", this.internet);
+    }, 200);
+    this.win.on("closed", () => {
+      clearInterval(interval);
+    });
+  }
+
   public init(events: EventStack) {
-    const evs = events.getEvents();
-    for (const obj of evs) {
-      this.addEvent(obj.event, obj.callback);
-    }
+    for (const { event, callback } of events.getEvents())
+      this.addEvent(event, callback);
   }
 }

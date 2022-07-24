@@ -1,13 +1,14 @@
 import {
+  getAllExt,
+  format_ext,
   capitalize,
   decodeRoute,
   encodeRoute,
-  format_ext,
-  toastMessageFormat,
-  getAllExt,
-  matchSystemLang,
-  langs2SelectOptions,
   sourcesFilter,
+  matchSystemLang,
+  toastMessageFormat,
+  langs2SelectOptions,
+  checkInternetConnection,
 } from "../src";
 
 describe("Util Functions", () => {
@@ -101,5 +102,10 @@ describe("Util Functions", () => {
     expect(res?.ext.length).toBeGreaterThan(0);
     expect(res?.lang.length).toBeGreaterThan(0);
     expect(res?.pinned).toEqual(true);
+  });
+  test("should check internet connection", async () => {
+    const temp = await checkInternetConnection();
+    expect(temp).toBeDefined();
+    expect(temp).toBe(true);
   });
 });

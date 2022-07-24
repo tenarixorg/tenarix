@@ -5,13 +5,21 @@ const events = new EventStack();
 
 events.push(
   "get:library",
-  async ({ extensionID, chromiumExec, extension }, e, { page, filters }) => {
+  async (
+    { extensionID, chromiumExec, extension, internet },
+    e,
+    { page, filters }
+  ) => {
     const key =
       "library" + page + JSON.stringify(filters).replace(/({|}|,|"|:)/g, "");
     try {
       if (hasCache(extensionID, key)) {
         e.reply("res:library", getCache(extensionID, key));
       } else {
+        if (!internet) {
+          e.reply("res:library", null);
+          return;
+        }
         const res = await extension?.library(page, chromiumExec, filters);
         setCache(extensionID, key, res?.items);
         e.reply("res:library", res?.items);

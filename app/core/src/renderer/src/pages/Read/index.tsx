@@ -3,7 +3,7 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
 import { initialState, nextChapter, reducer } from "./helper";
 import { SpinnerDotted, SpinnerInfinity } from "spinners-react";
-import { LazyImage, ReadPagination } from "components";
+import { LazyImage, NoInternet, ReadPagination } from "components";
 import { BsChevronBarExpand } from "react-icons/bs";
 import { useTheme } from "context-providers";
 import { Wrapper } from "./Util";
@@ -49,7 +49,7 @@ export const Read: React.FC = () => {
       reverse,
       current,
       chapterIndex,
-      data.pages,
+      data?.pages,
       ids,
       ext_,
       params.route || "",
@@ -63,7 +63,7 @@ export const Read: React.FC = () => {
     current,
     reverse,
     URLstate,
-    data.pages,
+    data?.pages,
     navigation,
     chapterIndex,
     params.route,
@@ -74,12 +74,12 @@ export const Read: React.FC = () => {
       dispatch({ type: "setCurrent", payload: 1 });
     }
 
-    if (current > data.pages && data.pages > 0) {
+    if (current > data?.pages && data?.pages > 0) {
       dispatch({ type: "setCurrent", payload: data.pages });
     }
-    if (data.id) {
+    if (data?.id) {
       if (remote) {
-        if (data.imgs && data.imgs.length > 0) {
+        if (data?.imgs && data.imgs.length > 0) {
           dispatch({ type: "setLoading", payload: true });
           const im = data.imgs[current - 1];
           if (im) {
@@ -121,13 +121,13 @@ export const Read: React.FC = () => {
     }
   }, [
     remote,
-    data.id,
+    data?.id,
     current,
     URLstate,
     params.id,
     localImgs,
-    data.imgs,
-    data.pages,
+    data?.imgs,
+    data?.pages,
     params.route,
   ]);
 
@@ -163,7 +163,7 @@ export const Read: React.FC = () => {
         observer.observe(img_);
       }
     }
-  }, [cascade, data.pages, URLstate, params.id, params.route]);
+  }, [cascade, data?.pages, URLstate, params.id, params.route]);
 
   const handleDirectionkey = useCallback(
     (direction?: "left" | "right") => {
@@ -173,7 +173,7 @@ export const Read: React.FC = () => {
           reverse,
           current,
           chapterIndex,
-          data.pages,
+          data?.pages,
           ids,
           ext_,
           params.route || "",
@@ -196,7 +196,7 @@ export const Read: React.FC = () => {
     [
       current,
       cascade,
-      data.pages,
+      data?.pages,
       URLstate,
       params.route,
       chapterIndex,
@@ -338,274 +338,292 @@ export const Read: React.FC = () => {
       scrollColor={colors.primary}
       ref={contRef}
     >
-      <ReadNav>
-        <BtnAni
-          onClick={() => {
-            handleDirectionkey("left");
-          }}
-          disabled={loading || loading2}
-        >
-          <RiArrowLeftSLine size={60} color={colors.primary} />
-        </BtnAni>
-        <BtnAni
-          right
-          onClick={() => {
-            handleDirectionkey("right");
-          }}
-          disabled={loading || loading2}
-        >
-          <RiArrowRightSLine size={60} color={colors.primary} />
-        </BtnAni>
-      </ReadNav>
-
-      {loading2 ? (
-        <SpinnerInfinity
-          size={80}
-          thickness={100}
-          speed={100}
-          style={{
-            marginTop: 20,
-          }}
-          color={colors.secondary}
-          secondaryColor="rgba(0, 0, 0, 0.44)"
-        />
-      ) : (
+      {data ? (
         <>
-          <Txt margin="0px 0px 4px 0px" fs="30px" color={colors.fontPrimary}>
-            {data.title.substring(0, 50) +
-              `${
-                (data.title || "").length >
-                (data.title || "").substring(0, 50).length
-                  ? "..."
-                  : ""
-              }` || "Title"}
-          </Txt>
-          <div
-            style={{
-              width: "100%",
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Txt margin="0px 40px 0px 0px" fs="20px" color={colors.fontPrimary}>
-              {data.info}
-            </Txt>
-            {!cascade && (
-              <ReadPagination
-                selectedItemColor={colors.secondary}
-                listScrollColor={colors.primary}
-                listBg={colors.background2}
-                max={data.pages}
-                min={1}
-                value={current}
-                color={colors.fontPrimary}
-                listColor={colors.fontPrimary}
-                fs="20px"
-                onChange={(n) => {
-                  dispatch({ type: "setCurrent", payload: n });
-                }}
-              />
-            )}
-          </div>
+          <ReadNav>
+            <BtnAni
+              onClick={() => {
+                handleDirectionkey("left");
+              }}
+              disabled={loading || loading2}
+            >
+              <RiArrowLeftSLine size={60} color={colors.primary} />
+            </BtnAni>
+            <BtnAni
+              right
+              onClick={() => {
+                handleDirectionkey("right");
+              }}
+              disabled={loading || loading2}
+            >
+              <RiArrowRightSLine size={60} color={colors.primary} />
+            </BtnAni>
+          </ReadNav>
 
-          <Btn
-            onClick={() => dispatch({ type: "toggleCascade" })}
-            style={{ margin: "10px 0px" }}
-          >
-            <CP rot={cascade}>
-              <BsChevronBarExpand color={colors.primary} size={30} />
-            </CP>
-          </Btn>
+          {loading2 ? (
+            <SpinnerInfinity
+              size={80}
+              thickness={100}
+              speed={100}
+              style={{
+                marginTop: 20,
+              }}
+              color={colors.secondary}
+              secondaryColor="rgba(0, 0, 0, 0.44)"
+            />
+          ) : (
+            <>
+              <Txt
+                margin="0px 0px 4px 0px"
+                fs="30px"
+                color={colors.fontPrimary}
+              >
+                {data.title.substring(0, 50) +
+                  `${
+                    (data.title || "").length >
+                    (data.title || "").substring(0, 50).length
+                      ? "..."
+                      : ""
+                  }` || "Title"}
+              </Txt>
+              <div
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Txt
+                  margin="0px 40px 0px 0px"
+                  fs="20px"
+                  color={colors.fontPrimary}
+                >
+                  {data.info}
+                </Txt>
+                {!cascade && (
+                  <ReadPagination
+                    selectedItemColor={colors.secondary}
+                    listScrollColor={colors.primary}
+                    listBg={colors.background2}
+                    max={data.pages}
+                    min={1}
+                    value={current}
+                    color={colors.fontPrimary}
+                    listColor={colors.fontPrimary}
+                    fs="20px"
+                    onChange={(n) => {
+                      dispatch({ type: "setCurrent", payload: n });
+                    }}
+                  />
+                )}
+              </div>
+
+              <Btn
+                onClick={() => dispatch({ type: "toggleCascade" })}
+                style={{ margin: "10px 0px" }}
+              >
+                <CP rot={cascade}>
+                  <BsChevronBarExpand color={colors.primary} size={30} />
+                </CP>
+              </Btn>
+            </>
+          )}
+          {loading || loading2 ? (
+            <Loading>
+              <SpinnerDotted
+                size={100}
+                thickness={180}
+                speed={100}
+                color={colors.secondary}
+              />
+            </Loading>
+          ) : (
+            <div
+              style={{
+                width: "80%",
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Wrapper>
+                {remote ? (
+                  <>
+                    {cascade && data.imgs && data.imgs.length > 0 ? (
+                      <>
+                        {data.imgs.map((im, ix) => (
+                          <LazyImage
+                            indicator
+                            indicatorColors={{
+                              txt: colors.fontPrimary,
+                              bg: colors.background1,
+                            }}
+                            key={ix}
+                            className="percentage-image"
+                            data={ix + 1}
+                            src={im.url}
+                            alt="img"
+                            imgWidth={"80vw"}
+                            containerStyle={{
+                              position: "relative",
+                              width: "100%",
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "center",
+                              alignItems: "center",
+                            }}
+                            loadingContainerStyle={{
+                              width: "100%",
+                              height: "70vh",
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "center",
+                              alignItems: "center",
+                            }}
+                            Loading={() => (
+                              <SpinnerDotted
+                                size={100}
+                                thickness={180}
+                                speed={100}
+                                color={colors.secondary}
+                              />
+                            )}
+                          />
+                        ))}
+                      </>
+                    ) : (
+                      <LazyImage
+                        indicator
+                        indicatorColors={{
+                          txt: colors.fontPrimary,
+                          bg: colors.background1,
+                        }}
+                        src={img}
+                        alt="img"
+                        data={current}
+                        imgWidth={"80vw"}
+                        containerStyle={{
+                          width: "100%",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                        loadingContainerStyle={{
+                          width: "100%",
+                          height: "70vh",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                        Loading={() => (
+                          <SpinnerDotted
+                            size={100}
+                            thickness={180}
+                            speed={100}
+                            color={colors.secondary}
+                          />
+                        )}
+                      />
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {cascade && localImgs.length > 0 ? (
+                      <>
+                        {localImgs.map((im, ix) => (
+                          <LazyImage
+                            indicator
+                            indicatorColors={{
+                              txt: colors.fontPrimary,
+                              bg: colors.background1,
+                            }}
+                            key={ix}
+                            src={im}
+                            className="percentage-image"
+                            data={ix + 1}
+                            alt="img"
+                            imgWidth={"80vw"}
+                            containerStyle={{
+                              position: "relative",
+                              width: "100%",
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "center",
+                              alignItems: "center",
+                            }}
+                            loadingContainerStyle={{
+                              width: "100%",
+                              height: "70vh",
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "center",
+                              alignItems: "center",
+                            }}
+                            Loading={() => (
+                              <SpinnerDotted
+                                size={100}
+                                thickness={180}
+                                speed={100}
+                                color={colors.secondary}
+                              />
+                            )}
+                          />
+                        ))}
+                      </>
+                    ) : (
+                      <LazyImage
+                        indicator
+                        indicatorColors={{
+                          txt: colors.fontPrimary,
+                          bg: colors.background1,
+                        }}
+                        src={img}
+                        alt="img"
+                        data={current}
+                        imgWidth={"80vw"}
+                        containerStyle={{
+                          position: "relative",
+                          width: "100%",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                        loadingContainerStyle={{
+                          width: "100%",
+                          height: "70vh",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                        Loading={() => (
+                          <SpinnerDotted
+                            size={100}
+                            thickness={180}
+                            speed={100}
+                            color={colors.secondary}
+                          />
+                        )}
+                      />
+                    )}
+                  </>
+                )}
+              </Wrapper>
+            </div>
+          )}
         </>
-      )}
-      {loading || loading2 ? (
-        <Loading>
-          <SpinnerDotted
-            size={100}
-            thickness={180}
-            speed={100}
-            color={colors.secondary}
-          />
-        </Loading>
       ) : (
-        <div
-          style={{
-            width: "80%",
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Wrapper>
-            {remote ? (
-              <>
-                {cascade && data.imgs && data.imgs.length > 0 ? (
-                  <>
-                    {data.imgs.map((im, ix) => (
-                      <LazyImage
-                        indicator
-                        indicatorColors={{
-                          txt: colors.fontPrimary,
-                          bg: colors.background1,
-                        }}
-                        key={ix}
-                        className="percentage-image"
-                        data={ix + 1}
-                        src={im.url}
-                        alt="img"
-                        imgWidth={"80vw"}
-                        containerStyle={{
-                          position: "relative",
-                          width: "100%",
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "center",
-                          alignItems: "center",
-                        }}
-                        loadingContainerStyle={{
-                          width: "100%",
-                          height: "70vh",
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "center",
-                          alignItems: "center",
-                        }}
-                        Loading={() => (
-                          <SpinnerDotted
-                            size={100}
-                            thickness={180}
-                            speed={100}
-                            color={colors.secondary}
-                          />
-                        )}
-                      />
-                    ))}
-                  </>
-                ) : (
-                  <LazyImage
-                    indicator
-                    indicatorColors={{
-                      txt: colors.fontPrimary,
-                      bg: colors.background1,
-                    }}
-                    src={img}
-                    alt="img"
-                    data={current}
-                    imgWidth={"80vw"}
-                    containerStyle={{
-                      width: "100%",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                    loadingContainerStyle={{
-                      width: "100%",
-                      height: "70vh",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                    Loading={() => (
-                      <SpinnerDotted
-                        size={100}
-                        thickness={180}
-                        speed={100}
-                        color={colors.secondary}
-                      />
-                    )}
-                  />
-                )}
-              </>
-            ) : (
-              <>
-                {cascade && localImgs.length > 0 ? (
-                  <>
-                    {localImgs.map((im, ix) => (
-                      <LazyImage
-                        indicator
-                        indicatorColors={{
-                          txt: colors.fontPrimary,
-                          bg: colors.background1,
-                        }}
-                        key={ix}
-                        src={im}
-                        className="percentage-image"
-                        data={ix + 1}
-                        alt="img"
-                        imgWidth={"80vw"}
-                        containerStyle={{
-                          position: "relative",
-                          width: "100%",
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "center",
-                          alignItems: "center",
-                        }}
-                        loadingContainerStyle={{
-                          width: "100%",
-                          height: "70vh",
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "center",
-                          alignItems: "center",
-                        }}
-                        Loading={() => (
-                          <SpinnerDotted
-                            size={100}
-                            thickness={180}
-                            speed={100}
-                            color={colors.secondary}
-                          />
-                        )}
-                      />
-                    ))}
-                  </>
-                ) : (
-                  <LazyImage
-                    indicator
-                    indicatorColors={{
-                      txt: colors.fontPrimary,
-                      bg: colors.background1,
-                    }}
-                    src={img}
-                    alt="img"
-                    data={current}
-                    imgWidth={"80vw"}
-                    containerStyle={{
-                      position: "relative",
-                      width: "100%",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                    loadingContainerStyle={{
-                      width: "100%",
-                      height: "70vh",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                    Loading={() => (
-                      <SpinnerDotted
-                        size={100}
-                        thickness={180}
-                        speed={100}
-                        color={colors.secondary}
-                      />
-                    )}
-                  />
-                )}
-              </>
-            )}
-          </Wrapper>
-        </div>
+        <NoInternet
+          color={colors.fontSecondary}
+          iconColor={colors.navbar.background}
+          msg={"No Internet Connection"}
+        />
       )}
     </Container>
   );
