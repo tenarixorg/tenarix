@@ -26,6 +26,10 @@ events.push("get:read:init", async (h, e, { id, ext }) => {
     } else if (hasCache(source, key)) {
       e.reply("res:read:init", getCache(source, key));
     } else {
+      if (!h.internet) {
+        e.reply("res:read:init", null);
+        return;
+      }
       const res = await h.extension.read(id, h.chromiumExec);
       setCache(source, key, res);
       e.reply("res:read:init", res);
