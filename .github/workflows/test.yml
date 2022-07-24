@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         node: [16.x]
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest]
     env:
       CHROME_WIN: ${{ secrets.CHROME_WIN }}
       CHROME_LINUX: ${{ secrets.CHROME_LINUX }}
