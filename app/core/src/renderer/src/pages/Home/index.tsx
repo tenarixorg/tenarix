@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useReducer } from "react";
 import { Container, Grid, Loading, Head, Txt } from "components/src/Elements";
 import { initialState, reducer } from "./helper";
 import { useLang, useTheme } from "context-providers";
+import { Card, NoInternet } from "components";
 import { SpinnerDotted } from "spinners-react";
 import { useNavigate } from "react-router-dom";
-import { Card } from "components";
 
 const { api } = window.bridge;
 
@@ -47,29 +47,41 @@ export const Home: React.FC = () => {
         </Loading>
       ) : (
         <>
-          <Head>
-            <Txt fs="16px" bold color={colors.fontPrimary}>
-              {lang.home.head}
-            </Txt>
-          </Head>
+          {data ? (
+            <>
+              <Head>
+                <Txt fs="16px" bold color={colors.fontPrimary}>
+                  {lang.home.head}
+                </Txt>
+              </Head>
 
-          <Grid margin="10px 0px 0px 5px">
-            {data.popular &&
-              data.popular.length !== 0 &&
-              data.popular.map((e, i) => (
-                <Card
-                  colors={colors}
-                  pointer
-                  key={i}
-                  img={e.img}
-                  onClick={() => {
-                    navigation(`/details/${e.route}`);
-                  }}
-                  type={e.type}
-                  title={e.title}
-                />
-              ))}
-          </Grid>
+              <Grid margin="10px 0px 0px 5px">
+                {data.popular && data.popular.length !== 0 ? (
+                  data.popular.map((e, i) => (
+                    <Card
+                      colors={colors}
+                      pointer
+                      key={i}
+                      img={e.img}
+                      onClick={() => {
+                        navigation(`/details/${e.route}`);
+                      }}
+                      type={e.type}
+                      title={e.title}
+                    />
+                  ))
+                ) : (
+                  <></>
+                )}
+              </Grid>
+            </>
+          ) : (
+            <NoInternet
+              color={colors.fontSecondary}
+              iconColor={colors.navbar.background}
+              msg={"No Internet Connection"}
+            />
+          )}
         </>
       )}
     </Container>

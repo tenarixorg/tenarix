@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useReducer, useRef } from "react";
 import AutoSizer from "react-virtualized-auto-sizer";
+import { Chapter, Status, GenderBadge, Card, NoInternet } from "components";
 import { BsSortNumericDown, BsSortNumericUpAlt } from "react-icons/bs";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { Chapter, Status, GenderBadge, Card } from "components";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 import { getSource, initialState, reducer } from "./helper";
 import { IoHeartOutline, IoHeartSharp } from "react-icons/io5";
@@ -124,58 +124,74 @@ export const Details: React.FC = () => {
         </Loading>
       ) : (
         <>
-          {data && (
-            <InfoContainer>
-              <Fav
-                onClick={() => {
-                  if (!fav) {
-                    api.send("set:favorite", { route: params.route, data });
-                  } else {
-                    api.send("remove:favorite", {
-                      route: params.route,
-                      ext: (URLstate as any)?.ext || "",
-                    });
-                  }
-                }}
-              >
-                {fav ? (
-                  <IoHeartSharp color={"red"} size={30} />
-                ) : (
-                  <IoHeartOutline color={"red"} size={30} />
-                )}
-              </Fav>
-              <CardInfo>
-                <Card
-                  colors={colors}
-                  disabled
-                  img={data.img}
-                  type={data.type}
-                />
-              </CardInfo>
-              <Info>
-                <Txt
-                  margin="0px 0px 4px 0px"
-                  fs="35px"
-                  bold
-                  color={colors.fontPrimary}
-                  style={{
-                    width: "95%",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
+          {data ? (
+            <>
+              <InfoContainer>
+                <Fav
+                  onClick={() => {
+                    if (!fav) {
+                      api.send("set:favorite", { route: params.route, data });
+                    } else {
+                      api.send("remove:favorite", {
+                        route: params.route,
+                        ext: (URLstate as any)?.ext || "",
+                      });
+                    }
                   }}
                 >
-                  {data.title}
-                </Txt>
-                <Description
-                  fs="16px"
-                  margin="20px 0px 10px 0px"
-                  color={colors.fontSecondary}
-                >
-                  {data.description}
-                </Description>
+                  {fav ? (
+                    <IoHeartSharp color={"red"} size={30} />
+                  ) : (
+                    <IoHeartOutline color={"red"} size={30} />
+                  )}
+                </Fav>
+                <CardInfo>
+                  <Card
+                    colors={colors}
+                    disabled
+                    img={data.img}
+                    type={data.type}
+                  />
+                </CardInfo>
+                <Info>
+                  <Txt
+                    margin="0px 0px 4px 0px"
+                    fs="35px"
+                    bold
+                    color={colors.fontPrimary}
+                    style={{
+                      width: "95%",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {data.title}
+                  </Txt>
+                  <Description
+                    fs="16px"
+                    margin="20px 0px 10px 0px"
+                    color={colors.fontSecondary}
+                  >
+                    {data.description}
+                  </Description>
 
-                {data.genres.length > 0 && (
+                  {data.genres.length > 0 && (
+                    <Txt
+                      fs="24px"
+                      bold
+                      margin="0px 0px 4px 0px"
+                      color={colors.fontSecondary}
+                      style={{ margin: "20px 0px 10px 0px" }}
+                    >
+                      {lang.details.genders}
+                    </Txt>
+                  )}
+                  <GenderContainer>
+                    {data.genres.map((e, i) => (
+                      <GenderBadge colors={colors} text={e} key={i + e} />
+                    ))}
+                  </GenderContainer>
                   <Txt
                     fs="24px"
                     bold
@@ -183,165 +199,159 @@ export const Details: React.FC = () => {
                     color={colors.fontSecondary}
                     style={{ margin: "20px 0px 10px 0px" }}
                   >
-                    {lang.details.genders}
+                    {lang.details.status}
                   </Txt>
-                )}
-                <GenderContainer>
-                  {data.genres.map((e, i) => (
-                    <GenderBadge colors={colors} text={e} key={i + e} />
-                  ))}
-                </GenderContainer>
+                  <Status colors={colors} state={data.status} />
+                </Info>
+              </InfoContainer>
+              <ChaptersHeader bg={colors.background1}>
                 <Txt
-                  fs="24px"
-                  bold
+                  color={colors.fontPrimary}
+                  pointer
+                  fs="25px"
                   margin="0px 0px 4px 0px"
-                  color={colors.fontSecondary}
-                  style={{ margin: "20px 0px 10px 0px" }}
+                  bold
+                  onClick={() => dispatch({ type: "toggleShow" })}
                 >
-                  {lang.details.status}
+                  {lang.details.chapters}
                 </Txt>
-                <Status colors={colors} state={data.status} />
-              </Info>
-            </InfoContainer>
-          )}
-          <ChaptersHeader bg={colors.background1}>
-            <Txt
-              color={colors.fontPrimary}
-              pointer
-              fs="25px"
-              margin="0px 0px 4px 0px"
-              bold
-              onClick={() => dispatch({ type: "toggleShow" })}
-            >
-              {lang.details.chapters}
-            </Txt>
-            <Main width="70px">
-              <Btn
-                onClick={() => {
-                  dispatch({ type: "toggleOrder" });
-                  dispatch({ type: "reverseChapter" });
-                }}
-              >
-                {!order ? (
-                  <BsSortNumericDown color={colors.secondary} size={25} />
-                ) : (
-                  <BsSortNumericUpAlt color={colors.secondary} size={25} />
-                )}
-              </Btn>
-              <Btn onClick={() => dispatch({ type: "toggleShow" })}>
-                {show ? (
-                  <RiArrowUpSLine color={colors.secondary} size={30} />
-                ) : (
-                  <RiArrowDownSLine color={colors.secondary} size={30} />
-                )}
-              </Btn>
-            </Main>
-          </ChaptersHeader>
-          {show && (
-            <ChaptersContainer bg={colors.background1}>
-              <AutoSizer disableHeight>
-                {({ width }) => (
-                  <FixedSizeList
-                    itemCount={data.chapters.length}
-                    width={width}
-                    height={height - 450 < 400 ? 400 : height - 450}
-                    itemSize={40}
-                    outerElementType={CustomScrollbarsVirtualList}
+                <Main width="70px">
+                  <Btn
+                    onClick={() => {
+                      dispatch({ type: "toggleOrder" });
+                      dispatch({ type: "reverseChapter" });
+                    }}
                   >
-                    {({ index, style }) => (
-                      <div style={style}>
-                        <Chapter
-                          colors={colors}
-                          chapter={data.chapters[index]}
-                          currentSource={getSource(
-                            sources,
-                            data.chapters[index].title
-                          )}
-                          percentage={(curr) => {
-                            const notFound = {
-                              id: curr,
-                              percetage: 0,
-                            };
-                            const per = percentages.find((u) => u.id === curr);
-                            return per ? per : notFound;
-                          }}
-                          handlePercentage={(per) => {
-                            if (per.percetage < 100) {
-                              api.send("set:read:percentage", {
-                                route: params.route,
-                                ext: (URLstate as any)?.ext || "",
-                                id: per.id,
-                                percentage: 100,
-                                page: -1,
-                              });
-                            } else {
-                              api.send("set:read:percentage", {
-                                route: params.route,
-                                ext: (URLstate as any)?.ext || "",
-                                id: per.id,
-                                percentage: 0,
-                                page: 1,
-                              });
-                            }
-                          }}
-                          handleDownload={(rid) => {
-                            api.on("res:read:init", (_e, res) => {
-                              api.removeAllListeners("res:read:init");
-                              api.send("download", {
-                                rid,
-                                root: params.route,
-                                id: res.id,
-                                imgs: res.imgs,
-                                title: res.title,
-                                pages: res.pages,
-                                info: res.info,
-                                ext: (URLstate as any)?.ext || "",
-                              });
-                            });
-                            api.send("get:read:init", {
-                              id: rid,
-                              ext: (URLstate as any)?.ext || "",
-                            });
-                          }}
-                          downloaded={(curr) =>
-                            !!downs.find(
-                              (u) =>
-                                curr !== "" && u.data.rid === curr && u.done
-                            )
-                          }
-                          downloading={(curr) =>
-                            !!downs.find(
-                              (u) =>
-                                curr !== "" &&
-                                u.data.rid === curr &&
-                                u.inProgress
-                            )
-                          }
-                          onSourceChange={(id_) => {
-                            api.send("set:current:chapter:source", {
-                              ext: (URLstate as any)?.ext,
-                              route: params.route,
-                              chapter: data.chapters[index].title,
-                              current: id_,
-                            });
-                          }}
-                          handleRead={(id) => {
-                            navigation(`/read/${params.route}/${id}`, {
-                              state: {
-                                ext: (URLstate as any)?.ext || "",
-                                chapters: ids,
-                                reverse,
-                                cascade: false,
-                              },
-                            });
-                          }}
-                        />
-                      </div>
+                    {!order ? (
+                      <BsSortNumericDown color={colors.secondary} size={25} />
+                    ) : (
+                      <BsSortNumericUpAlt color={colors.secondary} size={25} />
                     )}
-                  </FixedSizeList>
-                )}
-              </AutoSizer>
-            </ChaptersContainer>
+                  </Btn>
+                  <Btn onClick={() => dispatch({ type: "toggleShow" })}>
+                    {show ? (
+                      <RiArrowUpSLine color={colors.secondary} size={30} />
+                    ) : (
+                      <RiArrowDownSLine color={colors.secondary} size={30} />
+                    )}
+                  </Btn>
+                </Main>
+              </ChaptersHeader>
+              {show && (
+                <ChaptersContainer bg={colors.background1}>
+                  <AutoSizer disableHeight>
+                    {({ width }) => (
+                      <FixedSizeList
+                        itemCount={data?.chapters.length}
+                        width={width}
+                        height={height - 450 < 400 ? 400 : height - 450}
+                        itemSize={40}
+                        outerElementType={CustomScrollbarsVirtualList}
+                      >
+                        {({ index, style }) => (
+                          <div style={style}>
+                            <Chapter
+                              colors={colors}
+                              chapter={data?.chapters[index]}
+                              currentSource={getSource(
+                                sources,
+                                data?.chapters[index].title
+                              )}
+                              percentage={(curr) => {
+                                const notFound = {
+                                  id: curr,
+                                  percetage: 0,
+                                };
+                                const per = percentages.find(
+                                  (u) => u.id === curr
+                                );
+                                return per ? per : notFound;
+                              }}
+                              handlePercentage={(per) => {
+                                if (per.percetage < 100) {
+                                  api.send("set:read:percentage", {
+                                    route: params.route,
+                                    ext: (URLstate as any)?.ext || "",
+                                    id: per.id,
+                                    percentage: 100,
+                                    page: -1,
+                                  });
+                                } else {
+                                  api.send("set:read:percentage", {
+                                    route: params.route,
+                                    ext: (URLstate as any)?.ext || "",
+                                    id: per.id,
+                                    percentage: 0,
+                                    page: 1,
+                                  });
+                                }
+                              }}
+                              handleDownload={(rid) => {
+                                api.on("res:read:init", (_e, res) => {
+                                  api.removeAllListeners("res:read:init");
+                                  api.send("download", {
+                                    rid,
+                                    root: params.route,
+                                    id: res?.id,
+                                    imgs: res?.imgs,
+                                    title: res?.title,
+                                    pages: res?.pages,
+                                    info: res?.info,
+                                    ext: (URLstate as any)?.ext || "",
+                                  });
+                                });
+                                api.send("get:read:init", {
+                                  id: rid,
+                                  ext: (URLstate as any)?.ext || "",
+                                });
+                              }}
+                              downloaded={(curr) =>
+                                !!downs.find(
+                                  (u) =>
+                                    curr !== "" && u.data.rid === curr && u.done
+                                )
+                              }
+                              downloading={(curr) =>
+                                !!downs.find(
+                                  (u) =>
+                                    curr !== "" &&
+                                    u.data.rid === curr &&
+                                    u.inProgress
+                                )
+                              }
+                              onSourceChange={(id_) => {
+                                api.send("set:current:chapter:source", {
+                                  ext: (URLstate as any)?.ext,
+                                  route: params.route,
+                                  chapter: data.chapters[index].title,
+                                  current: id_,
+                                });
+                              }}
+                              handleRead={(id) => {
+                                navigation(`/read/${params.route}/${id}`, {
+                                  state: {
+                                    ext: (URLstate as any)?.ext || "",
+                                    chapters: ids,
+                                    reverse,
+                                    cascade: false,
+                                  },
+                                });
+                              }}
+                            />
+                          </div>
+                        )}
+                      </FixedSizeList>
+                    )}
+                  </AutoSizer>
+                </ChaptersContainer>
+              )}
+            </>
+          ) : (
+            <NoInternet
+              color={colors.fontSecondary}
+              iconColor={colors.navbar.background}
+              msg={"No Internet Connection"}
+            />
           )}
         </>
       )}

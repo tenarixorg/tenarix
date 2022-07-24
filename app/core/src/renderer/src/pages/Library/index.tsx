@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { initialState, reducer } from "./helper";
 import { useTheme, useLang } from "context-providers";
 import { SpinnerDotted } from "spinners-react";
-import { Card } from "components";
+import { Card, NoInternet } from "components";
 import {
   Txt,
   Grid,
@@ -68,63 +68,91 @@ export const Library: React.FC = () => {
       scrollColor={colors.primary}
       padding="0px 10px 100px 10px"
     >
-      {!loading ? (
+      {
         <>
-          <Head>
-            <Txt margin="0px 0px 4px 0px" fs="16px" color={colors.fontPrimary}>
-              {lang.library.head}
-            </Txt>
-          </Head>
-          <Grid bg={colors.background1} margin="10px 0px 0px 5px">
-            {data &&
-              data.length !== 0 &&
-              data.map((e, i) => (
-                <Card
-                  colors={colors}
-                  pointer
-                  key={i}
-                  img={e.img}
-                  onClick={() => {
-                    navigation(`/details/${e.route}`);
-                  }}
-                  type={e.type}
-                  title={e.title}
-                />
-              ))}
-          </Grid>
+          {!loading ? (
+            <>
+              {data ? (
+                <>
+                  <Head>
+                    <Txt
+                      margin="0px 0px 4px 0px"
+                      fs="16px"
+                      color={colors.fontPrimary}
+                    >
+                      {lang.library.head}
+                    </Txt>
+                  </Head>
+                  <Grid bg={colors.background1} margin="10px 0px 0px 5px">
+                    {data &&
+                      data.length !== 0 &&
+                      data.map((e, i) => (
+                        <Card
+                          colors={colors}
+                          pointer
+                          key={i}
+                          img={e.img}
+                          onClick={() => {
+                            navigation(`/details/${e.route}`);
+                          }}
+                          type={e.type}
+                          title={e.title}
+                        />
+                      ))}
+                  </Grid>
 
-          <Pagination>
-            <BtnAni
-              onClick={() => dispatch({ type: "decrementPage", payload: 1 })}
-            >
-              <BsChevronDoubleLeft size={24} color={colors.buttons.color} />
-            </BtnAni>
-            <Txt
-              margin="0px 0px 4px 0px"
-              fs="20px"
-              color={colors.buttons.color}
-              style={{ margin: "0px 10px" }}
-            >
-              {page}
-            </Txt>
-            <BtnAni
-              right
-              onClick={() => dispatch({ type: "incrementPage", payload: 1 })}
-            >
-              <BsChevronDoubleRight size={24} color={colors.buttons.color} />
-            </BtnAni>
-          </Pagination>
+                  <Pagination>
+                    <BtnAni
+                      onClick={() =>
+                        dispatch({ type: "decrementPage", payload: 1 })
+                      }
+                    >
+                      <BsChevronDoubleLeft
+                        size={24}
+                        color={colors.buttons.color}
+                      />
+                    </BtnAni>
+                    <Txt
+                      margin="0px 0px 4px 0px"
+                      fs="20px"
+                      color={colors.buttons.color}
+                      style={{ margin: "0px 10px" }}
+                    >
+                      {page}
+                    </Txt>
+                    <BtnAni
+                      right
+                      onClick={() =>
+                        dispatch({ type: "incrementPage", payload: 1 })
+                      }
+                    >
+                      <BsChevronDoubleRight
+                        size={24}
+                        color={colors.buttons.color}
+                      />
+                    </BtnAni>
+                  </Pagination>
+                </>
+              ) : (
+                <NoInternet
+                  color={colors.fontSecondary}
+                  iconColor={colors.navbar.background}
+                  msg={"No Internet Connection"}
+                />
+              )}
+            </>
+          ) : (
+            <Loading>
+              <SpinnerDotted
+                size={100}
+                thickness={180}
+                speed={100}
+                color={colors.secondary}
+              />
+            </Loading>
+          )}
         </>
-      ) : (
-        <Loading>
-          <SpinnerDotted
-            size={100}
-            thickness={180}
-            speed={100}
-            color={colors.secondary}
-          />
-        </Loading>
-      )}
+      }
     </Container>
   );
 };
