@@ -19,9 +19,9 @@ async function mainWin() {
     titleBarStyle: "hidden",
     title: "Tenarix",
     minWidth: 950,
-    minHeight: 520,
+    minHeight: 540,
     width: 950,
-    height: 520,
+    height: 540,
     show: false,
     fullscreenable: false,
     webPreferences: {
