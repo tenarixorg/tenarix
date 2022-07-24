@@ -23,7 +23,7 @@ const Container = styled.div<{ closed?: boolean; bg: string }>`
   background-color: ${(p) => p.bg};
   z-index: 100;
   position: absolute;
-  top: 0;
+  top: 22;
 `;
 
 const BottomOpts = styled.div`
