@@ -11,7 +11,7 @@ export const Container = styled.div<{
   align-items: center;
   position: relative;
   background-color: ${(p) => p.bg};
-  height: calc(100vh - 22px);
+  height: calc(100vh - 44px);
   padding: ${(p) => p.padding || "0px"};
   ${(p) =>
     !p.noScroll
@@ -435,4 +435,32 @@ export const Fav = styled.button`
   &:hover {
     transform: translateY(-2px);
   }
+`;
+
+export const Div = styled.div<{
+  direction?: "row" | "column";
+  bg?: string;
+  justify?:
+    | "center"
+    | "flex-start"
+    | "flex-end"
+    | "space-between"
+    | "space-around";
+  align?: "center" | "flex-start" | "flex-end";
+  width?: string;
+  height?: string;
+  padding?: string;
+  margin?: string;
+  zIndex?: number;
+}>`
+  display: flex;
+  flex-direction: ${(p) => p?.direction || "row"};
+  justify-content: ${(p) => p?.justify || "flex-start"};
+  align-items: ${(p) => p?.align || "flex-start"};
+  background-color: ${(p) => p?.bg || "transparent"};
+  width: ${(p) => p?.width || "fit-content"};
+  height: ${(p) => p?.height || "auto"};
+  padding: ${(p) => p?.padding || "0px"};
+  margin: ${(p) => p?.margin || "0px"};
+  z-index: ${(p) => p?.zIndex || "0"};
 `;

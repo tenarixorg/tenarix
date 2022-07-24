@@ -436,6 +436,8 @@ export interface AppHandler {
   extensions: AppExts;
   languages: AppLangs;
   maxDownloads: number;
+  offline: boolean;
+  internet: boolean;
 }
 
 export type EventCallback = (

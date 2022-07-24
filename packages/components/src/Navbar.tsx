@@ -20,9 +20,9 @@ const Container = styled.div<{ bg: string }>`
   align-items: center;
   width: 100%;
   background-color: ${(p) => p.bg};
-  position: fixed;
   top: 0;
   z-index: 100;
+  height: 22px;
 `;
 
 const Drag = styled.div`

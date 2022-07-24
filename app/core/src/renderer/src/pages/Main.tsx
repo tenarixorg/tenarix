@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Navbar, Sidebar, CustomToast } from "components";
+import { Navbar, Sidebar, CustomToast, Tabbar } from "components";
 import { toastMessageFormat } from "utils";
-import { useTheme } from "context-providers";
+import { useNet, useTheme } from "context-providers";
 import { Router } from "./Router";
 import { toast } from "react-hot-toast";
 
@@ -13,6 +13,7 @@ export const Pages: React.FC = () => {
   const mounted = useRef(false);
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const sidebarExcludeRef = useRef<HTMLButtonElement | null>(null);
+  const { net } = useNet();
 
   const handleSidebar = useCallback((e: MouseEvent) => {
     if (
@@ -54,7 +55,14 @@ export const Pages: React.FC = () => {
   }, [handleSidebar]);
 
   return (
-    <>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        width: "100%",
+      }}
+    >
       <Navbar
         ref={sidebarExcludeRef}
         colors={colors}
@@ -72,7 +80,11 @@ export const Pages: React.FC = () => {
           api.send("minimizeApp");
         }}
       />
-      <main style={{ paddingTop: 22, position: "relative" }}>
+      <main
+        style={{
+          width: "100%",
+        }}
+      >
         <Sidebar
           ref={sidebarRef}
           closed={closed}
@@ -99,7 +111,8 @@ export const Pages: React.FC = () => {
         />
         <Router />
       </main>
+      <Tabbar colors={colors} net={net} />
       <CustomToast colors={colors} />
-    </>
+    </div>
   );
 };
