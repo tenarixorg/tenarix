@@ -103,6 +103,7 @@ interface Props {
   sidebar: () => void;
   colors: BaseTheme;
   sideAni?: boolean;
+  show?: boolean;
 }
 export const Navbar = React.forwardRef<HTMLButtonElement, Props>(
   (props, ref) => {
@@ -152,7 +153,12 @@ export const Navbar = React.forwardRef<HTMLButtonElement, Props>(
     }, [handleSearch, urlHandler]);
 
     return (
-      <Container bg={props.colors.navbar.background}>
+      <Container
+        bg={props.colors.navbar.background}
+        style={{
+          display: props.show ? "flex" : "none",
+        }}
+      >
         <Menu width="fit-content" dir="left" padding="0px">
           <Item>
             <Btn2

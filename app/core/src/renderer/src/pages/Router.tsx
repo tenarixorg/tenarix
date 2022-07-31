@@ -17,7 +17,7 @@ const NotFound = () => {
       <h1>404</h1>
       <button
         onClick={() => {
-          navigation("/");
+          navigation("/ext");
         }}
       >
         Home

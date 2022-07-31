@@ -18,10 +18,11 @@ async function mainWin() {
   win = new BrowserWindow({
     titleBarStyle: "hidden",
     title: "Tenarix",
-    minWidth: 950,
-    minHeight: 540,
-    width: 950,
-    height: 540,
+    minWidth: 700,
+    minHeight: 400,
+    resizable: false,
+    width: 700,
+    height: 400,
     show: false,
     fullscreenable: false,
     webPreferences: {

@@ -6,12 +6,10 @@ import { Div, Txt } from "./Elements";
 interface Props {
   net: boolean;
   colors: BaseTheme;
+  show?: boolean;
 }
 
-const InternetMode: React.FC<{
-  net: boolean;
-  colors: BaseTheme;
-}> = ({ colors, net }) => {
+const InternetMode: React.FC<Props> = ({ colors, net }) => {
   return (
     <>
       <Div width="4rem" height="22px" padding="0px 8px" zIndex={101}>
@@ -24,7 +22,7 @@ const InternetMode: React.FC<{
 };
 
 export const Tabbar = React.forwardRef<HTMLDivElement, Props>(
-  ({ colors, net }, ref) => {
+  ({ colors, net, show }, ref) => {
     return (
       <Div
         ref={ref}
@@ -34,6 +32,7 @@ export const Tabbar = React.forwardRef<HTMLDivElement, Props>(
         zIndex={100}
         style={{
           position: "relative",
+          display: show ? "flex" : "none",
         }}
       >
         <InternetMode net={net} colors={colors} />

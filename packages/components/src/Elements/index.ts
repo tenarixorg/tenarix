@@ -5,6 +5,7 @@ export const Container = styled.div<{
   scrollColor: string;
   padding?: string;
   noScroll?: boolean;
+  dragger?: boolean;
 }>`
   display: flex;
   flex-direction: column;
@@ -38,6 +39,8 @@ export const Container = styled.div<{
   }
   `
       : ""};
+
+  ${(p) => (p.dragger ? "-webkit-app-region: drag;" : "")};
 `;
 
 export const Txt = styled.p<{
@@ -206,6 +209,7 @@ export const BtnAni = styled.button<{ right?: boolean }>`
   &:hover {
     transform: translateX(${(p) => (p.right ? "5px" : "-5px")});
   }
+  -webkit-app-region: no-drag;
 `;
 
 export const ReadNav = styled.div`
@@ -452,6 +456,7 @@ export const Div = styled.div<{
   padding?: string;
   margin?: string;
   zIndex?: number;
+  borderRadius?: string;
 }>`
   display: flex;
   flex-direction: ${(p) => p?.direction || "row"};
@@ -463,4 +468,44 @@ export const Div = styled.div<{
   padding: ${(p) => p?.padding || "0px"};
   margin: ${(p) => p?.margin || "0px"};
   z-index: ${(p) => p?.zIndex || "0"};
+  border-radius: ${(p) => p?.borderRadius || "0px"};
+`;
+
+export const Progress = styled.progress<{
+  width?: string;
+  height?: string;
+  bg?: string;
+  progressColor?: string;
+  borderRadis?: string;
+  value: string;
+  color?: string;
+  fs?: string;
+}>`
+  width: ${(p) => p?.width || "100%"};
+  height: ${(p) => p?.height || "20px"};
+  outline: none;
+  border: none;
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: ${(p) => p?.borderRadis || "10px"};
+  &::-webkit-progress-bar {
+    background-color: ${(p) => p?.bg || "transparent"};
+    border-radius: ${(p) => p?.borderRadis || "10px"};
+  }
+  &::-webkit-progress-value {
+    background-color: ${(p) => p?.progressColor || "transparent"};
+    border-radius: ${(p) => p?.borderRadis || "10px"};
+  }
+
+  &::after {
+    font-size: ${(p) => p?.fs || "10px"};
+    color: ${(p) => p?.color || "transparent"};
+    content: "${(p) => p?.value || "0"}%";
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: translateY(-${(p) => p?.height || "20px"});
+  }
 `;
