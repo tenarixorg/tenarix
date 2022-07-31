@@ -1,19 +1,20 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Navbar, Sidebar, CustomToast, Tabbar } from "components";
+import { useGeneral, useNet, useTheme } from "context-providers";
 import { toastMessageFormat } from "utils";
-import { useNet, useTheme } from "context-providers";
 import { Router } from "./Router";
 import { toast } from "react-hot-toast";
 
 const { api } = window.bridge;
 
 export const Pages: React.FC = () => {
-  const { colors } = useTheme();
-  const [closed, setClosed] = useState(true);
   const mounted = useRef(false);
+  const { net } = useNet();
+  const { colors } = useTheme();
+  const { showNavs } = useGeneral();
+  const [closed, setClosed] = useState(true);
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const sidebarExcludeRef = useRef<HTMLButtonElement | null>(null);
-  const { net } = useNet();
 
   const handleSidebar = useCallback((e: MouseEvent) => {
     if (
@@ -61,6 +62,7 @@ export const Pages: React.FC = () => {
         flexDirection: "column",
         height: "100%",
         width: "100%",
+        backgroundColor: colors.background2,
       }}
     >
       <Navbar
@@ -79,6 +81,7 @@ export const Pages: React.FC = () => {
         minimize={() => {
           api.send("minimizeApp");
         }}
+        show={showNavs}
       />
       <main
         style={{
@@ -94,7 +97,7 @@ export const Pages: React.FC = () => {
             setClosed((c) => !c);
           }}
           home={() => {
-            window.location.href = "#/";
+            window.location.href = "#/ext";
             setClosed((c) => !c);
           }}
           favorites={() => {
@@ -111,7 +114,7 @@ export const Pages: React.FC = () => {
         />
         <Router />
       </main>
-      <Tabbar colors={colors} net={net} />
+      <Tabbar colors={colors} net={net} show={showNavs} />
       <CustomToast colors={colors} />
     </div>
   );
