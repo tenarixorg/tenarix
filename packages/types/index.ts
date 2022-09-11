@@ -364,6 +364,26 @@ export interface AppearanceState {
   newColors: BaseTheme;
 }
 
+export interface PluginsAction {
+  type:
+    | "setQuery"
+    | "setPlugins"
+    | "setSelectedPlugin"
+    | "setInstalled"
+    | "setClear"
+    | "setShowModal";
+  payload?: any;
+}
+
+export interface PluginsState {
+  query: string;
+  plugins: ExtensionPlugin[];
+  selectedPlugin: ExtensionPlugin | null;
+  installed: string[];
+  clear: boolean;
+  showModal: boolean;
+}
+
 export interface DownloadItem {
   title: string;
   info: string;
@@ -438,6 +458,7 @@ export interface AppHandler {
   maxDownloads: number;
   offline: boolean;
   internet: boolean;
+  extensionNameMap: { [key: string]: string };
 }
 
 export type EventCallback = (
@@ -455,4 +476,21 @@ export interface ChromiumMeta {
   url: string;
   folder: string;
   exec: string;
+}
+
+interface Version {
+  description: string;
+  tarball: string;
+  homepage?: string;
+  readme?: string;
+}
+
+export interface ExtensionPlugin {
+  author?: string;
+  name: string;
+  versions: {
+    [key: string]: Version;
+  };
+  latest: string;
+  lang: string;
 }
