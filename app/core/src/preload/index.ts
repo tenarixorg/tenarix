@@ -1,16 +1,11 @@
 import { contextBridge, ipcRenderer } from "electron";
-import { getLoading } from "./loading";
 import { domReady } from "./utils";
-
-const { appendLoading, removeLoading } = getLoading();
 
 (async () => {
   await domReady();
-  appendLoading();
 })();
 
 contextBridge.exposeInMainWorld("bridge", {
-  removeLoading,
   api: withPrototype(ipcRenderer),
 });
 
