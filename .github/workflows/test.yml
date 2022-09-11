@@ -18,23 +18,18 @@ jobs:
         node: [16.x]
         os: [ubuntu-latest]
     env:
-      CHROME_WIN: ${{ secrets.CHROME_WIN }}
       CHROME_LINUX: ${{ secrets.CHROME_LINUX }}
-      CHROME_MAC: ${{ secrets.CHROME_MAC }}
 
     name: Test - ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
       - name: Install Chrome
         uses: browser-actions/setup-chrome@latest
-      - name: Change endline (windows)
-        if: ${{runner.os == 'Windows'}}
-        run: npx chendln -t crlf -i yarn.lock
       - name: Install dependencies
         run: yarn
       - name: Lint
