@@ -30,6 +30,12 @@ export const getAllExtDownloads = (ext: string) => {
       res.push(down);
     }
   }
-
   return res;
+};
+
+export const removeAllExtDownloads = (ext: string): void => {
+  const keys = store.store;
+  for (const key in keys) {
+    if (key.includes(ext)) store.delete(key);
+  }
 };
