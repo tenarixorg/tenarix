@@ -96,8 +96,12 @@ export const Pages: React.FC = () => {
             window.history.back();
             setClosed((c) => !c);
           }}
-          home={() => {
+          ext={() => {
             window.location.href = "#/ext";
+            setClosed((c) => !c);
+          }}
+          plugins={() => {
+            window.location.href = "#/plugins";
             setClosed((c) => !c);
           }}
           favorites={() => {

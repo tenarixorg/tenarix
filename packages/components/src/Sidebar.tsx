@@ -3,6 +3,7 @@ import React, { forwardRef } from "react";
 import styled from "styled-components";
 import { RiArrowLeftSLine } from "react-icons/ri";
 import { IoCogOutline, IoHeartOutline } from "react-icons/io5";
+import { VscExtensions } from "react-icons/vsc";
 import { FaRegCompass } from "react-icons/fa";
 import { BaseTheme } from "types";
 
@@ -53,7 +54,8 @@ const Btn = styled.button<{ margin: string; animation?: string }>`
 
 interface Props {
   back: () => void;
-  home: () => void;
+  ext: () => void;
+  plugins: () => void;
   settings: () => void;
   favorites: () => void;
   closed?: boolean;
@@ -65,13 +67,23 @@ export const Sidebar = forwardRef<HTMLDivElement, Props>((props, ref) => {
       closed={props.closed}
       bg={props.colors.navbar.background}
       ref={ref}
+      style={{
+        zIndex: 1000,
+      }}
     >
       <Btn onClick={props.back} animation={leftAni} margin="0px 0px 10px 0px">
         <RiArrowLeftSLine size={28} color={props.colors.navbar.buttons.color} />
       </Btn>
 
       <BottomOpts>
-        <Btn onClick={props.home} margin="0px 0px 20px 0px" animation={rotAni2}>
+        <Btn
+          onClick={props.plugins}
+          margin="0px 0px 20px 0px"
+          animation={upAni}
+        >
+          <VscExtensions size={20} color={props.colors.navbar.buttons.color} />
+        </Btn>
+        <Btn onClick={props.ext} margin="0px 0px 20px 0px" animation={rotAni2}>
           <FaRegCompass size={20} color={props.colors.navbar.buttons.color} />
         </Btn>
         <Btn
