@@ -1,4 +1,5 @@
-import { Lang, SelectItem, Source } from "types";
+import axios from "axios";
+import { ExtensionPlugin, Lang, SelectItem, Source } from "types";
 import dns from "dns";
 
 export const encodeRoute = (data: string) => {
@@ -89,4 +90,13 @@ export const checkInternetConnection = (off?: boolean) => {
       }
     });
   });
+};
+
+export const getAllExtensions = async (
+  url: string
+): Promise<ExtensionPlugin[]> => {
+  axios.defaults.adapter = require("axios/lib/adapters/http");
+  const res = await axios.get<{ ok: boolean; data: ExtensionPlugin[] }>(url);
+  if (res.data.ok) return res.data.data;
+  else return [];
 };
