@@ -192,25 +192,30 @@ export const loadLocalFile = <T>(
   );
 };
 
-export const extractLocalFiles = (path: string, outDir: string) => {
+export const extractLocalFiles = (
+  path: string,
+  outDir: string,
+  tar?: boolean
+) => {
   return worker<void>(
     `
     const {workerData, parentPort} = require("worker_threads");
     const {join} = require("path");
     
-    const [path, outDir, env] = workerData;
+    const [path, outDir, tar, env] = workerData;
     
     ${common}
     
     const {extractFiles} = dynamicRequire("workers");
 
     (async()=>{
-      const res_ = await extractFiles(path, outDir);
+      const res_ = await extractFiles(path, outDir, tar);
       parentPort.postMessage({done: true, data: res_});
     })();
   `,
     path,
     outDir,
+    tar,
     process.env.NODE_ENV
   );
 };
