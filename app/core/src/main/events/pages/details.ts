@@ -116,7 +116,11 @@ events.push(
       return;
     }
     const _rid = (rid as string).includes("=") ? await getHash(rid) : rid;
-    const main = join(h.downloadFolder, `${await getHash(root)}`);
+    const main = join(
+      h.downloadFolder,
+      h.extensionID,
+      `${await getHash(root)}`
+    );
     const base = join(main, `${_rid}`);
     if (!fs.existsSync(main)) fs.mkdirSync(main, { recursive: true });
     if (!fs.existsSync(base)) fs.mkdirSync(base, { recursive: true });
