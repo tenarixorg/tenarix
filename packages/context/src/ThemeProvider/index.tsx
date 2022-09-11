@@ -6,7 +6,7 @@ const themeContext = createContext<BaseTheme>(initialTheme.dark);
 
 const { api } = window.bridge;
 
-export const ThemeProvider: React.FC = ({ children }) => {
+export const ThemeProvider: React.FC<any> = ({ children }) => {
   const [colors, setColors] = useState<BaseTheme>(initialTheme.dark);
 
   useEffect(() => {

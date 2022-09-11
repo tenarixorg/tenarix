@@ -2,7 +2,7 @@ import React from "react";
 
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
-export const Wrapper: React.FC = ({ children }) => {
+export const Wrapper: React.FC<{ children: any }> = ({ children }) => {
   return (
     <TransformWrapper
       pinch={{

@@ -6,11 +6,12 @@ const CustomScrollbars: React.FC<{
   onScroll?: React.UIEventHandler<HTMLDivElement>;
   forwardedRef?: any;
   style?: React.CSSProperties;
+  children?: any;
 }> = ({ onScroll, forwardedRef, style, children }) => {
   const { colors } = useTheme();
 
   const refSetter = useCallback(
-    (scrollbarsRef) => {
+    (scrollbarsRef: any) => {
       if (scrollbarsRef) {
         forwardedRef(scrollbarsRef.view);
       } else {
