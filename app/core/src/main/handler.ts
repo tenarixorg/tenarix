@@ -3,6 +3,7 @@ import axios from "axios";
 import { chromiumMirror, initialFolders, initialTheme } from "app-constants";
 import { getContent, initFolders } from "./helper";
 import { resolve, join } from "path";
+import { pathToFileURL } from "url";
 import { platform } from "os";
 import { watch } from "chokidar";
 import { load } from "cheerio";
@@ -141,10 +142,14 @@ export class AppHandler {
 
   private async initLanguages() {
     const languages = fs.readdirSync(this.languagesFolder);
-
     for (const language of languages) {
-      const lang = (await import(join(this.languagesFolder, language)))
-        .default as Language;
+      const lang = (
+        await import(
+          pathToFileURL(
+            join(this.languagesFolder, language, "dist", "index.js")
+          ).toString()
+        )
+      ).default.default as Language;
       this.languages = {
         ...this.languages,
         [lang.id]: this.removeKey(lang, "id"),
@@ -163,8 +168,13 @@ export class AppHandler {
     this.win?.webContents.send("res:installed:plugins", extensions);
     axios.defaults.adapter = require("axios/lib/adapters/http");
     for (const extension of extensions) {
-      const ext = (await import(join(this.extensionsFolder, extension)))
-        .default as Extension;
+      const ext = (
+        await import(
+          pathToFileURL(
+            join(this.extensionsFolder, extension, "dist", "index.js")
+          ).toString()
+        )
+      ).default as Extension;
       const res = ext(getContent, load, axios, { encodeRoute, decodeRoute });
       this.extensionNameMap = {
         ...this.extensionNameMap,
