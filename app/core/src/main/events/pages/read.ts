@@ -62,7 +62,7 @@ events.push(
       e.reply("res:read:local", false);
       return;
     }
-    const main = join(downloadFolder, await getHash(root));
+    const main = join(downloadFolder, extensionID, await getHash(root));
     if (!fs.existsSync(resolve(main))) {
       e.reply("res:read:local", false);
       return;

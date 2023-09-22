@@ -15,6 +15,14 @@ export const getCache = <T>(ext: string, target: string): T | undefined => {
   if (store.has(`${ext}_${target}`)) return store.get(`${ext}_${target}`) as T;
   return undefined;
 };
+
 export const hasCache = (ext: string, target: string): boolean => {
   return store.has(`${ext}_${target}`);
+};
+
+export const removeExtCache = (ext: string): void => {
+  const keys = store.store;
+  for (const key in keys) {
+    if (key.includes(ext)) store.delete(key);
+  }
 };

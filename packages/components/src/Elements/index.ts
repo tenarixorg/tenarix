@@ -457,6 +457,9 @@ export const Div = styled.div<{
   margin?: string;
   zIndex?: number;
   borderRadius?: string;
+  scroll?: boolean;
+  scrollColor?: string;
+  pointer?: boolean;
 }>`
   display: flex;
   flex-direction: ${(p) => p?.direction || "row"};
@@ -465,10 +468,37 @@ export const Div = styled.div<{
   background-color: ${(p) => p?.bg || "transparent"};
   width: ${(p) => p?.width || "fit-content"};
   height: ${(p) => p?.height || "auto"};
+  min-height: ${(p) => p?.height || "auto"};
   padding: ${(p) => p?.padding || "0px"};
   margin: ${(p) => p?.margin || "0px"};
   z-index: ${(p) => p?.zIndex || "0"};
   border-radius: ${(p) => p?.borderRadius || "0px"};
+  cursor: ${(p) => (p?.pointer ? "pointer" : "default")};
+  ${(p) =>
+    p.scroll
+      ? `overflow-y: scroll;
+  scroll-behavior: smooth;
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 0px;
+
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: ${p.scrollColor};
+    border-radius: 30px;
+    height: 50px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: ${p.scrollColor};
+  }
+  `
+      : ""};
 `;
 
 export const Progress = styled.progress<{

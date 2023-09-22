@@ -4,7 +4,7 @@ const netContext = createContext<boolean>(true);
 
 const { api } = window.bridge;
 
-export const NetProvider: React.FC = ({ children }) => {
+export const NetProvider: React.FC<any> = ({ children }) => {
   const [net, setNet] = useState<boolean>(true);
 
   useEffect(() => {

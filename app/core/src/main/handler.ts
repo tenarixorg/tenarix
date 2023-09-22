@@ -4,6 +4,7 @@ import { chromiumMirror, initialFolders, initialTheme } from "app-constants";
 import { getContent, initFolders } from "./helper";
 import { resolve, join } from "path";
 import { platform } from "os";
+import { watch } from "chokidar";
 import { load } from "cheerio";
 import {
   decodeRoute,
@@ -13,6 +14,7 @@ import {
 } from "utils";
 import {
   app,
+  shell,
   ipcMain,
   session,
   protocol,
@@ -85,6 +87,7 @@ export class AppHandler {
   public language: OmitLangID | undefined;
   public extension: OmitExtID | undefined;
   public currentThemeSchema: "dark" | "light";
+  public extensionNameMap: { [key: string]: string } = {};
 
   private URLfilter_ = {
     urls: ["*://*/*"],
@@ -124,6 +127,7 @@ export class AppHandler {
     this.initLanguages();
     this.initExtensions();
     this.checkInternet();
+    this.initExtensionWatcher();
   }
 
   private removeKey<K = any, T = any>(obj: K, key: string): T {
@@ -156,11 +160,16 @@ export class AppHandler {
 
   private async initExtensions() {
     const extensions = fs.readdirSync(this.extensionsFolder);
+    this.win?.webContents.send("res:installed:plugins", extensions);
     axios.defaults.adapter = require("axios/lib/adapters/http");
     for (const extension of extensions) {
       const ext = (await import(join(this.extensionsFolder, extension)))
         .default as Extension;
       const res = ext(getContent, load, axios, { encodeRoute, decodeRoute });
+      this.extensionNameMap = {
+        ...this.extensionNameMap,
+        [extension]: res.name,
+      };
       this.extensions = {
         ...this.extensions,
         [res.name]: this.removeKey(res, "name"),
@@ -170,6 +179,11 @@ export class AppHandler {
   }
 
   private initWindow() {
+    this.win.webContents.setWindowOpenHandler((details) => {
+      shell.openExternal(details.url);
+      return { action: "deny" };
+    });
+
     this.win?.on("ready-to-show", async () => {
       this.win?.show();
       await initFolders(
@@ -247,6 +261,26 @@ export class AppHandler {
     }, 200);
     this.win.on("closed", () => {
       clearInterval(interval);
+    });
+  }
+
+  private initExtensionWatcher() {
+    watch(this.extensionsFolder).on("addDir", (path: string) => {
+      if (path.includes("dist") && process.uptime() > 3) {
+        setTimeout(() => {
+          this.initExtensions();
+        }, 100);
+      }
+    });
+    watch(this.extensionsFolder).on("unlinkDir", (path) => {
+      if (!path.includes("dist")) {
+        const normalized = path.split("\\").join("/");
+        const ext = normalized.split("/").pop();
+        setTimeout(() => {
+          this.removeKey(this.extensions, this.extensionNameMap[ext || ""]);
+          this.initExtensions();
+        }, 100);
+      }
     });
   }
 

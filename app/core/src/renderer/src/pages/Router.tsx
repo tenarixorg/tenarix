@@ -6,6 +6,7 @@ import { Settings } from "./Settings";
 import { Library } from "./Library";
 import { Details } from "./Details";
 import { Welcome } from "./Welcome";
+import { Plugins } from "./Plugins";
 import { Editor } from "./Editor";
 import { Home } from "./Home";
 import { Read } from "./Read";
@@ -32,6 +33,7 @@ export const Router: React.FC = () => {
       <Routes>
         <Route path="/" element={<Welcome />} />
         <Route path="/ext" element={<Extensions />} />
+        <Route path="/plugins" element={<Plugins />} />
         <Route path="/details/:route" element={<Details />} />
         <Route path="/library/:query" element={<Library />} />
         <Route path="/read/:route/:id" element={<Read />} />

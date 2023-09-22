@@ -6,7 +6,7 @@ const langContext = createContext<Language>(baseLang);
 
 const { api } = window.bridge;
 
-export const LangProvider: React.FC = ({ children }) => {
+export const LangProvider: React.FC<any> = ({ children }) => {
   const [lang, setLang] = useState<Language>(baseLang);
 
   useEffect(() => {

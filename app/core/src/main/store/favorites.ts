@@ -25,6 +25,13 @@ export const removeFavorite = (ext: string, route: string): void => {
   store.delete(`${ext}::${route}`);
 };
 
+export const removeAllExtFavorites = (ext: string): void => {
+  const keys = store.store;
+  for (const key in keys) {
+    if (key.includes(ext)) store.delete(key);
+  }
+};
+
 export const getExtFavs = (ext: string) => {
   const res: string[] = [];
   const keys = Object.keys(store.store);

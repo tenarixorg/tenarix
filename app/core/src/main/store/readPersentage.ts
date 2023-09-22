@@ -33,9 +33,7 @@ export const hasReadPercentage = (
 
 export const getAllReadPercentage = (ext: string, route: string) => {
   const res: ReadPercentage[] = [];
-
   const keys = Object.keys(store.store);
-
   for (const key of keys) {
     if (key.startsWith(`${ext}::${route}`)) {
       res.push({
@@ -44,6 +42,12 @@ export const getAllReadPercentage = (ext: string, route: string) => {
       });
     }
   }
-
   return res;
+};
+
+export const removeAllExtReadPercentage = (ext: string): void => {
+  const keys = store.store;
+  for (const key in keys) {
+    if (key.includes(ext)) store.delete(key);
+  }
 };

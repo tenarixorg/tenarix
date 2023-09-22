@@ -49,6 +49,7 @@ export const initialTheme: Theme = {
 
 export const initialFolders = (slang: string, currentThemeSchema: string) => [
   { name: ".dreader" },
+  { name: "extensions" },
   {
     name: "themes",
     files: [
