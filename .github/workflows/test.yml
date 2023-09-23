@@ -17,8 +17,6 @@ jobs:
       matrix:
         node: [16.x]
         os: [ubuntu-latest]
-    env:
-      CHROME_LINUX: ${{ secrets.CHROME_LINUX }}
 
     name: Test - ${{ matrix.os }}
 
