@@ -187,8 +187,8 @@ export const Btn = styled.button`
 
 export const Pagination = styled.div`
   position: fixed;
-  z-index: 1;
-  bottom: 0;
+  z-index: 100;
+  bottom: 1.5rem;
   display: flex;
   flex-direction: row;
   justify-content: center;
