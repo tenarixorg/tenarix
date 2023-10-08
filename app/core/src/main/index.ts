@@ -1,7 +1,7 @@
 import os from "os";
 import events from "./events";
-import { app, BrowserWindow } from "electron";
-import { AppHandler } from "./handler";
+import Handler from "./handler";
+import { app, BrowserWindow, nativeTheme, ipcMain } from "electron";
 import { join } from "path";
 
 const isWin7 = os.release().startsWith("6.1");
@@ -32,7 +32,7 @@ async function mainWin() {
     },
   });
 
-  const handler = new AppHandler(win);
+  const handler = new Handler(app, win, ipcMain, nativeTheme);
 
   handler.init(events);
 

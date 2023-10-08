@@ -30,7 +30,7 @@ events.push("get:read:init", async (h, e, { id, ext }) => {
         e.reply("res:read:init", null);
         return;
       }
-      const res = await h.extension.read(id, h.chromiumExec);
+      const res = await h.extension.read(id, h.chromium.exec);
       setCache(source, key, res);
       e.reply("res:read:init", res);
     }
@@ -56,13 +56,13 @@ events.push(
 
 events.push(
   "get:read:local",
-  async ({ extensionID, downloadFolder }, e, { rid, root, id, total, ext }) => {
+  async ({ extensionID, files }, e, { rid, root, id, total, ext }) => {
     const _rid = (rid as string).includes("=") ? await getHash(rid) : rid;
     if (getDownload(rid, ext || extensionID)?.inProgress) {
       e.reply("res:read:local", false);
       return;
     }
-    const main = join(downloadFolder, extensionID, await getHash(root));
+    const main = join(files.downloadFolder, extensionID, await getHash(root));
     if (!fs.existsSync(resolve(main))) {
       e.reply("res:read:local", false);
       return;

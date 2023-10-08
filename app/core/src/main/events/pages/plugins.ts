@@ -24,19 +24,22 @@ events.push("get:plugins", async (_, e) => {
   }
 });
 
-events.push("get:installed:plugins", async ({ extensionsFolder }, e) => {
-  try {
-    const plugins = fs.readdirSync(extensionsFolder);
-    e.reply("res:installed:plugins", plugins);
-  } catch (error: any) {
-    e.reply("res:error", { error: error.message });
+events.push(
+  "get:installed:plugins",
+  async ({ files: { extensionsFolder } }, e) => {
+    try {
+      const plugins = fs.readdirSync(extensionsFolder);
+      e.reply("res:installed:plugins", plugins);
+    } catch (error: any) {
+      e.reply("res:error", { error: error.message });
+    }
   }
-});
+);
 
 events.push(
   "install:plugin",
   async (
-    { win, extensionsFolder, extensionNameMap, downloadFolder },
+    { win, files, extensionNameMap },
     _,
     { tarball, uninstall, clear }
   ) => {
@@ -44,8 +47,8 @@ events.push(
     const uname = name.split("_")[0];
     const rname = extensionNameMap[uname];
     if (uninstall) {
-      const path = resolve(extensionsFolder, uname);
-      const downs = resolve(downloadFolder, rname);
+      const path = resolve(files.extensionsFolder, uname);
+      const downs = resolve(files.downloadFolder, rname);
       fs.rmSync(path, { recursive: true });
       removeAllExtFavorites(rname);
       removePinExt(rname);
@@ -57,9 +60,9 @@ events.push(
       }
       return;
     }
-    const path = resolve(extensionsFolder + "/" + name);
+    const path = resolve(files.extensionsFolder + "/" + name);
     await downloadItem(win, tarball, path, async () => {
-      await extractLocalFiles(path, extensionsFolder, true);
+      await extractLocalFiles(path, files.extensionsFolder, true);
     });
   }
 );

@@ -6,7 +6,7 @@ const events = new EventStack();
 events.push(
   "get:library",
   async (
-    { extensionID, chromiumExec, extension, internet },
+    { extensionID, chromium, extension, internet },
     e,
     { page, filters }
   ) => {
@@ -20,7 +20,7 @@ events.push(
           e.reply("res:library", null);
           return;
         }
-        const res = await extension?.library(page, chromiumExec, filters);
+        const res = await extension?.library(page, chromium.exec, filters);
         setCache(extensionID, key, res?.items);
         e.reply("res:library", res?.items);
       }

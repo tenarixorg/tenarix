@@ -23,11 +23,7 @@ const events = new EventStack();
 
 events.push(
   "get:details",
-  async (
-    { extensionID, extension, chromiumExec, internet },
-    e,
-    { route, ext }
-  ) => {
+  async ({ extensionID, extension, chromium, internet }, e, { route, ext }) => {
     try {
       if (ext) {
         e.reply("res:details", {
@@ -52,7 +48,7 @@ events.push(
           e.reply("res:details", { res: null, fav: false });
           return;
         }
-        const res = await extension?.details(route, chromiumExec);
+        const res = await extension?.details(route, chromium.exec);
         setCache(extensionID, key, res);
         e.reply("res:details", { res, fav: false });
       }
@@ -117,7 +113,7 @@ events.push(
     }
     const _rid = (rid as string).includes("=") ? await getHash(rid) : rid;
     const main = join(
-      h.downloadFolder,
+      h.files.downloadFolder,
       h.extensionID,
       `${await getHash(root)}`
     );
@@ -147,7 +143,7 @@ events.push(
         if (headers && headers.Referer) {
           delete headers.Referer;
         }
-        await downloadChapter(h.chromiumExec, base, `${id}_`, imgs, headers);
+        await downloadChapter(h.chromium.exec, base, `${id}_`, imgs, headers);
         e.reply("downloading:chapter:done", {
           rid,
         });

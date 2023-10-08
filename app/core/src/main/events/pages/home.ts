@@ -5,7 +5,7 @@ const events = new EventStack();
 
 events.push(
   "get:home",
-  async ({ extensionID, extension, chromiumExec, internet }, e) => {
+  async ({ extensionID, extension, chromium, internet }, e) => {
     try {
       if (hasCache(extensionID, "home")) {
         e.reply("res:home", getCache(extensionID, "home"));
@@ -14,7 +14,7 @@ events.push(
           e.reply("res:home", null);
           return;
         }
-        const res = await extension?.home(chromiumExec);
+        const res = await extension?.home(chromium.exec);
         setCache(extensionID, "home", res);
         e.reply("res:home", res);
       }

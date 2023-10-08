@@ -15,7 +15,7 @@ events.push("get:theme", async (h, e) => {
   const schema = getSettings()?.theme.schema || h.currentThemeSchema;
   try {
     const theme_ = await loadLocalFile<Theme>(
-      resolve(h.themeFolder + "/" + file),
+      resolve(h.files.themeFolder + "/" + file),
       "object"
     );
     h.customTheme = theme_;
@@ -52,7 +52,7 @@ events.push("change:theme:schema", async (h, e, { schema }) => {
   e.reply("change:theme", h.customTheme[h.currentThemeSchema]);
   try {
     const theme_ = await loadLocalFile<Theme>(
-      resolve(h.themeFolder + "/" + file),
+      resolve(h.files.themeFolder + "/" + file),
       "object"
     );
     h.customTheme = theme_;
@@ -69,7 +69,7 @@ events.push("change:theme:schema", async (h, e, { schema }) => {
   });
 });
 
-events.push("get:external:themes", async ({ themeFolder }, e) => {
+events.push("get:external:themes", async ({ files: { themeFolder } }, e) => {
   const files = fs.readdirSync(themeFolder);
   const res: { label: string; value: string }[] = [];
   for (const file of files) {
@@ -81,13 +81,16 @@ events.push("get:external:themes", async ({ themeFolder }, e) => {
   e.reply("res:external:themes", res);
 });
 
-events.push("get:external:themes:files", async ({ themeFolder }, e) => {
-  const files = fs.readdirSync(themeFolder);
-  e.reply("res:external:themes:files", files);
-});
+events.push(
+  "get:external:themes:files",
+  async ({ files: { themeFolder } }, e) => {
+    const files = fs.readdirSync(themeFolder);
+    e.reply("res:external:themes:files", files);
+  }
+);
 
 events.push("set:external:theme", async (h, e, { file }) => {
-  const basePath = resolve(h.themeFolder + "/" + file);
+  const basePath = resolve(h.files.themeFolder + "/" + file);
   try {
     const newTheme = await loadLocalFile<Theme>(basePath, "object");
     h.customTheme = newTheme;
@@ -114,7 +117,7 @@ events.push("set:external:theme", async (h, e, { file }) => {
 });
 
 events.push("save:external:theme", (h, e, { filename, data, schema }) => {
-  const basePath = h.themeFolder;
+  const basePath = h.files.themeFolder;
   const file = fs.createWriteStream(resolve(basePath + "/" + filename));
   file.write(
     JSON.stringify({ ...h.customTheme, [schema]: data }, null, "\t"),
@@ -156,7 +159,7 @@ events.push("save:external:theme", (h, e, { filename, data, schema }) => {
 
 events.push("save:full:settings", async (h, e, { data }) => {
   const base_ = JSON.parse(data) as { app: SettingsStore };
-  const files = fs.readdirSync(h.themeFolder);
+  const files = fs.readdirSync(h.files.themeFolder);
   const ajv = new Ajv();
   const validator = ajv.compile(settingsSchema(files));
   const valid = validator(base_);
@@ -169,7 +172,7 @@ events.push("save:full:settings", async (h, e, { data }) => {
     const file_ = getSettings()?.theme.file || "basic.json";
     const schema = getSettings()?.theme.schema || h.currentThemeSchema;
     const theme_ = await loadLocalFile<Theme>(
-      resolve(h.themeFolder + "/" + file_),
+      resolve(h.files.themeFolder + "/" + file_),
       "object"
     );
     h.customTheme = theme_;
@@ -195,7 +198,7 @@ events.push("save:full:external:theme", (h, e, { filename, data }) => {
     if (!valid) {
       e.reply("res:error", { error: ajv.errorsText(validator.errors) });
     } else {
-      const basePath = h.themeFolder;
+      const basePath = h.files.themeFolder;
       const file = fs.createWriteStream(resolve(join(basePath, filename)));
       file.write(data, (err) => {
         file.close();
@@ -244,19 +247,16 @@ events.push("get:all:lang", ({ languages }, e) => {
   e.reply("res:all:lang", res);
 });
 
-events.push(
-  "load:editor",
-  async ({ themeFolder, settingsPath }, e, { src, data }) => {
-    if (src === "theme") {
-      const themePath = resolve(join(themeFolder, data.filename));
-      const res = await loadLocalFile(themePath, "string");
-      e.reply("res:load:editor", res);
-    } else if (src === "setup") {
-      const res = await loadLocalFile(settingsPath, "string");
-      e.reply("res:load:editor", res);
-    }
+events.push("load:editor", async ({ files }, e, { src, data }) => {
+  if (src === "theme") {
+    const themePath = resolve(join(files.themeFolder, data.filename));
+    const res = await loadLocalFile(themePath, "string");
+    e.reply("res:load:editor", res);
+  } else if (src === "setup") {
+    const res = await loadLocalFile(files.settingsPath, "string");
+    e.reply("res:load:editor", res);
   }
-);
+});
 
 events.push("set:last:route", (h, _e, { route }) => {
   h.lastRoute = route;
