@@ -436,6 +436,27 @@ export interface AppExts {
   [id: string]: OmitExtID;
 }
 
+export type InitFolderFn = (
+  baseFolder: string,
+  langId: string,
+  themeSchema: string
+) => Promise<void>;
+
+export interface Folders {
+  readonly appFolder: string;
+  readonly themeFolder: string;
+  readonly settingsPath: string;
+  readonly downloadFolder: string;
+  readonly extensionsFolder: string;
+  readonly languagesFolder: string;
+  initFolders: InitFolderFn;
+}
+
+export interface Chromium {
+  exec: string;
+  meta: ChromiumMeta;
+}
+
 export interface AppHandler {
   languageID: string;
   extensionID: string;
@@ -446,13 +467,8 @@ export interface AppHandler {
   customTheme: Theme;
   currentThemeSchema: "dark" | "light";
   win: BrowserWindow;
-  chromium: ChromiumMeta;
-  chromiumExec: string;
-  appFolder: string;
-  themeFolder: string;
-  settingsPath: string;
-  downloadFolder: string;
-  extensionsFolder: string;
+  chromium: Chromium;
+  files: Folders;
   extensions: AppExts;
   languages: AppLangs;
   maxDownloads: number;
