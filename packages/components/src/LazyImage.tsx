@@ -6,7 +6,7 @@ interface Props {
   src: string;
   alt: string;
   imgWidth: string;
-  Loading: React.FC;
+  Loading: () => JSX.Element;
   containerStyle?: React.CSSProperties;
   loadingContainerStyle?: React.CSSProperties;
   imageStyle?: React.CSSProperties;
