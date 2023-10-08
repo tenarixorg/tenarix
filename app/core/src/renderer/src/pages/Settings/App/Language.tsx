@@ -90,6 +90,7 @@ export const Language: React.FC = () => {
 };
 
 const RadioOpt = styled.input<{ bg: string; color: string }>`
+  pointer-events: none;
   position: relative;
   border: 1px solid black;
   outline: none;
@@ -126,6 +127,7 @@ const Label = styled.label<{
   font-size: ${(p) => p.fs};
   font-weight: ${(p) => (p.bold ? "bold" : "normal")};
   margin: ${(p) => p.margin || "0px"};
+  pointer-events: none;
 `;
 
 const RadioContainer = styled.div<{ bg: string }>`
@@ -140,7 +142,6 @@ const RadioContainer = styled.div<{ bg: string }>`
   box-shadow: 4px 4px 9px -5px #000000;
   width: 60vw;
   transition: transform 500ms ease-in-out;
-
   &:hover {
     transform: translate3D(-1px, -1px, 0px);
   }
