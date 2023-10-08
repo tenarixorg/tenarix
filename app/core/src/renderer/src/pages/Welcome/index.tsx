@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Container, Div, Progress, Txt } from "components/src/Elements";
 import { useTheme, useGeneral } from "context-providers";
 import { ProgressCheck } from "components";
@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 const { api } = window.bridge;
 
 export const Welcome: React.FC = () => {
+  const mounted = useRef(false);
   const { canNavigate } = useGeneral();
   const { colors } = useTheme();
   const [chromeProgess, setChromeProgress] = useState(0);
@@ -23,6 +24,7 @@ export const Welcome: React.FC = () => {
     api.on("res:chromium:down:progress", (_, res) => {
       setChromeProgress(res);
     });
+    mounted.current = true;
     return () => {
       api.removeAllListeners("res:chromium:stage");
       api.removeAllListeners("res:chromium:down:progress");
@@ -34,7 +36,9 @@ export const Welcome: React.FC = () => {
       api.send("restore:size");
       navigation("/ext");
     } else {
-      api.send("get:chromium");
+      if (mounted.current) {
+        api.send("get:chromium");
+      }
     }
   }, [canNavigate, navigation]);
 
