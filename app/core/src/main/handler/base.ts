@@ -3,6 +3,7 @@ import type { Folders, Chromium } from "types";
 import { VariableHandler } from "./var";
 import { pathToFileURL } from "url";
 import { join } from "path";
+import dns from "dns";
 
 export class BaseHandler extends VariableHandler {
   constructor(
@@ -32,5 +33,18 @@ export class BaseHandler extends VariableHandler {
 
   protected addChromium(chromium: Chromium) {
     this.chromium = chromium;
+  }
+
+  protected async checkInternetConnection(off?: boolean) {
+    if (off) return Promise.resolve(false);
+    return new Promise<boolean>((res) => {
+      dns.lookup("google.com", { family: 4, hints: 0 }, (err, address) => {
+        if (err && !address) {
+          res(false);
+        } else {
+          res(true);
+        }
+      });
+    });
   }
 }
