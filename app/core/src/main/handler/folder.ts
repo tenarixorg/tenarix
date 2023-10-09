@@ -1,4 +1,5 @@
 import { resolve, join } from "path";
+import { initialTheme } from "app-constants";
 import { initFolders } from "../helper";
 
 export class FolderHandler {
@@ -33,7 +34,7 @@ export class FolderHandler {
         files: [
           {
             name: "basic.json",
-            content: JSON.stringify(themeSchema, null, "\t"),
+            content: JSON.stringify(initialTheme, null, "\t"),
           },
         ],
       },
