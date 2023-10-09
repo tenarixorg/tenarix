@@ -146,7 +146,7 @@ export class AppHandler extends BaseHandler {
   private initProtocol() {
     protocol.handle("file", (request) => {
       const pathname = decodeURI(request.url.replace("file:///", ""));
-      return net.fetch(pathname);
+      return net.fetch(pathname, { bypassCustomProtocolHandlers: true });
     });
   }
 }
