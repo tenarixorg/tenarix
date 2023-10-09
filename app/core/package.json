@@ -56,7 +56,6 @@
     "workers": "*"
   },
   "devDependencies": {
-    "@monaco-editor/react": "^4.5.2",
     "@types/react": "^18.2.22",
     "@types/react-dom": "^18.2.7",
     "@types/react-virtualized-auto-sizer": "^1.0.1",
