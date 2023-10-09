@@ -1,4 +1,3 @@
-import { checkInternetConnection } from "utils";
 import type { BrowserWindow, App, NativeTheme, IpcMain } from "electron";
 import { EventCallback } from "types";
 import { EventStack } from "./event";
@@ -19,7 +18,7 @@ export default class Handler extends AppHandler {
 
   private async checkInternet() {
     const interval = setInterval(async () => {
-      this.internet = await checkInternetConnection(this.offline);
+      this.internet = await this.checkInternetConnection(this.offline);
       this.win?.webContents.send("internet:connection", this.internet);
     }, 200);
     this.win.on("closed", () => {
