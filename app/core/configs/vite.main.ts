@@ -18,6 +18,14 @@ export default defineConfig({
       external: [...builtinModules, "electron", "workers"],
       output: {
         entryFileNames: "[name].cjs",
+        chunkFileNames: "[name].cjs",
+        manualChunks: (id: string) => {
+          if (id.includes("css")) return "css";
+          if (id.includes("ajv")) return "ajv";
+          if (id.includes("electron")) return "electron";
+          if (id.includes("atomically")) return "atomically";
+          if (id.includes("chokidar")) return "chokidar";
+        },
       },
     },
   },
