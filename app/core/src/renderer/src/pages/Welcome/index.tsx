@@ -26,6 +26,7 @@ export const Welcome: React.FC = () => {
     });
     mounted.current = true;
     return () => {
+      mounted.current = false;
       api.removeAllListeners("res:chromium:stage");
       api.removeAllListeners("res:chromium:down:progress");
     };
