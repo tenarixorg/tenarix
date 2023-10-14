@@ -184,7 +184,7 @@ export const Details: React.FC = () => {
                       color={colors.fontSecondary}
                       style={{ margin: "20px 0px 10px 0px" }}
                     >
-                      {lang.details.genders}
+                      {lang.details.genres}
                     </Txt>
                   )}
                   <GenderContainer>

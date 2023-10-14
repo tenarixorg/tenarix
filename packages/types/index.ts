@@ -173,7 +173,7 @@ export interface Language {
     select_title: string;
   };
   details: {
-    genders: string;
+    genres: string;
     status: string;
     chapters: string;
   };
