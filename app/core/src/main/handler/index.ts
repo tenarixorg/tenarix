@@ -13,17 +13,6 @@ export default class Handler extends AppHandler {
     nativeTheme: NativeTheme
   ) {
     super(app, win, ipcMain, nativeTheme);
-    this.checkInternet();
-  }
-
-  private async checkInternet() {
-    const interval = setInterval(async () => {
-      this.internet = await this.checkInternetConnection(this.offline);
-      this.win?.webContents.send("internet:connection", this.internet);
-    }, 200);
-    this.win.on("closed", () => {
-      clearInterval(interval);
-    });
   }
 
   private addEvent(name: string, cb: EventCallback) {

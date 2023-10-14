@@ -1,25 +1,17 @@
 import type { BrowserWindow, IpcMain, Shell } from "electron";
-import type { InitFolderFn } from "types";
 
 export class WindowHandler {
   private readonly shell: Shell;
   public readonly ipcMain: IpcMain;
   public readonly win: BrowserWindow;
-  public readonly initFolders: InitFolderFn;
 
-  constructor(
-    win: BrowserWindow,
-    ipcMain: IpcMain,
-    shell: Shell,
-    initFolders: InitFolderFn
-  ) {
+  constructor(win: BrowserWindow, ipcMain: IpcMain, shell: Shell) {
     this.ipcMain = ipcMain;
     this.shell = shell;
     this.win = win;
-    this.initFolders = initFolders;
   }
 
-  public initWindow(baseFolder: string, langId: string, themeSchema: string) {
+  public initWindow() {
     this.win.webContents.setWindowOpenHandler((details) => {
       this.shell.openExternal(details.url);
       return { action: "deny" };
@@ -27,7 +19,6 @@ export class WindowHandler {
 
     this.win?.on("ready-to-show", async () => {
       this.win?.show();
-      await this.initFolders(baseFolder, langId, themeSchema);
     });
 
     this.ipcMain?.on("closeApp", () => {
