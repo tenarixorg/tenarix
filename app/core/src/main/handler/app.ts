@@ -1,8 +1,9 @@
 import fs from "fs";
 import axios from "axios";
+import languages from "app-i18n";
 import { matchSystemLang, decodeRoute, encodeRoute } from "utils";
-import type { Language, Extension } from "types";
 import { ChromiumHandler } from "./chromium";
+import type { Extension } from "types";
 import { WindowHandler } from "./window";
 import { FolderHandler } from "./folder";
 import { BaseHandler } from "./base";
@@ -95,19 +96,10 @@ export class AppHandler extends BaseHandler {
   }
 
   private async initLanguages() {
-    const languages = fs.readdirSync(this.files.languagesFolder);
     for (const language of languages) {
-      const lang = (
-        await this.dynamicImport<{ default: Language }>(
-          this.files.languagesFolder,
-          language,
-          "dist",
-          "index.js"
-        )
-      ).default;
       this.languages = {
         ...this.languages,
-        [lang.id]: this.removeKey(lang, "id"),
+        [language.id]: this.removeKey(language, "id"),
       };
     }
     this.languageID = matchSystemLang(
