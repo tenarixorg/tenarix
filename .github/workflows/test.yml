@@ -19,6 +19,11 @@ jobs:
         node: [16.x]
         os: [ubuntu-latest]
 
+    env:
+      CHROME_MAC: ${{vars.CHROME_MAC}}
+      CHROME_WIN: ${{vars.CHROME_WIN}}
+      CHROME_LINUX: ${{vars.CHROME_LINUX}}
+
     name: Test - ${{ matrix.os }}
 
     steps:
