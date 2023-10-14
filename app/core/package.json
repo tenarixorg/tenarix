@@ -32,8 +32,6 @@
     "config": "*",
     "context-providers": "*",
     "electron-store": "^8.1.0",
-    "extensions": "*",
-    "languages": "*",
     "puppeteer-core": "^21.3.4",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
@@ -53,7 +51,8 @@
     "styled-components": "^6.0.8",
     "types": "*",
     "utils": "*",
-    "workers": "*"
+    "workers": "*",
+    "app-i18n": "*"
   },
   "devDependencies": {
     "@types/react": "^18.2.22",
