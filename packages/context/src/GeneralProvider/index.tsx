@@ -14,7 +14,9 @@ const generalContext = createContext<IGeneralProvider>(initialState);
 
 const { api } = window.bridge;
 
-export const GeneralProvider: React.FC<any> = ({ children }) => {
+export const GeneralProvider: React.FC<React.PropsWithChildren> = ({
+  children,
+}) => {
   const [general, setGeneral] = useState<IGeneralProvider>(initialState);
 
   useEffect(() => {
