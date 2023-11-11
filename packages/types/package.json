@@ -5,7 +5,7 @@
   "types": "index.ts",
   "private": true,
   "dependencies": {
-    "axios": "0.27.2",
+    "axios": "1.6.0",
     "cheerio": "1.0.0-rc.10",
     "electron": "26.3.0",
     "puppeteer-core": "13.1.3"
